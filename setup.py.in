@@ -1,0 +1,61 @@
+# Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+#
+# This file is part of SIP.
+#
+# This copy of SIP is licensed for use under the terms of the SIP License
+# Agreement.  See the file LICENSE for more details.
+#
+# This copy of SIP may also used under the terms of the GNU General Public
+# License v2 or v3 as published by the Free Software Foundation which can be
+# found in the files LICENSE-GPL2 and LICENSE-GPL3 included in this package.
+#
+# SIP is supplied WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+import glob
+import os
+import sys
+
+# Check the version of Python as early as possible.
+if sys.hexversion < 0x03000000:
+    sys.stderr.write("sip5 requires Python v3\n")
+    sys.exit(1)
+
+
+from setuptools import Extension, find_packages, setup
+
+
+# Get the long description for PyPI.
+with open('README') as readme:
+    long_description = readme.read()
+
+# Build the sip module.
+# FIXME: create sip.h from sip.h.in
+sip_module_src = glob.glob(os.path.join('siplib', '*.c')) + glob.glob(os.path.join('siplib', '*.cpp'))
+sip_module = Extension('sip', sip_module_src, include_dirs=['siplib'])
+
+# Do the setup.
+setup(
+        name='sip5',
+        version='@RM_RELEASE@',
+        description='FIXME',
+        long_description=long_description,
+        author='Riverbank Computing Limited',
+        author_email='info@riverbankcomputing.com',
+        url='http://www.riverbankcomputing.com/software/sip/',
+        license='SIP',
+        platforms=['Linux', 'OS X', 'Windows', 'iOS', 'Android'],
+        #packages=find_packages(),
+        #package_data={
+        #    'pyqtdeploy.builder':   ['lib/*.*', 'lib/*/*.*'],
+        #    'pyqtdeploy.packages':  ['configurations/*/*.*'],
+        #    'pyqtdeploy.python':    ['configurations/*.*',
+        #                             'configurations/*/*.*']
+        #},
+        #entry_points={
+        #    'console_scripts':  ['pyqtdeploycli = pyqtdeploy.main_cli:main'],
+        #    'gui_scripts':      ['pyqtdeploy = pyqtdeploy.main_gui:main']
+        #}
+        ext_modules = [sip_module]
+     )

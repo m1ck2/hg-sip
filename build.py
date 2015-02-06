@@ -30,9 +30,9 @@ import zipfile
 
 # The files that need to be patched with the version number.
 _PatchedFiles = (
-    ('configure.py', ),
+    ('setup.py', ),
     ('sipgen', 'sip.h'),
-    ('siplib', 'sip.h.in'),
+    ('siplib', 'sip.h'),
     ('sphinx', 'conf.py'), ('sphinx', 'introduction.rst'))
 
 # Specific files that may be auto-generated and need to be cleaned.
@@ -41,8 +41,7 @@ _GeneratedFiles = (
     ('sipgen', 'Makefile'), ('sipgen', 'lexer.c'), ('sipgen', 'parser.c'),
     ('sipgen', 'parser.h'), ('sipgen', 'sip'),
     ('siplib', 'Makefile'), ('siplib', 'Makefile.Device'),
-    ('siplib', 'Makefile.Simulator'), ('siplib', 'sip.h'),
-    ('siplib', 'siplib.c'), ('siplib', 'siplib.sbf'))
+    ('siplib', 'Makefile.Simulator'), ('siplib', 'sip.h'))
 
 # File types that are auto-generated and need to be cleaned.
 _GeneratedFileTypes = ('.pyc', '.o', '.obj', '.so', '.pyd', '.exp', '.exe',
@@ -51,7 +50,9 @@ _GeneratedFileTypes = ('.pyc', '.o', '.obj', '.so', '.pyd', '.exp', '.exe',
 # Directories that are auto-generated and need to be cleaned.
 _GeneratedDirs = (
     ('__pycache__', ),
+    ('dist', ),
     ('doc', ),
+    ('sip5.egg-info', ),
     ('siplib', 'iphoneos'),
     ('siplib', 'iphonesimulator'))
 

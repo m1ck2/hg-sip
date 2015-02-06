@@ -88,6 +88,10 @@ def _release_tag(ctx):
             if len(parts) == 3:
                 major, minor, micro = parts
 
+                # Handle crossing into sip4.
+                if major == '4':
+                    return (5, 0, -1)
+
                 try:
                     return (int(major), int(minor), int(micro))
                 except ValueError:

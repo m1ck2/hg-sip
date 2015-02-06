@@ -30,8 +30,11 @@ from setuptools import Extension, find_packages, setup
 with open('README') as readme:
     long_description = readme.read()
 
+# Build the _sip5 module.
+sip5_module_src = glob.glob(os.path.join('sipgen', '*.c'))
+sip5_module = Extension('_sip5', sip5_module_src, include_dirs=['sipgen'])
+
 # Build the sip module.
-# FIXME: create sip.h from sip.h.in
 sip_module_src = glob.glob(os.path.join('siplib', '*.c')) + glob.glob(os.path.join('siplib', '*.cpp'))
 sip_module = Extension('sip', sip_module_src, include_dirs=['siplib'])
 
@@ -57,6 +60,6 @@ setup(
         #    'console_scripts':  ['pyqtdeploycli = pyqtdeploy.main_cli:main'],
         #    'gui_scripts':      ['pyqtdeploy = pyqtdeploy.main_gui:main']
         #}
-        ext_modules = [sip_module],
+        ext_modules = [sip5_module, sip_module],
         zip_safe = False
      )

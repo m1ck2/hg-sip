@@ -18,8 +18,8 @@ import os
 import sys
 
 # Check the version of Python as early as possible.
-if sys.hexversion < 0x03000000:
-    sys.stderr.write("sip5 requires Python v3\n")
+if sys.hexversion < 0x03030000:
+    sys.stderr.write("sip5 requires Python v3.3 or later\n")
     sys.exit(1)
 
 
@@ -30,9 +30,9 @@ from setuptools import Extension, find_packages, setup
 with open('README') as readme:
     long_description = readme.read()
 
-# Build the _sip5 module.
+# Build the sip5 module.
 sip5_module_src = glob.glob(os.path.join('sipgen', '*.c'))
-sip5_module = Extension('_sip5', sip5_module_src, include_dirs=['sipgen'])
+sip5_module = Extension('sip5', sip5_module_src, include_dirs=['sipgen'])
 
 # Build the sip module.
 sip_module_src = glob.glob(os.path.join('siplib', '*.c')) + glob.glob(os.path.join('siplib', '*.cpp'))

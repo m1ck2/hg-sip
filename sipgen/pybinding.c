@@ -77,8 +77,6 @@ PyMODINIT_FUNC PyInit_sip5(void)
 
     sipVersion = SIP_VERSION_STR;
 
-    /* FIXME: includeDirList needs to be passed to whatever needs it. */
-
     return PyModule_Create(&module_def);
 }
 
@@ -184,8 +182,9 @@ static PyObject *py_parse(PyObject *self, PyObject *args)
     KwArgs kwArgs;
     int protHack;
 
-    if (!PyArg_ParseTuple(args, "O&O&O&O&O&p",
+    if (!PyArg_ParseTuple(args, "O&O&O&O&O&O&p",
             fs_convertor, &filename,
+            stringList_convertor, &includeDirList,
             stringList_convertor, &versions,
             stringList_convertor, &backstops,
             stringList_convertor, &xfeatures,

@@ -1,5 +1,5 @@
 /*
- * The transition Python bindings for the C parts of the sip5 code generator.
+ * The transitional Python bindings for the C parts of the sip5 code generator.
  *
  * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
@@ -74,6 +74,10 @@ PyMODINIT_FUNC PyInit_sip5(void)
         NULL,                   /* m_clear */
         NULL,                   /* m_free */
     };
+
+    sipVersion = SIP_VERSION_STR;
+
+    /* FIXME: includeDirList needs to be passed to whatever needs it. */
 
     return PyModule_Create(&module_def);
 }
@@ -263,6 +267,16 @@ static PyObject *py_generateCode(PyObject *self, PyObject *args)
  */
 static PyObject *py_generateExtracts(PyObject *self, PyObject *args)
 {
+    sipSpec *pt;
+    stringList *extracts;
+
+    if (!PyArg_ParseTuple(args, "O&O&",
+            sipSpec_convertor, &pt,
+            stringList_convertor, &extracts))
+        return NULL;
+
+    generateExtracts(pt, extracts);
+
     Py_RETURN_NONE;
 }
 
@@ -272,6 +286,16 @@ static PyObject *py_generateExtracts(PyObject *self, PyObject *args)
  */
 static PyObject *py_generateAPI(PyObject *self, PyObject *args)
 {
+    sipSpec *pt;
+    char *apiFile;
+
+    if (!PyArg_ParseTuple(args, "O&O&",
+            sipSpec_convertor, &pt,
+            fs_convertor, &apiFile))
+        return NULL;
+
+    generateAPI(pt, pt->module, apiFile);
+
     Py_RETURN_NONE;
 }
 
@@ -281,6 +305,16 @@ static PyObject *py_generateAPI(PyObject *self, PyObject *args)
  */
 static PyObject *py_generateXML(PyObject *self, PyObject *args)
 {
+    sipSpec *pt;
+    char *xmlFile;
+
+    if (!PyArg_ParseTuple(args, "O&O&",
+            sipSpec_convertor, &pt,
+            fs_convertor, &xmlFile))
+        return NULL;
+
+    generateXML(pt, pt->module, xmlFile);
+
     Py_RETURN_NONE;
 }
 

@@ -34,7 +34,7 @@ stringList *includeDirList;
 static int warnings = FALSE;
 
 
-/* Forward definitions. */
+/* Forward declarations. */
 static PyObject *py_parse(PyObject *self, PyObject *args);
 static PyObject *py_transform(PyObject *self, PyObject *args);
 static PyObject *py_generateCode(PyObject *self, PyObject *args);
@@ -42,7 +42,9 @@ static PyObject *py_generateExtracts(PyObject *self, PyObject *args);
 static PyObject *py_generateAPI(PyObject *self, PyObject *args);
 static PyObject *py_generateXML(PyObject *self, PyObject *args);
 
+static int fs_convertor(PyObject *obj, char **fsp);
 static int KwArgs_convertor(PyObject *obj, KwArgs *kap);
+static int sipSpec_convertor(PyObject *obj, sipSpec **ptp);
 static int stringList_convertor(PyObject *obj, stringList **slp);
 
 
@@ -173,14 +175,13 @@ static PyObject *py_parse(PyObject *self, PyObject *args)
 {
     sipSpec *pt;
     FILE *file;
-    const char *filename;
-    PyObject *filename_obj;
+    char *filename;
     stringList *versions, *backstops, *xfeatures;
     KwArgs kwArgs;
     int protHack;
 
     if (!PyArg_ParseTuple(args, "O&O&O&O&O&p",
-            PyUnicode_FSConverter, &filename_obj,
+            fs_convertor, &filename,
             stringList_convertor, &versions,
             stringList_convertor, &backstops,
             stringList_convertor, &xfeatures,
@@ -190,10 +191,9 @@ static PyObject *py_parse(PyObject *self, PyObject *args)
 
     pt = sipMalloc(sizeof (sipSpec));
 
-    if (PyBytes_Size(filename_obj) > 0)
+    if (filename != NULL)
     {
         file = NULL;
-        filename = PyBytes_AS_STRING(filename_obj);
     }
     else
     {
@@ -212,13 +212,9 @@ static PyObject *py_parse(PyObject *self, PyObject *args)
  */
 static PyObject *py_transform(PyObject *self, PyObject *args)
 {
-    PyObject *pt_obj;
     sipSpec *pt;
 
-    if (!PyArg_ParseTuple(args, "O!", PyCapsule_Type, &pt_obj))
-        return NULL;
-
-    if ((pt = PyCapsule_GetPointer(pt_obj, NULL)) == NULL)
+    if (!PyArg_ParseTuple(args, "O&", sipSpec_convertor, &pt))
         return NULL;
 
     transform(pt);
@@ -232,6 +228,32 @@ static PyObject *py_transform(PyObject *self, PyObject *args)
  */
 static PyObject *py_generateCode(PyObject *self, PyObject *args)
 {
+    sipSpec *pt;
+    char *codeDir, *buildFile, *docFile, *srcSuffix, consModule;
+    int exceptions, tracing, releaseGIL, parts, docs, timestamp;
+    stringList *versions, *xfeatures;
+
+    if (!PyArg_ParseTuple(args, "O&O&O&O&O&pppiO&O&O&pp",
+            sipSpec_convertor, &pt,
+            fs_convertor, &codeDir,
+            fs_convertor, &buildFile,
+            fs_convertor, &docFile,
+            fs_convertor, &srcSuffix,
+            &exceptions,
+            &tracing,
+            &releaseGIL,
+            &parts,
+            stringList_convertor, &versions,
+            stringList_convertor, &xfeatures,
+            fs_convertor, &consModule,
+            &docs,
+            &timestamp))
+        return NULL;
+
+    generateCode(pt, codeDir, buildFile, docFile, srcSuffix, exceptions,
+            tracing, releaseGIL, parts, versions, xfeatures, consModule, docs,
+            timestamp);
+
     Py_RETURN_NONE;
 }
 
@@ -264,6 +286,29 @@ static PyObject *py_generateXML(PyObject *self, PyObject *args)
 
 
 /*
+ * Convert a callable argument to a filesystem name.
+ */
+static int fs_convertor(PyObject *obj, char **fsp)
+{
+    PyObject *bytes;
+
+    if (obj == Py_None)
+    {
+        *fsp = NULL;
+        return 1;
+    }
+
+    if ((bytes = PyUnicode_EncodeFSDefault(obj)) == NULL)
+        return 0;
+
+    /* Leak the bytes object rather than strdup() its contents. */
+    *fsp = PyBytes_AS_STRING(bytes);
+
+    return 1;
+}
+
+
+/*
  * Convert a callable argument to a KwArgs.
  */
 static int KwArgs_convertor(PyObject *obj, KwArgs *kap)
@@ -277,6 +322,24 @@ static int KwArgs_convertor(PyObject *obj, KwArgs *kap)
     }
 
     *kap = (KwArgs)ka;
+
+    return 1;
+}
+
+
+/*
+ * Convert a callable argument to a sipSpec.
+ */
+static int sipSpec_convertor(PyObject *obj, sipSpec **ptp)
+{
+    if (!PyCapsule_CheckExact(obj))
+    {
+        PyErr_SetString(PyExc_TypeError, "parse tree expected");
+        return 0;
+    }
+
+    if ((*ptp = (sipSpec *)PyCapsule_GetPointer(obj, NULL)) == NULL)
+        return 0;
 
     return 1;
 }

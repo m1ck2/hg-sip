@@ -32,7 +32,7 @@ with open('README') as readme:
 
 # Build the sip5 module.
 sip5_module_src = glob.glob(os.path.join('sipgen', '*.c'))
-sip5_module = Extension('sip5', sip5_module_src, include_dirs=['sipgen'])
+sip5_module = Extension('sip5._sip', sip5_module_src, include_dirs=['sipgen'])
 
 # Build the sip module.
 sip_module_src = glob.glob(os.path.join('siplib', '*.c')) + glob.glob(os.path.join('siplib', '*.cpp'))
@@ -42,24 +42,17 @@ sip_module = Extension('sip', sip_module_src, include_dirs=['siplib'])
 setup(
         name='sip5',
         version='@RM_RELEASE@',
-        description='FIXME',
+        description="A Python module generator for wrapping C/C++ libraries",
         long_description=long_description,
         author='Riverbank Computing Limited',
         author_email='info@riverbankcomputing.com',
         url='http://www.riverbankcomputing.com/software/sip/',
         license='SIP',
         platforms=['Linux', 'OS X', 'Windows', 'iOS', 'Android'],
-        #packages=find_packages(),
-        #package_data={
-        #    'pyqtdeploy.builder':   ['lib/*.*', 'lib/*/*.*'],
-        #    'pyqtdeploy.packages':  ['configurations/*/*.*'],
-        #    'pyqtdeploy.python':    ['configurations/*.*',
-        #                             'configurations/*/*.*']
-        #},
-        #entry_points={
-        #    'console_scripts':  ['pyqtdeploycli = pyqtdeploy.main_cli:main'],
-        #    'gui_scripts':      ['pyqtdeploy = pyqtdeploy.main_gui:main']
-        #}
+        packages=find_packages(),
+        entry_points={
+            'console_scripts':  ['sip5 = sip5.main:main'],
+        },
         ext_modules = [sip5_module, sip_module],
         zip_safe = False
      )

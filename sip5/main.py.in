@@ -17,7 +17,7 @@
 
 import argparse
 
-from sip5 import (parse, transform, generateCode, generateExtracts,
+from sip5._sip import (parse, transform, generateCode, generateExtracts,
         generateAPI, generateXML)
 
 
@@ -29,7 +29,7 @@ def main():
 
     parser.add_argument('-V', action='version', version='@RM_RELEASE@')
 
-    parser.add_argument('file', dest='filename',
+    parser.add_argument('filename',
             help="the name of the specification file [default stdin]",
             metavar="FILE", nargs='?')
 
@@ -72,8 +72,8 @@ def main():
                     "class]",
             metavar="FILES")
 
-    parser.add_argument('-k', dest='kwArgs', type=int, action='store_const',
-            const=1, default=0,
+    parser.add_argument('-k', dest='kwArgs', action='store_const', const=1,
+            default=0,
             help="support keyword arguments in functions and methods")
 
     parser.add_argument('-m', dest='xmlFile',
@@ -123,6 +123,8 @@ def main():
     parser.add_argument('-X', dest='extracts', action='append',
             help="add <ID:FILE> to the list of extracts to generate",
             metavar="ID:FILE")
+
+    args = parser.parse_args()
 
     # Issue warnings after they (might) have been enabled.
     if args.docFile is not None and args.warnings:

@@ -51,7 +51,7 @@ static int stringList_convertor(PyObject *obj, stringList **slp);
 /*
  * The _sip5 module initialisation function.
  */
-PyMODINIT_FUNC PyInit_sip5(void)
+PyMODINIT_FUNC PyInit__sip(void)
 {
     static PyMethodDef methods[] = {
         {"parse", py_parse, METH_VARARGS, NULL},
@@ -65,7 +65,7 @@ PyMODINIT_FUNC PyInit_sip5(void)
 
     static PyModuleDef module_def = {
         PyModuleDef_HEAD_INIT,
-        "sip5",                /* m_name */
+        "sip5._sip",            /* m_name */
         NULL,                   /* m_doc */
         -1,                     /* m_size */
         methods,                /* m_methods */

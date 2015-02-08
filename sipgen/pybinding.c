@@ -385,13 +385,16 @@ static int stringList_convertor(PyObject *obj, stringList **slp)
 {
     Py_ssize_t i;
 
+    *slp = NULL;
+
+    if (obj == Py_None)
+        return 1;
+
     if (!PyList_Check(obj))
     {
         PyErr_SetString(PyExc_TypeError, "list of str expected");
         return 0;
     }
-
-    *slp = NULL;
 
     for (i = 0; i < PyList_GET_SIZE(obj); ++i)
     {

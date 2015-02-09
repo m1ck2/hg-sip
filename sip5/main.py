@@ -17,6 +17,7 @@
 
 import argparse
 
+from sip5 import SIP_VERSION, SIP_VERSION_STR
 from sip5._sip import (parse, transform, generateCode, generateExtracts,
         generateAPI, generateXML)
 
@@ -30,7 +31,7 @@ def main():
                     "libraries.",
             fromfile_prefix_chars='@')
 
-    parser.add_argument('-V', action='version', version='@RM_RELEASE@')
+    parser.add_argument('-V', action='version', version=SIP_VERSION_STR)
 
     parser.add_argument('filename',
             help="the name of the specification file [default stdin]",
@@ -137,8 +138,9 @@ def main():
         print("the -k flag is deprecated")
 
     # Parse the input file.
-    pt = parse(args.filename, args.includeDirList, args.versions,
-            args.backstops, args.xfeatures, args.kwArgs, args.protHack)
+    pt = parse(SIP_VERSION, SIP_VERSION_STR, args.filename,
+            args.includeDirList, args.versions, args.backstops, args.xfeatures,
+            args.kwArgs, args.protHack)
 
     # Verify and transform the parse tree.
     transform(pt)

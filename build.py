@@ -32,17 +32,16 @@ import zipfile
 # The files that need to be patched with the version number.
 _PatchedFiles = (
     ('setup.py', ),
-    ('sip5', 'main.py'),
-    ('sipgen', 'sip.h'),
+    ('sip5', '__init__.py'),
     ('siplib', 'sip.h'),
     ('sphinx', 'conf.py'), ('sphinx', 'introduction.rst'))
 
 # Specific files that may be auto-generated and need to be cleaned.
 _GeneratedFiles = (
     ('Makefile', ), ('.qmake.stash', ),
-    ('sip5', 'main.py'),
+    ('sip5', '__init__.py'),
     ('sipgen', 'Makefile'), ('sipgen', 'lexer.c'), ('sipgen', 'parser.c'),
-    ('sipgen', 'parser.h'), ('sipgen', 'sip'),
+    ('sipgen', 'parser.h'),
     ('siplib', 'Makefile'), ('siplib', 'Makefile.Device'),
     ('siplib', 'Makefile.Simulator'), ('siplib', 'sip.h'))
 

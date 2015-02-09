@@ -25,7 +25,10 @@ def main():
     """ The entry point for the setuptools generated CLI wrapper. """
 
     # Parse the command line.
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+            description="Generate Python extension modules for C/C++ "
+                    "libraries.",
+            fromfile_prefix_chars='@')
 
     parser.add_argument('-V', action='version', version='@RM_RELEASE@')
 

@@ -161,6 +161,5 @@ The full set of command line options is:
     The extract (defined with the :directive:`%Extract` directive) with the
     identifier ``ID`` is written to the file ``FILE``.
 
-.. cmdoption:: -z <FILE>
-
-    The name of a file containing more command line options.
+Command line options can also be placed in a file and passed on the command
+line using the ``@`` prefix.

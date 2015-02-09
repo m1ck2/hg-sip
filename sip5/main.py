@@ -99,11 +99,6 @@ def main():
                     "code for",
             metavar="TAG")
 
-    parser.add_argument('-T', dest='timestamp', action='store_false',
-            default=True,
-            help="disable the timestamp in the header of generated files "
-                    "[default enabled]")
-
     parser.add_argument('-w', dest='warnings', action='store_true',
             default=False,
             help="enable warning messages [default disabled]")
@@ -130,7 +125,7 @@ def main():
     if args.codeDir is not None:
         generateCode(pt, args.codeDir, args.srcSuffix, args.exceptions,
                 args.tracing, args.releaseGIL, args.parts, args.versions,
-                args.xfeatures, args.consModule, args.docs, args.timestamp)
+                args.xfeatures, args.consModule, args.docs)
 
     # Generate any extracts.
     generateExtracts(pt, args.extracts)

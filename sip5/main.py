@@ -68,10 +68,6 @@ def main():
                     "class]",
             metavar="FILES")
 
-    parser.add_argument('-k', dest='kwArgs', action='store_const', const=1,
-            default=0,
-            help="support keyword arguments in functions and methods")
-
     parser.add_argument('-m', dest='xmlFile',
             help="the name of the XML export file [default not generated]",
             metavar="FILE")
@@ -122,14 +118,10 @@ def main():
 
     args = parser.parse_args()
 
-    # Issue warnings after they (might) have been enabled.
-    if args.kwArgs != 0 and args.warnings:
-        print("the -k flag is deprecated")
-
     # Parse the input file.
     pt = parse(SIP_VERSION, SIP_VERSION_STR, args.filename,
             args.includeDirList, args.versions, args.backstops, args.xfeatures,
-            args.kwArgs, args.protHack)
+            args.protHack)
 
     # Verify and transform the parse tree.
     transform(pt)

@@ -1258,7 +1258,7 @@ extern stringList *includeDirList;      /* The include directory list for SIP fi
 
 
 void parse(sipSpec *, FILE *, char *, stringList *, stringList *, stringList *,
-        KwArgs, int);
+        int);
 void parserEOF(const char *,parserContext *);
 void transform(sipSpec *);
 void generateCode(sipSpec *, char *, const char *, int, int, int, int,

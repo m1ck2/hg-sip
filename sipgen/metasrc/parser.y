@@ -4398,7 +4398,7 @@ exceptionlist:  {
  * Parse the specification.
  */
 void parse(sipSpec *spec, FILE *fp, char *filename, stringList *tsl,
-        stringList *bsl, stringList *xfl, KwArgs kwArgs, int protHack)
+        stringList *bsl, stringList *xfl, int protHack)
 {
     classTmplDef *tcd;
 
@@ -4423,7 +4423,7 @@ void parse(sipSpec *spec, FILE *fp, char *filename, stringList *tsl,
     skipStackPtr = 0;
     currentScopeIdx = 0;
     sectionFlags = 0;
-    defaultKwArgs = kwArgs;
+    defaultKwArgs = NoKwArgs;
     makeProtPublic = protHack;
 
     newModule(fp, filename);

@@ -5,7 +5,7 @@ The SIP Command Line
 
 The syntax of the SIP command line is::
 
-    sip [options] [specification]
+    sip5 [options] [specification]
 
 ``specification`` is the name of the specification file for the module.  If it
 is omitted then ``stdin`` is used.
@@ -68,17 +68,6 @@ The full set of command line options is:
     easier to use the parallel build facility of most modern implementations of
     ``make``.  By default 1 file is generated for each C structure or C++
     class.
-
-.. cmdoption:: -k
-
-    .. versionadded:: 4.10
-
-    .. deprecated:: 4.12
-        Use the ``keyword_arguments="All"`` :directive:`%Module` directive
-        argument instead.
-
-    All functions and methods will, by default, support passing parameters
-    using the Python keyword argument syntax.
 
 .. cmdoption:: -o
 

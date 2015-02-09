@@ -44,7 +44,6 @@ static PyObject *py_generateAPI(PyObject *self, PyObject *args);
 static PyObject *py_generateXML(PyObject *self, PyObject *args);
 
 static int fs_convertor(PyObject *obj, char **fsp);
-static int KwArgs_convertor(PyObject *obj, KwArgs *kap);
 static int sipSpec_convertor(PyObject *obj, sipSpec **ptp);
 static int stringList_convertor(PyObject *obj, stringList **slp);
 
@@ -178,10 +177,9 @@ static PyObject *py_parse(PyObject *self, PyObject *args)
     FILE *file;
     char *filename;
     stringList *versions, *backstops, *xfeatures;
-    KwArgs kwArgs;
     int protHack;
 
-    if (!PyArg_ParseTuple(args, "IsO&O&O&O&O&O&p",
+    if (!PyArg_ParseTuple(args, "IsO&O&O&O&O&p",
             &sipVersion,
             &sipVersionStr,
             fs_convertor, &filename,
@@ -189,7 +187,6 @@ static PyObject *py_parse(PyObject *self, PyObject *args)
             stringList_convertor, &versions,
             stringList_convertor, &backstops,
             stringList_convertor, &xfeatures,
-            KwArgs_convertor, &kwArgs,
             &protHack))
         return NULL;
 
@@ -205,7 +202,7 @@ static PyObject *py_parse(PyObject *self, PyObject *args)
         filename = "stdin";
     }
 
-    parse(pt, file, filename, versions, backstops, xfeatures, kwArgs, protHack);
+    parse(pt, file, filename, versions, backstops, xfeatures, protHack);
 
     return PyCapsule_New(pt, NULL, NULL);
 }
@@ -234,10 +231,10 @@ static PyObject *py_generateCode(PyObject *self, PyObject *args)
 {
     sipSpec *pt;
     char *codeDir, *srcSuffix, *consModule;
-    int exceptions, tracing, releaseGIL, parts, docs, timestamp;
+    int exceptions, tracing, releaseGIL, parts, docs;
     stringList *versions, *xfeatures;
 
-    if (!PyArg_ParseTuple(args, "O&O&O&pppiO&O&O&pp",
+    if (!PyArg_ParseTuple(args, "O&O&O&pppiO&O&O&p",
             sipSpec_convertor, &pt,
             fs_convertor, &codeDir,
             fs_convertor, &srcSuffix,
@@ -248,12 +245,11 @@ static PyObject *py_generateCode(PyObject *self, PyObject *args)
             stringList_convertor, &versions,
             stringList_convertor, &xfeatures,
             fs_convertor, &consModule,
-            &docs,
-            &timestamp))
+            &docs))
         return NULL;
 
     generateCode(pt, codeDir, srcSuffix, exceptions, tracing, releaseGIL,
-            parts, versions, xfeatures, consModule, docs, timestamp);
+            parts, versions, xfeatures, consModule, docs);
 
     Py_RETURN_NONE;
 }
@@ -334,25 +330,6 @@ static int fs_convertor(PyObject *obj, char **fsp)
 
     /* Leak the bytes object rather than strdup() its contents. */
     *fsp = PyBytes_AS_STRING(bytes);
-
-    return 1;
-}
-
-
-/*
- * Convert a callable argument to a KwArgs.
- */
-static int KwArgs_convertor(PyObject *obj, KwArgs *kap)
-{
-    long ka = PyLong_AsLong(obj);
-
-    if (ka < 0 || ka > 2)
-    {
-        PyErr_SetString(PyExc_ValueError, "int in range 0 to 2 expected");
-        return 0;
-    }
-
-    *kap = (KwArgs)ka;
 
     return 1;
 }

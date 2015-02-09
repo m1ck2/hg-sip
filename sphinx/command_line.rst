@@ -12,7 +12,7 @@ is omitted then ``stdin`` is used.
 
 The full set of command line options is:
 
-.. program:: sip
+.. program:: sip5
 
 .. cmdoption:: -h
 
@@ -31,8 +31,6 @@ The full set of command line options is:
     not generated.
 
 .. cmdoption:: -B <TAG>
-
-    .. versionadded:: 4.16
 
     The tag is added to the list of *backstops*.  The option may be given more
     than once if multiple timelines have been defined.  See the
@@ -71,8 +69,6 @@ The full set of command line options is:
 
 .. cmdoption:: -o
 
-    .. versionadded:: 4.10
-
     Docstrings will be automatically generated that describe the signature of
     all functions, methods and constructors.
 
@@ -82,8 +78,6 @@ The full set of command line options is:
     wrapper code for this component module.
 
 .. cmdoption:: -P
-
-    .. versionadded:: 4.10
 
     By default SIP generates code to provide access to protected C++ functions
     from Python.  On some platforms (notably Linux, but not Windows) this code
@@ -109,13 +103,6 @@ The full set of command line options is:
     to generate code for.  This option may be given any number of times so long
     as the tags do not conflict.
 
-.. cmdoption:: -T
-
-    By default the generated C and C++ source and header files include a
-    timestamp specifying when they were generated.  This option disables the
-    timestamp so that the contents of the generated files remain constant for a
-    particular version of SIP.
-
 .. cmdoption:: -w
 
     The display of warning messages is enabled.  By default warning messages
@@ -127,8 +114,6 @@ The full set of command line options is:
     disabled.
 
 .. cmdoption:: -X <ID:FILE>
-
-    .. versionadded:: 4.12
 
     The extract (defined with the :directive:`%Extract` directive) with the
     identifier ``ID`` is written to the file ``FILE``.

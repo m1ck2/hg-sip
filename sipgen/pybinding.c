@@ -27,7 +27,8 @@
 
 
 /* Global variables - see sip.h for their meaning. */
-char *sipVersion;
+unsigned sipVersion;
+const char *sipVersionStr;
 stringList *includeDirList;
 
 /* This will go when warning() goes. */
@@ -74,8 +75,6 @@ PyMODINIT_FUNC PyInit__sip(void)
         NULL,                   /* m_clear */
         NULL,                   /* m_free */
     };
-
-    sipVersion = SIP_VERSION_STR;
 
     return PyModule_Create(&module_def);
 }
@@ -182,7 +181,9 @@ static PyObject *py_parse(PyObject *self, PyObject *args)
     KwArgs kwArgs;
     int protHack;
 
-    if (!PyArg_ParseTuple(args, "O&O&O&O&O&O&p",
+    if (!PyArg_ParseTuple(args, "IsO&O&O&O&O&O&p",
+            &sipVersion,
+            &sipVersionStr,
             fs_convertor, &filename,
             stringList_convertor, &includeDirList,
             stringList_convertor, &versions,

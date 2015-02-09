@@ -1261,9 +1261,8 @@ void parse(sipSpec *, FILE *, char *, stringList *, stringList *, stringList *,
         KwArgs, int);
 void parserEOF(const char *,parserContext *);
 void transform(sipSpec *);
-void generateCode(sipSpec *, char *, char *, char *, const char *, int, int,
-        int, int, stringList *needed_qualifiers, stringList *, const char *,
-        int, int);
+void generateCode(sipSpec *, char *, char *, const char *, int, int, int, int,
+        stringList *needed_qualifiers, stringList *, const char *, int, int);
 void generateExtracts(sipSpec *pt, const stringList *extracts);
 void addExtractPart(sipSpec *pt, const char *id, int order, codeBlock *part);
 void generateAPI(sipSpec *pt, moduleDef *mod, const char *apiFile);

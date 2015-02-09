@@ -30,13 +30,6 @@ The full set of command line options is:
     used by the SciTE editor but must be sorted first.)  By default the file is
     not generated.
 
-.. cmdoption:: -b <FILE>
-
-    The name of the build file to generate.  This file contains the information
-    about the module needed by the :ref:`SIP build system <ref-build-system>`
-    to generate a platform and compiler specific Makefile for the module.  By
-    default the file is not generated.
-
 .. cmdoption:: -B <TAG>
 
     .. versionadded:: 4.16

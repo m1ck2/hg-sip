@@ -41,10 +41,6 @@ def main():
             help="the name of the QScintilla API file [default not generated]",
             metavar="FILE")
 
-    parser.add_argument('-b', dest='buildFile',
-            help="the name of the build file [default not generated]",
-            metavar="FILE")
-
     parser.add_argument('-B', dest='backstops', action='append',
             help="add <TAG> to the list of timeline backstops",
             metavar="TAG")
@@ -146,10 +142,10 @@ def main():
     transform(pt)
 
     # Generate code.
-    generateCode(pt, args.codeDir, args.buildFile, args.docFile,
-            args.srcSuffix, args.exceptions, args.tracing, args.releaseGIL,
-            args.parts, args.versions, args.xfeatures, args.consModule,
-            args.docs, args.timestamp)
+    generateCode(pt, args.codeDir, args.docFile, args.srcSuffix,
+            args.exceptions, args.tracing, args.releaseGIL, args.parts,
+            args.versions, args.xfeatures, args.consModule, args.docs,
+            args.timestamp)
 
     # Generate any extracts.
     generateExtracts(pt, args.extracts)

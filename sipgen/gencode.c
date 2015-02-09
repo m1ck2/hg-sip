@@ -60,7 +60,6 @@ static int prcode_xml = FALSE;          /* Set if prcode is XML aware. */
 static int docstrings;                  /* Set if generating docstrings. */
 
 
-static void generateDocumentation(sipSpec *pt, const char *docFile);
 static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
         const char *codeDir, stringList *needed_qualifiers, stringList *xsl,
         int timestamp);
@@ -284,10 +283,10 @@ static int emptyIfaceFile(sipSpec *pt, ifaceFileDef *iff);
 /*
  * Generate the code from a specification.
  */
-void generateCode(sipSpec *pt, char *codeDir, char *docFile,
-        const char *srcSuffix, int except, int trace, int releaseGIL,
-        int parts, stringList *needed_qualifiers, stringList *xsl,
-        const char *consModule, int docs, int timestamp)
+void generateCode(sipSpec *pt, char *codeDir, const char *srcSuffix,
+        int except, int trace, int releaseGIL, int parts,
+        stringList *needed_qualifiers, stringList *xsl, const char *consModule,
+        int docs, int timestamp)
 {
     exceptions = except;
     tracing = trace;
@@ -298,49 +297,24 @@ void generateCode(sipSpec *pt, char *codeDir, char *docFile,
     if (srcSuffix == NULL)
         srcSuffix = (generating_c ? ".c" : ".cpp");
 
-    /* Generate the documentation. */
-    if (docFile != NULL)
-        generateDocumentation(pt,docFile);
-
-    /* Generate the code. */
-    if (codeDir != NULL)
+    if (isComposite(pt->module))
+        generateCompositeCpp(pt, codeDir, timestamp);
+    else if (isConsolidated(pt->module))
     {
-        if (isComposite(pt->module))
-            generateCompositeCpp(pt, codeDir, timestamp);
-        else if (isConsolidated(pt->module))
-        {
-            moduleDef *mod;
+        moduleDef *mod;
 
-            for (mod = pt->modules; mod != NULL; mod = mod->next)
-                if (mod->container == pt->module)
-                    generateCpp(pt, mod, codeDir, srcSuffix, parts,
+        for (mod = pt->modules; mod != NULL; mod = mod->next)
+            if (mod->container == pt->module)
+                generateCpp(pt, mod, codeDir, srcSuffix, parts,
                             needed_qualifiers, xsl, timestamp);
 
-            generateConsolidatedCpp(pt, codeDir, srcSuffix, timestamp);
-        }
-        else if (consModule != NULL)
-            generateComponentCpp(pt, codeDir, consModule, timestamp);
-        else
-            generateCpp(pt, pt->module, codeDir, srcSuffix, parts,
-                    needed_qualifiers, xsl, timestamp);
+        generateConsolidatedCpp(pt, codeDir, srcSuffix, timestamp);
     }
-}
-
-
-/*
- * Generate the documentation.
- */
-static void generateDocumentation(sipSpec *pt, const char *docFile)
-{
-    FILE *fp;
-    codeBlockList *cbl;
-
-    fp = createFile(pt->module, docFile, NULL, FALSE);
-
-    for (cbl = pt->docs; cbl != NULL; cbl = cbl->next)
-        fputs(cbl->block->frag, fp);
-
-    closeFile(fp);
+    else if (consModule != NULL)
+        generateComponentCpp(pt, codeDir, consModule, timestamp);
+    else
+        generateCpp(pt, pt->module, codeDir, srcSuffix, parts,
+                    needed_qualifiers, xsl, timestamp);
 }
 
 

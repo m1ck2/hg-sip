@@ -43,16 +43,6 @@ The full set of command line options is:
     The name of the directory (which must exist) into which all of the
     generated C or C++ code is placed.  By default no code is generated.
 
-.. cmdoption:: -d <FILE>
-
-    .. deprecated:: 4.12
-        Use the :option:`-X <sip -X>` option instead.
-
-    The name of the documentation file to generate.  Documentation is included
-    in specification files using the :directive:`%Doc` and
-    :directive:`%ExportedDoc` directives.  By default the file is not
-    generated.
-
 .. cmdoption:: -e
 
     Support for C++ exceptions is enabled.  This causes all calls to C++ code

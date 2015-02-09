@@ -49,10 +49,6 @@ def main():
             help="the name of the code directory [default not generated]",
             metavar="DIR")
 
-    parser.add_argument('-d', dest='docFile',
-            help="the name of the documentation file [default not generated]",
-            metavar="FILE")
-
     parser.add_argument('-e', dest='exceptions', action='store_true',
             default=False,
             help="enable support for exceptions [default disabled]")
@@ -127,9 +123,6 @@ def main():
     args = parser.parse_args()
 
     # Issue warnings after they (might) have been enabled.
-    if args.docFile is not None and args.warnings:
-        print("the -d flag is deprecated")
-
     if args.kwArgs != 0 and args.warnings:
         print("the -k flag is deprecated")
 
@@ -141,11 +134,11 @@ def main():
     # Verify and transform the parse tree.
     transform(pt)
 
-    # Generate code.
-    generateCode(pt, args.codeDir, args.docFile, args.srcSuffix,
-            args.exceptions, args.tracing, args.releaseGIL, args.parts,
-            args.versions, args.xfeatures, args.consModule, args.docs,
-            args.timestamp)
+    # Generate the code.
+    if args.codeDir is not None:
+        generateCode(pt, args.codeDir, args.srcSuffix, args.exceptions,
+                args.tracing, args.releaseGIL, args.parts, args.versions,
+                args.xfeatures, args.consModule, args.docs, args.timestamp)
 
     # Generate any extracts.
     generateExtracts(pt, args.extracts)

@@ -13,10 +13,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
+import distutils
 import glob
 import os
 import sys
-import sysconfig
 
 # Check the version of Python as early as possible.
 if sys.hexversion < 0x03030000:
@@ -56,7 +56,7 @@ setup(
         },
         ext_modules = [sip5_module, sip_module],
         data_files = [
-                (sysconfig.get_path('include'),
+                (distutils.sysconfig.get_python_inc(prefix=sys.prefix),
                         [os.path.join('siplib', 'sip.h')])],
         zip_safe = False
      )

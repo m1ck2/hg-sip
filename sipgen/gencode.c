@@ -6775,8 +6775,44 @@ static void generateVirtualCatcher(sipSpec *pt, moduleDef *mod, classDef *cd,
 "    if (!sipMeth)\n"
         );
 
-    if (isAbstract(od))
+    if (od->virtcallcode != NULL)
+    {
+        argDef *res = &od->cppsig->result;
+
+        prcode(fp,
+"    {\n");
+
+        if (res->atype != void_type || res->nrderefs != 0)
+        {
+            prcode(fp,
+"        ");
+
+            generateNamedBaseType(cd->iff, res, "sipRes", TRUE, fp);
+
+            prcode(fp, ";\n"
+                );
+        }
+        else
+        {
+            res = NULL;
+        }
+
+        prcode(fp,
+"\n"
+            );
+
+        generateCppCodeBlock(od->virtcallcode, fp);
+
+        prcode(fp,
+"\n"
+"        return%s;\n"
+"    }\n"
+            , (res != NULL ? " sipRes" : ""));
+    }
+    else if (isAbstract(od))
+    {
         generateDefaultInstanceReturn(res, "    ", fp);
+    }
     else
     {
         int a;
@@ -9129,6 +9165,10 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
             break;
 
         case uint_type:
+            /*
+             * Qt4 moc uses "uint" in signal signatures.  We do all the time
+             * and hope it is always defined.
+             */
             prcode(fp, "uint");
             break;
 

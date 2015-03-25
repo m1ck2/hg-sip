@@ -74,8 +74,8 @@
 #define useArgNames(m)      ((m)->modflags & MOD_USE_ARG_NAMES)
 #define setAllRaisePyException(m)   ((m)->modflags |= MOD_ALL_RAISE_PY_EXC)
 #define allRaisePyException(m)  ((m)->modflags & MOD_ALL_RAISE_PY_EXC)
-#define setCallSuperInitNo(m)   ((m)->modflags = ((m)->modflags & MOD_SUPER_INIT_MASK) | MOD_SUPER_INIT_NO)
-#define setCallSuperInitYes(m)  ((m)->modflags = ((m)->modflags & MOD_SUPER_INIT_MASK) | MOD_SUPER_INIT_YES)
+#define setCallSuperInitNo(m)   ((m)->modflags = ((m)->modflags & ~MOD_SUPER_INIT_MASK) | MOD_SUPER_INIT_NO)
+#define setCallSuperInitYes(m)  ((m)->modflags = ((m)->modflags & ~MOD_SUPER_INIT_MASK) | MOD_SUPER_INIT_YES)
 #define isCallSuperInitYes(m)   (((m)->modflags & MOD_SUPER_INIT_MASK) == MOD_SUPER_INIT_YES)
 #define isCallSuperInitUndefined(m) (((m)->modflags & MOD_SUPER_INIT_MASK) == MOD_SUPER_INIT_UNDEF)
 
@@ -1015,6 +1015,7 @@ typedef struct _overDef {
     signatureDef *cppsig;               /* The C++ signature. */
     throwArgs *exceptions;              /* The exceptions. */
     codeBlockList *methodcode;          /* Method code. */
+    codeBlockList *virtcallcode;        /* Virtual call code. */
     virtHandlerDef *virthandler;        /* The virtual handler. */
     char *prehook;                      /* The pre-hook name. */
     char *posthook;                     /* The post-hook name. */

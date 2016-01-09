@@ -1,5 +1,3 @@
-# This is the build file for the extension module.
-#
 # Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
 #
 # This file is part of SIP.
@@ -14,6 +12,6 @@
 # SIP is supplied WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-target = @CFG_MODULE_BASENAME@
-sources = siplib.c apiversions.c descriptors.c qtlib.c threads.c objmap.c voidptr.c array.c bool.cpp
-headers = sip.h sipint.h array.h
+
+SIP_VERSION = 0x@RM_HEXVERSION@
+SIP_VERSION_STR = '@RM_RELEASE@'

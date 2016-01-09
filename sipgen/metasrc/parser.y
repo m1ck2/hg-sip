@@ -4442,7 +4442,7 @@ exceptionlist:  {
  * Parse the specification.
  */
 void parse(sipSpec *spec, FILE *fp, char *filename, stringList *tsl,
-        stringList *bsl, stringList *xfl, KwArgs kwArgs, int protHack)
+        stringList *bsl, stringList *xfl, int protHack)
 {
     classTmplDef *tcd;
 
@@ -4467,7 +4467,7 @@ void parse(sipSpec *spec, FILE *fp, char *filename, stringList *tsl,
     skipStackPtr = 0;
     currentScopeIdx = 0;
     sectionFlags = 0;
-    defaultKwArgs = kwArgs;
+    defaultKwArgs = NoKwArgs;
     makeProtPublic = protHack;
 
     newModule(fp, filename);
@@ -6970,7 +6970,7 @@ static void newFunction(sipSpec *pt, moduleDef *mod, classDef *c_scope,
         pt->sigslots = TRUE;
     }
 
-    if (isSignal(od) && (methodcode != NULL || vcode != NULL || virtcallcode))
+    if (isSignal(od) && (methodcode != NULL || vcode != NULL || virtcallcode != NULL))
         yyerror("Cannot provide code for signals");
 
     if (isstatic)
@@ -8066,10 +8066,10 @@ static int timePeriod(const char *lname, const char *uname)
     /* Handle the SIP version number pseudo-timeline. */
     if (line < 0)
     {
-        if (lower != NULL && SIP_VERSION < lower->order)
+        if (lower != NULL && sipVersion < lower->order)
             return FALSE;
 
-        if (upper != NULL && SIP_VERSION >= upper->order)
+        if (upper != NULL && sipVersion >= upper->order)
             return FALSE;
 
         return TRUE;

@@ -783,13 +783,13 @@ static void clear_wrapper(sipSimpleWrapper *sw);
  * The Python module initialisation function.
  */
 #if PY_MAJOR_VERSION >= 3
-#define SIP_MODULE_ENTRY        PyInit_@CFG_MODULE_BASENAME@
+#define SIP_MODULE_ENTRY        PyInit_sip
 #define SIP_MODULE_TYPE         PyObject *
 #define SIP_MODULE_DISCARD(m)   Py_DECREF(m)
 #define SIP_FATAL(s)            return NULL
 #define SIP_MODULE_RETURN(m)    return (m)
 #else
-#define SIP_MODULE_ENTRY        init@CFG_MODULE_BASENAME@
+#define SIP_MODULE_ENTRY        initsip
 #define SIP_MODULE_TYPE         void
 #define SIP_MODULE_DISCARD(m)
 #define SIP_FATAL(s)            Py_FatalError(s)
@@ -8386,7 +8386,6 @@ static void *indirect_access_func(sipSimpleWrapper *sw, AccessFuncOp op)
 
     default:
         addr = NULL;
-        break;
     }
 
     return addr;

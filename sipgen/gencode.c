@@ -60,23 +60,16 @@ static int prcode_xml = FALSE;          /* Set if prcode is XML aware. */
 static int docstrings;                  /* Set if generating docstrings. */
 
 
-static void generateDocumentation(sipSpec *pt, const char *docFile);
-static void generateBuildFile(sipSpec *pt, const char *buildFile,
-        const char *srcSuffix, const char *consModule);
-static void generateBuildFileSources(sipSpec *pt, moduleDef *mod,
-        const char *srcSuffix, FILE *fp);
 static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
-        const char *codeDir, stringList *needed_qualifiers, stringList *xsl,
-        int timestamp);
+        const char *codeDir, stringList *needed_qualifiers, stringList *xsl);
 static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
         const char *srcSuffix, int parts, stringList *needed_qualifiers,
-        stringList *xsl, int timestamp);
-static void generateCompositeCpp(sipSpec *pt, const char *codeDir,
-        int timestamp);
+        stringList *xsl);
+static void generateCompositeCpp(sipSpec *pt, const char *codeDir);
 static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
-        const char *srcSuffix, int timestamp);
+        const char *srcSuffix);
 static void generateComponentCpp(sipSpec *pt, const char *codeDir,
-        const char *consModule, int timestamp);
+        const char *consModule);
 static void generateSipImport(moduleDef *mod, FILE *fp);
 static void generateSipImportVariables(FILE *fp);
 static void generateModInitStart(moduleDef *mod, int gen_c, FILE *fp);
@@ -84,7 +77,7 @@ static void generateModDefinition(moduleDef *mod, const char *methods,
         FILE *fp);
 static void generateModDocstring(moduleDef *mod, FILE *fp);
 static void generateIfaceCpp(sipSpec *, ifaceFileDef *, int, const char *,
-        const char *, FILE *, int);
+        const char *, FILE *);
 static void generateMappedTypeCpp(mappedTypeDef *mtd, sipSpec *pt, FILE *fp);
 static void generateImportedMappedTypeAPI(mappedTypeDef *mtd, sipSpec *pt,
         moduleDef *mod, FILE *fp);
@@ -223,9 +216,9 @@ static int compareEnumMembers(const void *, const void *);
 static char *getSubFormatChar(char, argDef *);
 static char *createIfaceFileName(const char *, ifaceFileDef *, const char *);
 static FILE *createCompilationUnit(moduleDef *mod, const char *fname,
-        const char *description, int timestamp);
+        const char *description);
 static FILE *createFile(moduleDef *mod, const char *fname,
-        const char *description, int timestamp);
+        const char *description);
 static void closeFile(FILE *);
 static void prScopedName(FILE *fp, scopedNameDef *snd, char *sep);
 static void prTypeName(FILE *fp, argDef *ad);
@@ -291,10 +284,10 @@ static int emptyIfaceFile(sipSpec *pt, ifaceFileDef *iff);
 /*
  * Generate the code from a specification.
  */
-void generateCode(sipSpec *pt, char *codeDir, char *buildfile, char *docFile,
-        const char *srcSuffix, int except, int trace, int releaseGIL,
-        int parts, stringList *needed_qualifiers, stringList *xsl,
-        const char *consModule, int docs, int timestamp)
+void generateCode(sipSpec *pt, char *codeDir, const char *srcSuffix,
+        int except, int trace, int releaseGIL, int parts,
+        stringList *needed_qualifiers, stringList *xsl, const char *consModule,
+        int docs)
 {
     exceptions = except;
     tracing = trace;
@@ -305,143 +298,24 @@ void generateCode(sipSpec *pt, char *codeDir, char *buildfile, char *docFile,
     if (srcSuffix == NULL)
         srcSuffix = (generating_c ? ".c" : ".cpp");
 
-    /* Generate the documentation. */
-    if (docFile != NULL)
-        generateDocumentation(pt,docFile);
-
-    /* Generate the code. */
-    if (codeDir != NULL)
-    {
-        if (isComposite(pt->module))
-            generateCompositeCpp(pt, codeDir, timestamp);
-        else if (isConsolidated(pt->module))
-        {
-            moduleDef *mod;
-
-            for (mod = pt->modules; mod != NULL; mod = mod->next)
-                if (mod->container == pt->module)
-                    generateCpp(pt, mod, codeDir, srcSuffix, parts,
-                            needed_qualifiers, xsl, timestamp);
-
-            generateConsolidatedCpp(pt, codeDir, srcSuffix, timestamp);
-        }
-        else if (consModule != NULL)
-            generateComponentCpp(pt, codeDir, consModule, timestamp);
-        else
-            generateCpp(pt, pt->module, codeDir, srcSuffix, parts,
-                    needed_qualifiers, xsl, timestamp);
-    }
-
-    /* Generate the build file. */
-    if (buildfile != NULL)
-        generateBuildFile(pt, buildfile, srcSuffix, consModule);
-}
-
-
-/*
- * Generate the documentation.
- */
-static void generateDocumentation(sipSpec *pt, const char *docFile)
-{
-    FILE *fp;
-    codeBlockList *cbl;
-
-    fp = createFile(pt->module, docFile, NULL, FALSE);
-
-    for (cbl = pt->docs; cbl != NULL; cbl = cbl->next)
-        fputs(cbl->block->frag, fp);
-
-    closeFile(fp);
-}
-
-
-/*
- * Generate the build file.
- */
-static void generateBuildFile(sipSpec *pt, const char *buildFile,
-        const char *srcSuffix, const char *consModule)
-{
-    const char *mname = pt->module->name;
-    FILE *fp;
-
-    fp = createFile(pt->module, buildFile, NULL, FALSE);
-
-    prcode(fp, "target = %s\nsources =", mname);
-
     if (isComposite(pt->module))
-        prcode(fp, " sip%scmodule.c", mname);
+        generateCompositeCpp(pt, codeDir);
     else if (isConsolidated(pt->module))
     {
         moduleDef *mod;
 
         for (mod = pt->modules; mod != NULL; mod = mod->next)
             if (mod->container == pt->module)
-                generateBuildFileSources(pt, mod, srcSuffix, fp);
+                generateCpp(pt, mod, codeDir, srcSuffix, parts,
+                            needed_qualifiers, xsl);
 
-        prcode(fp, " sip%scmodule%s", mname, srcSuffix);
+        generateConsolidatedCpp(pt, codeDir, srcSuffix);
     }
-    else if (consModule == NULL)
-        generateBuildFileSources(pt, pt->module, srcSuffix, fp);
+    else if (consModule != NULL)
+        generateComponentCpp(pt, codeDir, consModule);
     else
-        prcode(fp, " sip%scmodule.c", mname);
-
-    if (isConsolidated(pt->module))
-    {
-        moduleDef *mod;
-
-        prcode(fp, "\nheaders =");
-
-        for (mod = pt->modules; mod != NULL; mod = mod->next)
-            if (mod->container == pt->module)
-                prcode(fp, " sipAPI%s.h", mod->name);
-    }
-    else if (!isComposite(pt->module) && consModule == NULL)
-        prcode(fp, "\nheaders = sipAPI%s.h", mname);
-
-    prcode(fp, "\n");
-
-    closeFile(fp);
-}
-
-
-/*
- * Generate the list of source files for a module.
- */
-static void generateBuildFileSources(sipSpec *pt, moduleDef *mod,
-        const char *srcSuffix, FILE *fp)
-{
-    const char *mname = mod->name;
-
-    if (mod->parts)
-    {
-        int p;
-
-        for (p = 0; p < mod->parts; ++p)
-            prcode(fp, " sip%spart%d%s", mname, p, srcSuffix);
-    }
-    else
-    {
-        ifaceFileDef *iff;
-
-        prcode(fp, " sip%scmodule%s", mname, srcSuffix);
-
-        for (iff = pt->ifacefiles; iff != NULL; iff = iff->next)
-        {
-            if (iff->module != mod)
-                continue;
-
-            if (iff->type == exception_iface)
-                continue;
-
-            if (emptyIfaceFile(pt, iff))
-                continue;
-
-            if (iff->api_range != NULL)
-                prcode(fp, " sip%s%F_%d%s", mname, iff->fqcname, iff->api_range->index, srcSuffix);
-            else
-                prcode(fp, " sip%s%F%s", mname, iff->fqcname, srcSuffix);
-        }
-    }
+        generateCpp(pt, pt->module, codeDir, srcSuffix, parts,
+                    needed_qualifiers, xsl);
 }
 
 
@@ -506,8 +380,7 @@ void generateExpression(valueDef *vd, int in_str, FILE *fp)
  * Generate the C++ internal module API header file.
  */
 static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
-        const char *codeDir, stringList *needed_qualifiers, stringList *xsl,
-        int timestamp)
+        const char *codeDir, stringList *needed_qualifiers, stringList *xsl)
 {
     char *hfile;
     const char *mname = mod->name;
@@ -518,7 +391,7 @@ static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
     moduleListDef *mld;
 
     hfile = concat(codeDir, "/sipAPI", mname, ".h",NULL);
-    fp = createFile(mod, hfile, "Internal module API header file.", timestamp);
+    fp = createFile(mod, hfile, "Internal module API header file.");
 
     /* Include files. */
 
@@ -949,8 +822,7 @@ static char *makePartName(const char *codeDir, const char *mname, int part,
 /*
  * Generate the C code for a composite module.
  */
-static void generateCompositeCpp(sipSpec *pt, const char *codeDir,
-        int timestamp)
+static void generateCompositeCpp(sipSpec *pt, const char *codeDir)
 {
     char *cppfile;
     const char *fullname = pt->module->fullname->text;
@@ -958,8 +830,7 @@ static void generateCompositeCpp(sipSpec *pt, const char *codeDir,
     FILE *fp;
 
     cppfile = concat(codeDir, "/sip", pt->module->name, "cmodule.c", NULL);
-    fp = createCompilationUnit(pt->module, cppfile, "Composite module code.",
-            timestamp);
+    fp = createCompilationUnit(pt->module, cppfile, "Composite module code.");
 
     prcode(fp,
 "\n"
@@ -1052,7 +923,7 @@ static void generateCompositeCpp(sipSpec *pt, const char *codeDir,
  * Generate the C/C++ code for a consolidated module.
  */
 static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
-        const char *srcSuffix, int timestamp)
+        const char *srcSuffix)
 {
     char *cppfile;
     const char *mname = pt->module->name;
@@ -1062,7 +933,7 @@ static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
 
     cppfile = concat(codeDir, "/sip", mname, "cmodule", srcSuffix, NULL);
     fp = createCompilationUnit(pt->module, cppfile,
-            "Consolidated module code.", timestamp);
+            "Consolidated module code.");
 
     prcode(fp,
 "\n"
@@ -1227,14 +1098,13 @@ static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
  * Generate the C/C++ code for a component module.
  */
 static void generateComponentCpp(sipSpec *pt, const char *codeDir,
-        const char *consModule, int timestamp)
+        const char *consModule)
 {
     char *cppfile;
     FILE *fp;
 
     cppfile = concat(codeDir, "/sip", pt->module->name, "cmodule.c", NULL);
-    fp = createCompilationUnit(pt->module, cppfile, "Component module code.",
-            timestamp);
+    fp = createCompilationUnit(pt->module, cppfile, "Component module code.");
 
     prcode(fp,
 "\n"
@@ -1320,7 +1190,7 @@ static void generateNameCache(sipSpec *pt, FILE *fp)
  */
 static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
         const char *srcSuffix, int parts, stringList *needed_qualifiers,
-        stringList *xsl, int timestamp)
+        stringList *xsl)
 {
     char *cppfile;
     const char *mname = mod->name;
@@ -1358,7 +1228,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
     else
         cppfile = concat(codeDir, "/sip", mname, "cmodule", srcSuffix, NULL);
 
-    fp = createCompilationUnit(mod, cppfile, "Module code.", timestamp);
+    fp = createCompilationUnit(mod, cppfile, "Module code.");
 
     prcode(fp,
 "\n"
@@ -2367,8 +2237,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
                 ++this_part;
 
                 cppfile = makePartName(codeDir, mname, this_part, srcSuffix);
-                fp = createCompilationUnit(mod, cppfile, "Module code.",
-                        timestamp);
+                fp = createCompilationUnit(mod, cppfile, "Module code.");
 
                 prcode(fp,
 "\n"
@@ -2383,8 +2252,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
             }
 
             generateIfaceCpp(pt, iff, need_postinc, codeDir, srcSuffix,
-                    ((parts && iff->file_extension == NULL) ? fp : NULL),
-                    timestamp);
+                    ((parts && iff->file_extension == NULL) ? fp : NULL));
         }
 
     closeFile(fp);
@@ -2396,8 +2264,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
 
     mod->parts = parts;
 
-    generateInternalAPIHeader(pt, mod, codeDir, needed_qualifiers, xsl,
-            timestamp);
+    generateInternalAPIHeader(pt, mod, codeDir, needed_qualifiers, xsl);
 }
 
 
@@ -3765,8 +3632,7 @@ static int emptyIfaceFile(sipSpec *pt, ifaceFileDef *iff)
  * Generate the C/C++ code for an interface.
  */
 static void generateIfaceCpp(sipSpec *pt, ifaceFileDef *iff, int need_postinc,
-        const char *codeDir, const char *srcSuffix, FILE *master,
-        int timestamp)
+        const char *codeDir, const char *srcSuffix, FILE *master)
 {
     char *cppfile;
     const char *cmname = iff->module->name;
@@ -3785,7 +3651,7 @@ static void generateIfaceCpp(sipSpec *pt, ifaceFileDef *iff, int need_postinc,
     {
         cppfile = createIfaceFileName(codeDir,iff,srcSuffix);
         fp = createCompilationUnit(iff->module, cppfile,
-                "Interface wrapper code.", timestamp);
+                "Interface wrapper code.");
 
         prcode(fp,
 "\n"
@@ -14067,9 +13933,9 @@ static void generatePreprocLine(int linenr, const char *fname, FILE *fp)
  * Create a source file.
  */
 static FILE *createCompilationUnit(moduleDef *mod, const char *fname,
-        const char *description, int timestamp)
+        const char *description)
 {
-    FILE *fp = createFile(mod, fname, description, timestamp);
+    FILE *fp = createFile(mod, fname, description);
 
     if (fp != NULL)
         generateCppCodeBlock(mod->unitcode, fp);
@@ -14082,7 +13948,7 @@ static FILE *createCompilationUnit(moduleDef *mod, const char *fname,
  * Create a file with an optional standard header.
  */
 static FILE *createFile(moduleDef *mod, const char *fname,
-        const char *description, int timestamp)
+        const char *description)
 {
     FILE *fp;
 
@@ -14106,21 +13972,9 @@ static FILE *createFile(moduleDef *mod, const char *fname,
 "/*\n"
 " * %s\n"
 " *\n"
-" * Generated by SIP %s"
+" * Generated by SIP %s\n"
             , description
-            , sipVersion);
-
-        if (timestamp)
-        {
-            time_t now = time(NULL);
-
-            prcode(fp, " on %s", ctime(&now));
-        }
-        else
-        {
-            prcode(fp, "\n"
-                );
-        }
+            , sipVersionStr);
 
         if (mod->copying != NULL)
             prcode(fp,

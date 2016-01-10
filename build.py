@@ -25,24 +25,25 @@ import os
 import shutil
 import sys
 import tarfile
+import time
 import zipfile
 
 
 # The files that need to be patched with the version number.
 _PatchedFiles = (
-    ('configure.py', ),
-    ('sipgen', 'sip.h'),
-    ('siplib', 'sip.h.in'),
+    ('setup.py', ),
+    ('sip5', '__init__.py'),
+    ('siplib', 'sip.h'),
     ('sphinx', 'conf.py'), ('sphinx', 'introduction.rst'))
 
 # Specific files that may be auto-generated and need to be cleaned.
 _GeneratedFiles = (
-    ('Makefile', ), ('sipconfig.py', ), ('.qmake.stash', ),
+    ('Makefile', ), ('.qmake.stash', ),
+    ('sip5', '__init__.py'),
     ('sipgen', 'Makefile'), ('sipgen', 'lexer.c'), ('sipgen', 'parser.c'),
-    ('sipgen', 'parser.h'), ('sipgen', 'sip'),
+    ('sipgen', 'parser.h'),
     ('siplib', 'Makefile'), ('siplib', 'Makefile.Device'),
-    ('siplib', 'Makefile.Simulator'), ('siplib', 'sip.h'),
-    ('siplib', 'siplib.c'), ('siplib', 'siplib.sbf'))
+    ('siplib', 'Makefile.Simulator'), ('siplib', 'sip.h'))
 
 # File types that are auto-generated and need to be cleaned.
 _GeneratedFileTypes = ('.pyc', '.o', '.obj', '.so', '.pyd', '.exp', '.exe',
@@ -51,16 +52,18 @@ _GeneratedFileTypes = ('.pyc', '.o', '.obj', '.so', '.pyd', '.exp', '.exe',
 # Directories that are auto-generated and need to be cleaned.
 _GeneratedDirs = (
     ('__pycache__', ),
+    ('build', ),
+    ('dist', ),
     ('doc', ),
+    ('sip5.egg-info', ),
     ('siplib', 'iphoneos'),
     ('siplib', 'iphonesimulator'))
 
 # Files in a release.
-_ReleasedFiles = ('configure.py.in', 'LICENSE', 'LICENSE-GPL2', 'LICENSE-GPL3',
-        'NEWS', 'README', 'sipdistutils.py', 'siputils.py')
+_ReleasedFiles = ('LICENSE', 'LICENSE-GPL2', 'LICENSE-GPL3', 'NEWS', 'README')
 
 # Directories in a release.
-_ReleasedDirs = ('sipgen', 'siplib', 'specs', 'sphinx')
+_ReleasedDirs = ('sipgen', 'siplib', 'sphinx')
 
 # The root directory, i.e. the one containing this script.
 _RootDir = os.path.dirname(os.path.abspath(__file__))
@@ -85,6 +88,10 @@ def _release_tag(ctx):
 
             if len(parts) == 3:
                 major, minor, micro = parts
+
+                # Handle crossing into sip4.
+                if major == '4':
+                    return (5, 0, -1)
 
                 try:
                     return (int(major), int(minor), int(micro))
@@ -143,7 +150,8 @@ def _get_release():
         if version is not None:
             ctx = before
         else:
-            release_suffix = '-snapshot-' + str(ctx)
+            release_suffix = time.strftime('.dev%y%m%d%H%M',
+                    time.localtime(ctx.date()[0]))
 
         changelog = [_format_changelog(ctx)]
 
@@ -164,8 +172,8 @@ def _get_release():
             parents = parent_ctx.parents()
 
         if version is None and parent_version is not None:
-            # This is a snapshot so work out what the next version will be
-            # based on the previous version.
+            # This is a preview so work out what the next version will be based
+            # on the previous version.
             major, minor, micro = parent_version
 
             if ctx.branch() == 'default':
@@ -543,8 +551,8 @@ def release(quiet=True):
 
 def version(quiet=True):
     """ Get the full version name of the package.  If it is a release then it
-    will be of the form x.y[.z].  If it is a snapshot then it will be of the
-    form snapshot-x.y[.z]-changeset where x.y[.z] is the version number of the
+    will be of the form x.y[.z].  If it is a preview then it will be of the
+    form preview-x.y[.z]-changeset where x.y[.z] is the version number of the
     next release (not the previous one).  If this is a Mercurial archive
     (rather than a repository) then it does the best it can (based on the name
     of the directory) with the limited information available.

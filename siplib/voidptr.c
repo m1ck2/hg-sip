@@ -75,19 +75,6 @@ static PyObject *sipVoidPtr_ascapsule(sipVoidPtrObject *v, PyObject *arg)
 #endif
 
 
-#if defined(SIP_SUPPORT_PYCOBJECT)
-/*
- * Implement ascobject() for the type.
- */
-static PyObject *sipVoidPtr_ascobject(sipVoidPtrObject *v, PyObject *arg)
-{
-    (void)arg;
-
-    return PyCObject_FromVoidPtr(v->voidptr, NULL);
-}
-#endif
-
-
 /*
  * Implement asarray() for the type.
  */
@@ -218,9 +205,6 @@ static PyMethodDef sipVoidPtr_Methods[] = {
     {"asarray", (PyCFunction)sipVoidPtr_asarray, METH_VARARGS|METH_KEYWORDS, NULL},
 #if defined(SIP_USE_PYCAPSULE)
     {"ascapsule", (PyCFunction)sipVoidPtr_ascapsule, METH_NOARGS, NULL},
-#endif
-#if defined(SIP_SUPPORT_PYCOBJECT)
-    {"ascobject", (PyCFunction)sipVoidPtr_ascobject, METH_NOARGS, NULL},
 #endif
     {"asstring", (PyCFunction)sipVoidPtr_asstring, METH_VARARGS|METH_KEYWORDS, NULL},
     {"getsize", (PyCFunction)sipVoidPtr_getsize, METH_NOARGS, NULL},
@@ -1029,10 +1013,6 @@ static int vp_convertor(PyObject *arg, struct vp_values *vp)
     else if (PyCapsule_CheckExact(arg))
         ptr = PyCapsule_GetPointer(arg, NULL);
 #endif
-#if defined(SIP_SUPPORT_PYCOBJECT)
-    else if (PyCObject_Check(arg))
-        ptr = PyCObject_AsVoidPtr(arg);
-#endif
     else if (PyObject_TypeCheck(arg, &sipVoidPtr_Type))
     {
         ptr = ((sipVoidPtrObject *)arg)->voidptr;
@@ -1068,11 +1048,7 @@ static int vp_convertor(PyObject *arg, struct vp_values *vp)
         if (PyErr_Occurred())
         {
 #if defined(SIP_USE_PYCAPSULE)
-#if defined(SIP_SUPPORT_PYCOBJECT)
-            PyErr_SetString(PyExc_TypeError, "a single integer, Capsule, CObject, None, bytes-like object or another sip.voidptr object is required");
-#else
             PyErr_SetString(PyExc_TypeError, "a single integer, Capsule, None, bytes-like object or another sip.voidptr object is required");
-#endif
 #else
             PyErr_SetString(PyExc_TypeError, "a single integer, CObject, None, bytes-like object or another sip.voidptr object is required");
 #endif

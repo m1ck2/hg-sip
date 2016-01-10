@@ -1023,7 +1023,7 @@ static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
 
     prcode(fp,
 "    static PyMethodDef sip_methods[] = {\n"
-"        {SIP_MLNAME_CAST(\"init\"), sip_init, METH_O, NULL},\n"
+"        {\"init\", sip_init, METH_O, NULL},\n"
 "        {NULL, NULL, 0, NULL}\n"
 "    };\n"
         );
@@ -1974,7 +1974,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
                 has_docstring = TRUE;
 
             prcode(fp,
-"        {SIP_MLNAME_CAST(%N), ", md->pyname);
+"        {%N, ", md->pyname);
 
             if (noArgParser(md) || useKeywordArgs(md))
                 prcode(fp, "(PyCFunction)func_%s, METH_VARARGS|METH_KEYWORDS", md->pyname->text);
@@ -1982,7 +1982,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
                 prcode(fp, "func_%s, METH_VARARGS", md->pyname->text);
 
             if (has_docstring)
-                prcode(fp, ", SIP_MLDOC_CAST(doc_%s)},\n"
+                prcode(fp, ", doc_%s},\n"
                     , md->pyname->text);
             else
                 prcode(fp, ", NULL},\n"
@@ -4230,10 +4230,10 @@ static void prMethodTable(sipSpec *pt, sortedMethTab *mtable, int nr,
             has_docstring = TRUE;
 
         prcode(fp,
-"    {SIP_MLNAME_CAST(%N), %smeth_%L_%s, METH_VARARGS%s, ", md->pyname, cast, iff, md->pyname->text, flags);
+"    {%N, %smeth_%L_%s, METH_VARARGS%s, ", md->pyname, cast, iff, md->pyname->text, flags);
 
         if (has_docstring)
-            prcode(fp, "SIP_MLDOC_CAST(doc_%L_%s)", iff, md->pyname->text);
+            prcode(fp, "doc_%L_%s", iff, md->pyname->text);
         else
             prcode(fp, "NULL");
 
@@ -4711,9 +4711,9 @@ static void generateVariableGetter(ifaceFileDef *scope, varDef *vd, FILE *fp)
 
     case capsule_type:
         prcode(fp,
-"    return SIPCapsule_FromVoidPtr(");
+"    return PyCapsule_New(");
         generateVoidPtrCast(&vd->type, fp);
-        prcode(fp, "sipVal);\n");
+        prcode(fp, "sipVal, NULL);\n");
         break;
 
     case pyobject_type:
@@ -5153,7 +5153,7 @@ static int generateObjToCppConversion(argDef *ad,FILE *fp)
         break;
 
     case capsule_type:
-        prcode(fp, "SIPCapsule_AsVoidPtr(sipPy, \"%S\");\n"
+        prcode(fp, "PyCapsule_GetPointer(sipPy, \"%S\");\n"
             , ad->u.cap);
         break;
 
@@ -12003,7 +12003,7 @@ static void generateHandleResult(moduleDef *mod, overDef *od, int isNew,
 
     case capsule_type:
         prcode(fp,
-"            %s SIPCapsule_FromVoidPtr(%s, \"%S\");\n"
+"            %s PyCapsule_New(%s, \"%S\", NULL);\n"
             , prefix, vname, ad->u.cap);
         break;
 

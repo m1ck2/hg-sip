@@ -234,27 +234,12 @@ extern "C" {
 typedef unsigned int uint;
 
 
-/* Some Python compatibility stuff. */
-#if PY_VERSION_HEX >= 0x02050000
-
+/* Some SIP compatibility stuff. */
 #define SIP_SSIZE_T         Py_ssize_t
 #define SIP_SSIZE_T_FORMAT  "%zd"
+#define SIP_USE_PYCAPSULE
 
-#define SIP_MLNAME_CAST(s)  (s)
-#define SIP_MLDOC_CAST(s)   (s)
-#define SIP_TPNAME_CAST(s)  (s)
-
-#else
-
-#define SIP_SSIZE_T         int
-#define SIP_SSIZE_T_FORMAT  "%d"
-
-#define SIP_MLNAME_CAST(s)  ((char *)(s))
-#define SIP_MLDOC_CAST(s)   ((char *)(s))
-#define SIP_TPNAME_CAST(s)  ((char *)(s))
-
-#endif
-
+/* Some Python compatibility stuff. */
 #if PY_MAJOR_VERSION >= 3
 
 #define SIPLong_FromLong    PyLong_FromLong
@@ -265,14 +250,6 @@ typedef unsigned int uint;
 #define SIPBytes_FromStringAndSize  PyBytes_FromStringAndSize
 #define SIPBytes_AS_STRING  PyBytes_AS_STRING
 #define SIPBytes_GET_SIZE   PyBytes_GET_SIZE
-
-#if PY_MINOR_VERSION >= 1
-#define SIP_USE_PYCAPSULE
-#endif
-
-#if PY_MINOR_VERSION < 2
-#define SIP_SUPPORT_PYCOBJECT
-#endif
 
 #else
 
@@ -285,33 +262,6 @@ typedef unsigned int uint;
 #define SIPBytes_AS_STRING  PyString_AS_STRING
 #define SIPBytes_GET_SIZE   PyString_GET_SIZE
 
-#if PY_MINOR_VERSION >= 7
-#define SIP_USE_PYCAPSULE
-#endif
-
-#define SIP_SUPPORT_PYCOBJECT
-
-#endif
-
-#if !defined(Py_REFCNT)
-#define Py_REFCNT(ob)       (((PyObject*)(ob))->ob_refcnt)
-#endif
-
-#if !defined(Py_TYPE)
-#define Py_TYPE(ob)         (((PyObject*)(ob))->ob_type)
-#endif
-
-#if !defined(PyVarObject_HEAD_INIT)
-#define PyVarObject_HEAD_INIT(type, size)   PyObject_HEAD_INIT(type) size,
-#endif
-
-
-#if defined(SIP_USE_PYCAPSULE)
-#define SIPCapsule_FromVoidPtr(p, n)    PyCapsule_New((p), (n), NULL)
-#define SIPCapsule_AsVoidPtr(p, n)      PyCapsule_GetPointer((p), (n))
-#else
-#define SIPCapsule_FromVoidPtr(p, n)    sipConvertFromVoidPtr((p))
-#define SIPCapsule_AsVoidPtr(p, n)      sipConvertToVoidPtr((p))
 #endif
 
 

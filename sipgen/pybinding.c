@@ -145,26 +145,33 @@ void warning(Warning w, const char *fmt, ...)
 
 /*
  * Display all or part of a one line error message describing a fatal error.
- * If the message is complete (it has a newline) then the program exits.
  */
-void fatal(char *fmt,...)
+void fatal(const char *fmt,...)
 {
-    static int start = TRUE;
-
     va_list ap;
 
-    if (start)
-    {
-        fprintf(stderr,"sip5: ");
-        start = FALSE;
-    }
+    fatalStart();
 
     va_start(ap,fmt);
     vfprintf(stderr,fmt,ap);
     va_end(ap);
 
-    if (strchr(fmt,'\n') != NULL)
-        exit(1);
+    exit(1);
+}
+
+
+/*
+ * Make sure the start of a fatal message is handled.
+ */
+void fatalStart()
+{
+    static int start = TRUE;
+
+    if (start)
+    {
+        fprintf(stderr, "sip5: ");
+        start = FALSE;
+    }
 }
 
 

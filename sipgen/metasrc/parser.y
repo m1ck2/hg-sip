@@ -8082,10 +8082,10 @@ static int timePeriod(const char *lname, const char *uname)
     /* Handle the SIP version number pseudo-timeline. */
     if (line < 0)
     {
-        if (lower != NULL && SIP_VERSION < lower->order)
+        if (lower != NULL && SIP_VERSION < (unsigned)lower->order)
             return FALSE;
 
-        if (upper != NULL && SIP_VERSION >= upper->order)
+        if (upper != NULL && SIP_VERSION >= (unsigned)upper->order)
             return FALSE;
 
         return TRUE;

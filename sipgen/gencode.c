@@ -257,7 +257,6 @@ static void generateSignalTableEntry(sipSpec *pt, classDef *cd, overDef *sig,
         memberDef *md, int membernr, int optional_args, FILE *fp);
 static void generateTypesTable(sipSpec *pt, moduleDef *mod, FILE *fp);
 static int py2OnlySlot(slotType st);
-static int py2_5LaterSlot(slotType st);
 static int keepPyReference(argDef *ad);
 static int isDuplicateProtected(classDef *cd, overDef *target);
 static char getEncoding(argType atype);
@@ -843,11 +842,7 @@ static void generateCompositeCpp(sipSpec *pt, const char *codeDir)
 "\n"
 "    PyErr_Clear();\n"
 "\n"
-"#if PY_VERSION_HEX >= 0x02050000\n"
 "    mod = PyImport_ImportModule(name);\n"
-"#else\n"
-"    mod = PyImport_ImportModule((char *)name);\n"
-"#endif\n"
 "\n"
 "    /*\n"
 "     * Note that we don't complain if the module can't be imported.  This\n"
@@ -872,22 +867,16 @@ static void generateCompositeCpp(sipSpec *pt, const char *codeDir)
 "\n"
 "#if PY_MAJOR_VERSION >= 3\n"
 "    sipModule = PyModule_Create(&sip_module_def);\n"
-"#elif PY_VERSION_HEX >= 0x02050000\n"
+"#else\n"
             );
 
     if (pt->module->docstring == NULL)
         prcode(fp,
 "    sipModule = Py_InitModule(\"%s\", NULL);\n"
-"#else\n"
-"    sipModule = Py_InitModule((char *)\"%s\", NULL);\n"
-            , fullname
             , fullname);
     else
         prcode(fp,
 "    sipModule = Py_InitModule3(\"%s\", NULL, doc_mod_%s);\n"
-"#else\n"
-"    Py_InitModule3((char *)\"%s\", NULL, doc_mod_%s);\n"
-            , fullname, pt->module->name
             , fullname, pt->module->name);
 
     prcode(fp,
@@ -1045,7 +1034,7 @@ static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
 "\n"
 "#if PY_MAJOR_VERSION >= 3\n"
 "    return PyModule_Create(&sip_module_def);\n"
-"#elif PY_VERSION_HEX >= 0x02050000\n"
+"#else\n"
         );
 
     if (pt->module->docstring == NULL)
@@ -1056,33 +1045,6 @@ static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
         prcode(fp,
 "    Py_InitModule3(\"%s\", sip_methods, doc_mod_%s);\n"
             , fullname, mname);
-
-    prcode(fp,
-"#else\n"
-        );
-
-    if (generating_c)
-    {
-        if (pt->module->docstring == NULL)
-            prcode(fp,
-"    Py_InitModule((char *)\"%s\", sip_methods);\n"
-                , fullname);
-        else
-            prcode(fp,
-"    Py_InitModule3((char *)\"%s\", sip_methods, doc_mod_%s);\n"
-                , fullname, mname);
-    }
-    else
-    {
-        if (pt->module->docstring == NULL)
-            prcode(fp,
-"    Py_InitModule(const_cast<char *>(\"%s\"), sip_methods);\n"
-                , fullname);
-        else
-            prcode(fp,
-"    Py_InitModule3(const_cast<char *>(\"%s\"), sip_methods, doc_mod_%s);\n"
-                , fullname, mname);
-    }
 
     prcode(fp,
 "#endif\n"
@@ -1373,16 +1335,12 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
                         prcode(fp,
 "#if PY_MAJOR_VERSION < 3\n"
                             );
-                    else if (py2_5LaterSlot(md->slot))
-                        prcode(fp,
-"#if PY_VERSION_HEX >= 0x02050000\n"
-                            );
 
                     prcode(fp,
 "    {(void *)slot_%s, %s, {0, 0, 0}},\n"
                         , md->pyname->text, slotName(md->slot));
 
-                    if (py2OnlySlot(md->slot) || py2_5LaterSlot(md->slot))
+                    if (py2OnlySlot(md->slot))
                         prcode(fp,
 "#endif\n"
                             );
@@ -1398,10 +1356,6 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
                     prcode(fp,
 "#if PY_MAJOR_VERSION < 3\n"
                         );
-                else if (py2_5LaterSlot(md->slot))
-                    prcode(fp,
-"#if PY_VERSION_HEX >= 0x02050000\n"
-                        );
 
                 prcode(fp,
 "    {(void *)slot_%L_%s, %s, ", cd->iff, md->pyname->text, slotName(md->slot));
@@ -1411,7 +1365,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
                 prcode(fp, "},\n"
                       );
 
-                if (py2OnlySlot(md->slot) || py2_5LaterSlot(md->slot))
+                if (py2OnlySlot(md->slot))
                     prcode(fp,
 "#endif\n"
                         );
@@ -1492,16 +1446,12 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
                     prcode(fp,
 "#if PY_MAJOR_VERSION < 3\n"
                         );
-                else if (py2_5LaterSlot(slot->slot))
-                    prcode(fp,
-"#if PY_VERSION_HEX >= 0x02050000\n"
-                        );
 
                 prcode(fp,
 "    {(void *)slot_%C_%s, %s},\n"
                     , ed->fqcname, slot->pyname->text, stype);
 
-                if (py2OnlySlot(slot->slot) || py2_5LaterSlot(slot->slot))
+                if (py2OnlySlot(slot->slot))
                     prcode(fp,
 "#endif\n"
                         );
@@ -2060,7 +2010,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
 "    /* Initialise the module and get it's dictionary. */\n"
 "#if PY_MAJOR_VERSION >= 3\n"
 "    sipModule = PyModule_Create(&sip_module_def);\n"
-"#elif PY_VERSION_HEX >= 0x02050000\n"
+"#else\n"
         );
 
     if (mod->docstring == NULL)
@@ -2071,33 +2021,6 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
         prcode(fp,
 "    sipModule = Py_InitModule3(%N, sip_methods, doc_mod_%s);\n"
             , mod->fullname, mname);
-
-    prcode(fp,
-"#else\n"
-        );
-
-    if (generating_c)
-    {
-        if (mod->docstring == NULL)
-            prcode(fp,
-"    sipModule = Py_InitModule((char *)%N, sip_methods);\n"
-                , mod->fullname);
-        else
-            prcode(fp,
-"    sipModule = Py_InitModule3((char *)%N, sip_methods, doc_mod_%s);\n"
-                , mod->fullname, mname);
-    }
-    else
-    {
-        if (mod->docstring == NULL)
-            prcode(fp,
-"    sipModule = Py_InitModule(const_cast<char *>(%N), sip_methods);\n"
-                , mod->fullname);
-        else
-            prcode(fp,
-"    sipModule = Py_InitModule3(const_cast<char *>(%N), sip_methods, doc_mod_%s);\n"
-                , mod->fullname, mname);
-    }
 
     prcode(fp,
 "#endif\n"
@@ -2340,22 +2263,7 @@ static void generateSipImport(moduleDef *mod, FILE *fp)
 
     prcode(fp,
 "    /* Get the SIP module's API. */\n"
-"#if PY_VERSION_HEX >= 0x02050000\n"
 "    sip_sipmod = PyImport_ImportModule(SIP_MODULE_NAME);\n"
-"#else\n"
-        );
-
-    if (generating_c)
-        prcode(fp,
-"    sip_sipmod = PyImport_ImportModule((char *)SIP_MODULE_NAME);\n"
-            );
-    else
-        prcode(fp,
-"    sip_sipmod = PyImport_ImportModule(const_cast<char *>(SIP_MODULE_NAME));\n"
-            );
-
-    prcode(fp,
-"#endif\n"
 "\n"
 "    if (sip_sipmod == NULL)\n"
 "    {\n"
@@ -2366,11 +2274,7 @@ static void generateSipImport(moduleDef *mod, FILE *fp)
 "    sip_capiobj = PyDict_GetItemString(PyModule_GetDict(sip_sipmod), \"_C_API\");\n"
 "    Py_DECREF(sip_sipmod);\n"
 "\n"
-"#if defined(SIP_USE_PYCAPSULE)\n"
 "    if (sip_capiobj == NULL || !PyCapsule_CheckExact(sip_capiobj))\n"
-"#else\n"
-"    if (sip_capiobj == NULL || !PyCObject_Check(sip_capiobj))\n"
-"#endif\n"
 "    {\n"
 "        SIP_MODULE_DISCARD(sipModule);\n"
 "        SIP_MODULE_RETURN(NULL);\n"
@@ -2380,32 +2284,20 @@ static void generateSipImport(moduleDef *mod, FILE *fp)
 
     if (generating_c)
         prcode(fp,
-"#if defined(SIP_USE_PYCAPSULE)\n"
 "    sipAPI_%s = (const sipAPIDef *)PyCapsule_GetPointer(sip_capiobj, SIP_MODULE_NAME \"._C_API\");\n"
-"#else\n"
-"    sipAPI_%s = (const sipAPIDef *)PyCObject_AsVoidPtr(sip_capiobj);\n"
-"#endif\n"
-        , mod->name
         , mod->name);
     else
         prcode(fp,
-"#if defined(SIP_USE_PYCAPSULE)\n"
 "    sipAPI_%s = reinterpret_cast<const sipAPIDef *>(PyCapsule_GetPointer(sip_capiobj, SIP_MODULE_NAME \"._C_API\"));\n"
-"#else\n"
-"    sipAPI_%s = reinterpret_cast<const sipAPIDef *>(PyCObject_AsVoidPtr(sip_capiobj));\n"
-"#endif\n"
-"\n"
-        , mod->name
         , mod->name);
 
     prcode(fp,
-"#if defined(SIP_USE_PYCAPSULE)\n"
+"\n"
 "    if (sipAPI_%s == NULL)\n"
 "    {\n"
 "        SIP_MODULE_DISCARD(sipModule);\n"
 "        SIP_MODULE_RETURN(NULL);\n"
 "    }\n"
-"#endif\n"
 "\n"
         , mod->name);
 }
@@ -5530,10 +5422,6 @@ static void generateSlot(moduleDef *mod, classDef *cd, enumDef *ed,
         prcode(fp,
 "#if PY_MAJOR_VERSION < 3\n"
             );
-    else if (py2_5LaterSlot(md->slot))
-        prcode(fp,
-"#if PY_VERSION_HEX >= 0x02050000\n"
-            );
 
     if (!generating_c)
     {
@@ -5714,7 +5602,7 @@ static void generateSlot(moduleDef *mod, classDef *cd, enumDef *ed,
 "}\n"
         );
 
-    if (py2OnlySlot(md->slot) || py2_5LaterSlot(md->slot))
+    if (py2OnlySlot(md->slot))
         prcode(fp,
 "#endif\n"
             );
@@ -9663,16 +9551,12 @@ static void generateTypeDefinition(sipSpec *pt, classDef *cd, FILE *fp)
                 prcode(fp,
 "#if PY_MAJOR_VERSION < 3\n"
                     );
-            else if (py2_5LaterSlot(md->slot))
-                prcode(fp,
-"#if PY_VERSION_HEX >= 0x02050000\n"
-                    );
 
             prcode(fp,
 "    {(void *)slot_%L_%s, %s},\n"
                 , cd->iff, md->pyname->text, stype);
 
-            if (py2OnlySlot(md->slot) || py2_5LaterSlot(md->slot))
+            if (py2OnlySlot(md->slot))
                 prcode(fp,
 "#endif\n"
                     );
@@ -10606,15 +10490,6 @@ static int py2OnlySlot(slotType st)
      * v3 so they are not included.
      */
     return (st == long_slot || st == cmp_slot);
-}
-
-
-/*
- * Return TRUE if the slot is specific to Python v2.5 and later.
- */
-static int py2_5LaterSlot(slotType st)
-{
-    return (st == index_slot);
 }
 
 

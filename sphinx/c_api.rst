@@ -107,10 +107,9 @@ specification files.
 
 .. c:macro:: SIP_USE_PYCAPSULE
 
-    .. versionadded:: 4.11
-
     This is a C preprocessor symbol that is defined when ``PyCapsule`` objects
-    are being used rather than the (now deprecated) ``PyCObject`` objects.
+    are being used.  This will always be defined and is provided to make it
+    easier to write ``.sip`` files that will work with SIP v5 and SIP v4.
 
 
 .. c:macro:: SIP_VERSION

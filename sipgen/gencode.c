@@ -1,7 +1,7 @@
 /*
  * The code generator module for SIP.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *
@@ -3651,11 +3651,11 @@ static void generateMappedTypeCpp(mappedTypeDef *mtd, sipSpec *pt, FILE *fp)
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static void assign_%L(void *, SIP_SSIZE_T, const void *);}\n"
+"extern \"C\" {static void assign_%L(void *, Py_ssize_t, const void *);}\n"
                 , mtd->iff);
 
         prcode(fp,
-"static void assign_%L(void *sipDst, SIP_SSIZE_T sipDstIdx, const void *sipSrc)\n"
+"static void assign_%L(void *sipDst, Py_ssize_t sipDstIdx, const void *sipSrc)\n"
 "{\n"
             , mtd->iff);
 
@@ -3680,11 +3680,11 @@ static void generateMappedTypeCpp(mappedTypeDef *mtd, sipSpec *pt, FILE *fp)
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static void *array_%L(SIP_SSIZE_T);}\n"
+"extern \"C\" {static void *array_%L(Py_ssize_t);}\n"
                 , mtd->iff);
 
         prcode(fp,
-"static void *array_%L(SIP_SSIZE_T sipNrElem)\n"
+"static void *array_%L(Py_ssize_t sipNrElem)\n"
 "{\n"
             , mtd->iff);
 
@@ -3709,11 +3709,11 @@ static void generateMappedTypeCpp(mappedTypeDef *mtd, sipSpec *pt, FILE *fp)
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static void *copy_%L(const void *, SIP_SSIZE_T);}\n"
+"extern \"C\" {static void *copy_%L(const void *, Py_ssize_t);}\n"
                 , mtd->iff);
 
         prcode(fp,
-"static void *copy_%L(const void *sipSrc, SIP_SSIZE_T sipSrcIdx)\n"
+"static void *copy_%L(const void *sipSrc, Py_ssize_t sipSrcIdx)\n"
 "{\n"
             , mtd->iff);
 
@@ -4622,7 +4622,7 @@ static void generateVariableGetter(ifaceFileDef *scope, varDef *vd, FILE *fp)
 "        return Py_None;\n"
 "    }\n"
 "\n"
-"    return PyUnicode_FromWideChar(sipVal, (SIP_SSIZE_T)wcslen(sipVal));\n"
+"    return PyUnicode_FromWideChar(sipVal, (Py_ssize_t)wcslen(sipVal));\n"
                 );
 
         break;
@@ -5231,7 +5231,7 @@ int isIntReturnSlot(memberDef *md)
 
 
 /*
- * Returns TRUE if the given method is a slot that returns SIP_SSIZE_T.
+ * Returns TRUE if the given method is a slot that returns Py_ssize_t.
  */
 int isSSizeReturnSlot(memberDef *md)
 {
@@ -5360,7 +5360,7 @@ static void generateSlot(moduleDef *mod, classDef *cd, enumDef *ed,
         ret_int = FALSE;
 
         if (isSSizeReturnSlot(md))
-            ret_type = "SIP_SSIZE_T ";
+            ret_type = "Py_ssize_t ";
         else if (isLongReturnSlot(md))
             ret_type = "long ";
         else
@@ -5948,11 +5948,11 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static SIP_SSIZE_T getreadbuffer_%C(PyObject *, void *, SIP_SSIZE_T, void **);}\n"
+"extern \"C\" {static Py_ssize_t getreadbuffer_%C(PyObject *, void *, Py_ssize_t, void **);}\n"
                 , classFQCName(cd));
 
         prcode(fp,
-"static SIP_SSIZE_T getreadbuffer_%C(PyObject *%s, void *sipCppV, SIP_SSIZE_T %s, void **%s)\n"
+"static Py_ssize_t getreadbuffer_%C(PyObject *%s, void *sipCppV, Py_ssize_t %s, void **%s)\n"
 "{\n"
 "    ", classFQCName(cd)
      , argName("sipSelf", cd->readbufcode)
@@ -5962,7 +5962,7 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
         generateClassFromVoid(cd, "sipCpp", "sipCppV", fp);
 
         prcode(fp, ";\n"
-"    SIP_SSIZE_T sipRes;\n"
+"    Py_ssize_t sipRes;\n"
 "\n"
             );
 
@@ -5986,11 +5986,11 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static SIP_SSIZE_T getwritebuffer_%C(PyObject *, void *, SIP_SSIZE_T, void **);}\n"
+"extern \"C\" {static Py_ssize_t getwritebuffer_%C(PyObject *, void *, Py_ssize_t, void **);}\n"
                 , classFQCName(cd));
 
         prcode(fp,
-"static SIP_SSIZE_T getwritebuffer_%C(PyObject *%s, void *sipCppV, SIP_SSIZE_T %s, void **%s)\n"
+"static Py_ssize_t getwritebuffer_%C(PyObject *%s, void *sipCppV, Py_ssize_t %s, void **%s)\n"
 "{\n"
 "    ", classFQCName(cd)
      , argName("sipSelf", cd->writebufcode)
@@ -6000,7 +6000,7 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
         generateClassFromVoid(cd, "sipCpp", "sipCppV", fp);
 
         prcode(fp, ";\n"
-"    SIP_SSIZE_T sipRes;\n"
+"    Py_ssize_t sipRes;\n"
 "\n"
             );
 
@@ -6024,11 +6024,11 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static SIP_SSIZE_T getsegcount_%C(PyObject *, void *, SIP_SSIZE_T *);}\n"
+"extern \"C\" {static Py_ssize_t getsegcount_%C(PyObject *, void *, Py_ssize_t *);}\n"
                 , classFQCName(cd));
 
         prcode(fp,
-"static SIP_SSIZE_T getsegcount_%C(PyObject *%s, void *sipCppV, SIP_SSIZE_T *%s)\n"
+"static Py_ssize_t getsegcount_%C(PyObject *%s, void *sipCppV, Py_ssize_t *%s)\n"
 "{\n"
 "    ", classFQCName(cd)
      , argName("sipSelf", cd->segcountcode)
@@ -6037,7 +6037,7 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
         generateClassFromVoid(cd, "sipCpp", "sipCppV", fp);
 
         prcode(fp, ";\n"
-"    SIP_SSIZE_T sipRes;\n"
+"    Py_ssize_t sipRes;\n"
 "\n"
             );
 
@@ -6061,11 +6061,11 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static SIP_SSIZE_T getcharbuffer_%C(PyObject *, void *, SIP_SSIZE_T, void **);}\n"
+"extern \"C\" {static Py_ssize_t getcharbuffer_%C(PyObject *, void *, Py_ssize_t, void **);}\n"
                 , classFQCName(cd));
 
         prcode(fp,
-"static SIP_SSIZE_T getcharbuffer_%C(PyObject *%s, void *sipCppV, SIP_SSIZE_T %s, void **%s)\n"
+"static Py_ssize_t getcharbuffer_%C(PyObject *%s, void *sipCppV, Py_ssize_t %s, void **%s)\n"
 "{\n"
 "    ", classFQCName(cd)
      , argName("sipSelf", cd->charbufcode)
@@ -6075,7 +6075,7 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
         generateClassFromVoid(cd, "sipCpp", "sipCppV", fp);
 
         prcode(fp, ";\n"
-"    SIP_SSIZE_T sipRes;\n"
+"    Py_ssize_t sipRes;\n"
 "\n"
             );
 
@@ -6196,11 +6196,11 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static void assign_%L(void *, SIP_SSIZE_T, const void *);}\n"
+"extern \"C\" {static void assign_%L(void *, Py_ssize_t, const void *);}\n"
                 , cd->iff);
 
         prcode(fp,
-"static void assign_%L(void *sipDst, SIP_SSIZE_T sipDstIdx, const void *sipSrc)\n"
+"static void assign_%L(void *sipDst, Py_ssize_t sipDstIdx, const void *sipSrc)\n"
 "{\n"
             , cd->iff);
 
@@ -6225,11 +6225,11 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static void *array_%L(SIP_SSIZE_T);}\n"
+"extern \"C\" {static void *array_%L(Py_ssize_t);}\n"
                 , cd->iff);
 
         prcode(fp,
-"static void *array_%L(SIP_SSIZE_T sipNrElem)\n"
+"static void *array_%L(Py_ssize_t sipNrElem)\n"
 "{\n"
             , cd->iff);
 
@@ -6254,11 +6254,11 @@ static void generateClassFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
 
         if (!generating_c)
             prcode(fp,
-"extern \"C\" {static void *copy_%L(const void *, SIP_SSIZE_T);}\n"
+"extern \"C\" {static void *copy_%L(const void *, Py_ssize_t);}\n"
                 , cd->iff);
 
         prcode(fp,
-"static void *copy_%L(const void *sipSrc, SIP_SSIZE_T sipSrcIdx)\n"
+"static void *copy_%L(const void *sipSrc, Py_ssize_t sipSrcIdx)\n"
 "{\n"
             , cd->iff);
 
@@ -8329,7 +8329,7 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
                 prcode(fp,")");
 
             if (isArray(ad))
-                prcode(fp, ",(SIP_SSIZE_T)%a", mod, &sd->args[arraylenarg], arraylenarg);
+                prcode(fp, ",(Py_ssize_t)%a", mod, &sd->args[arraylenarg], arraylenarg);
 
             if (ad->atype == mapped_type)
                 prcode(fp, ",sipType_%T", ad);
@@ -8358,7 +8358,7 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
             }
 
             if (isArray(ad))
-                prcode(fp, ",(SIP_SSIZE_T)%a", mod, &sd->args[arraylenarg], arraylenarg);
+                prcode(fp, ",(Py_ssize_t)%a", mod, &sd->args[arraylenarg], arraylenarg);
             else if (ad->atype == enum_type && ad->u.ed->fqcname != NULL)
                 prcode(fp, ",sipType_%C", ad->u.ed->fqcname);
         }
@@ -9144,7 +9144,7 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
             break;
 
         case ssize_type:
-            prcode(fp, "SIP_SSIZE_T");
+            prcode(fp, "Py_ssize_t");
             break;
 
         case ulong_type:
@@ -9363,7 +9363,7 @@ static void generateVariable(moduleDef *mod, ifaceFileDef *scope, argDef *ad,
         ad->nrderefs = 0;
     }
 
-    /* Array sizes are always SIP_SSIZE_T. */
+    /* Array sizes are always Py_ssize_t. */
     if (isArraySize(ad))
         ad->atype = ssize_type;
 
@@ -11904,7 +11904,7 @@ static void generateHandleResult(moduleDef *mod, overDef *od, int isNew,
 "                return Py_None;\n"
 "            }\n"
 "\n"
-"            %s PyUnicode_FromWideChar(%s,(SIP_SSIZE_T)wcslen(%s));\n"
+"            %s PyUnicode_FromWideChar(%s,(Py_ssize_t)wcslen(%s));\n"
             , vname
             , prefix, vname, vname);
 

@@ -205,11 +205,11 @@ The following variables are made available to the handwritten code:
 void \*\*sipPtrPtr
     This is the pointer used to return the address of the character buffer.
 
-:c:macro:`SIP_SSIZE_T` sipRes
+Py_ssize_t sipRes
     The handwritten code should set this to the length of the character buffer
     or -1 if there was an error.
 
-:c:macro:`SIP_SSIZE_T` sipSegment
+Py_ssize_t sipSegment
     This is the number of the segment of the character buffer.
 
 PyObject \*sipSelf
@@ -239,11 +239,11 @@ The following variables are made available to the handwritten code:
 void \*\*sipPtrPtr
     This is the pointer used to return the address of the read buffer.
 
-:c:macro:`SIP_SSIZE_T` sipRes
+Py_ssize_t sipRes
     The handwritten code should set this to the length of the read buffer or
     -1 if there was an error.
 
-:c:macro:`SIP_SSIZE_T` sipSegment
+Py_ssize_t sipSegment
     This is the number of the segment of the read buffer.
 
 PyObject \*sipSelf
@@ -270,11 +270,11 @@ The following variables are made available to the handwritten code:
     This is a pointer to the structure or class instance.  Its *type* is a
     pointer to the structure or class.
 
-:c:macro:`SIP_SSIZE_T` \*sipLenPtr
+Py_ssize_t \*sipLenPtr
     This is the pointer used to return the total length in bytes of all
     segments of the buffer.
 
-:c:macro:`SIP_SSIZE_T` sipRes
+Py_ssize_t sipRes
     The handwritten code should set this to the number of segments that make
     up the buffer.
 
@@ -305,11 +305,11 @@ The following variables are made available to the handwritten code:
 void \*\*sipPtrPtr
     This is the pointer used to return the address of the write buffer.
 
-:c:macro:`SIP_SSIZE_T` sipRes
+Py_ssize_t sipRes
     The handwritten code should set this to the length of the write buffer or
     -1 if there was an error.
 
-:c:macro:`SIP_SSIZE_T` sipSegment
+Py_ssize_t sipSegment
     This is the number of the segment of the write buffer.
 
 PyObject \*sipSelf

@@ -131,6 +131,8 @@ explicit                    {return TK_EXPLICIT;}
 template                    {return TK_TEMPLATE;}
 ::                          {return TK_SCOPE;}
 \|\|                        {return TK_LOGICAL_OR;}
+Py_ssize_t                  {return TK_PYSSIZET;}
+SIP_SSIZE_T                 {return TK_PYSSIZET;}
 SIP_PYOBJECT                {return TK_PYOBJECT;}
 SIP_PYTUPLE                 {return TK_PYTUPLE;}
 SIP_PYLIST                  {return TK_PYLIST;}
@@ -146,7 +148,6 @@ SIP_RXOBJ_CON               {return TK_SIPRXCON;}
 SIP_RXOBJ_DIS               {return TK_SIPRXDIS;}
 SIP_SLOT_CON                {return TK_SIPSLOTCON;}
 SIP_SLOT_DIS                {return TK_SIPSLOTDIS;}
-SIP_SSIZE_T                 {return TK_SIPSSIZET;}
 SIP_QOBJECT                 {return TK_QOBJECT;}
 \.\.\.                      {return TK_ELLIPSIS;}
 

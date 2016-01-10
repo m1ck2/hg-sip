@@ -118,13 +118,14 @@ int sipInitAPI(sipExportedModuleDef *em, PyObject *mod_dict)
         {
             if (sipIsRangeEnabled(em, vf->vf_api_range))
             {
+                const char *func_name = sipNameFromPool(em, vf->vf_name);
                 PyMethodDef *pmd;
                 PyObject *py_func;
 
                 if ((pmd = sip_api_malloc(sizeof (PyMethodDef))) == NULL)
                     return -1;
 
-                pmd->ml_name = sipNameFromPool(em, vf->vf_name);
+                pmd->ml_name = func_name;
                 pmd->ml_meth = vf->vf_function;
                 pmd->ml_flags = vf->vf_flags;
                 pmd->ml_doc = vf->vf_docstring;

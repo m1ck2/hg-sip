@@ -31,7 +31,7 @@
 typedef struct {
     PyObject_HEAD
     void *voidptr;
-    SIP_SSIZE_T size;
+    Py_ssize_t size;
     int rw;
 } sipVoidPtrObject;
 
@@ -39,19 +39,19 @@ typedef struct {
 /* The structure used to hold the results of a voidptr conversion. */
 struct vp_values {
     void *voidptr;
-    SIP_SSIZE_T size;
+    Py_ssize_t size;
     int rw;
 };
 
 
 static int check_size(PyObject *self);
 static int check_rw(PyObject *self);
-static int check_index(PyObject *self, SIP_SSIZE_T idx);
+static int check_index(PyObject *self, Py_ssize_t idx);
 static void bad_key(PyObject *key);
-static int check_slice_size(SIP_SSIZE_T size, SIP_SSIZE_T value_size);
-static PyObject *make_voidptr(void *voidptr, SIP_SSIZE_T size, int rw);
+static int check_slice_size(Py_ssize_t size, Py_ssize_t value_size);
+static PyObject *make_voidptr(void *voidptr, Py_ssize_t size, int rw);
 static int vp_convertor(PyObject *arg, struct vp_values *vp);
-static SIP_SSIZE_T get_size_from_arg(sipVoidPtrObject *v, SIP_SSIZE_T size);
+static Py_ssize_t get_size_from_arg(sipVoidPtrObject *v, Py_ssize_t size);
 
 
 /*
@@ -73,7 +73,7 @@ static PyObject *sipVoidPtr_asarray(sipVoidPtrObject *v, PyObject *args,
 {
     static char *kwlist[] = {"size", NULL};
 
-    SIP_SSIZE_T size = -1;
+    Py_ssize_t size = -1;
 
     if (!PyArg_ParseTupleAndKeywords(args, kw, "|n:asarray", kwlist, &size))
         return NULL;
@@ -94,7 +94,7 @@ static PyObject *sipVoidPtr_asstring(sipVoidPtrObject *v, PyObject *args,
 {
     static char *kwlist[] = {"size", NULL};
 
-    SIP_SSIZE_T size = -1;
+    Py_ssize_t size = -1;
 
     if (!PyArg_ParseTupleAndKeywords(args, kw, "|n:asstring", kwlist, &size))
         return NULL;
@@ -126,7 +126,7 @@ static PyObject *sipVoidPtr_getsize(sipVoidPtrObject *v, PyObject *arg)
  */
 static PyObject *sipVoidPtr_setsize(sipVoidPtrObject *v, PyObject *arg)
 {
-    SIP_SSIZE_T size;
+    Py_ssize_t size;
 
 #if PY_MAJOR_VERSION >= 3
     size = PyLong_AsSsize_t(arg);
@@ -280,7 +280,7 @@ static PyNumberMethods sipVoidPtr_NumberMethods = {
 /*
  * Implement len() for the type.
  */
-static SIP_SSIZE_T sipVoidPtr_length(PyObject *self)
+static Py_ssize_t sipVoidPtr_length(PyObject *self)
 {
     if (check_size(self) < 0)
         return -1;
@@ -292,7 +292,7 @@ static SIP_SSIZE_T sipVoidPtr_length(PyObject *self)
 /*
  * Implement sequence item sub-script for the type.
  */
-static PyObject *sipVoidPtr_item(PyObject *self, SIP_SSIZE_T idx)
+static PyObject *sipVoidPtr_item(PyObject *self, Py_ssize_t idx)
 {
     if (check_size(self) < 0 || check_index(self, idx) < 0)
         return NULL;
@@ -469,7 +469,7 @@ static int sipVoidPtr_getbuffer(PyObject *self, Py_buffer *buf, int flags)
 /*
  * The read buffer implementation for Python v2.
  */
-static SIP_SSIZE_T sipVoidPtr_getreadbuffer(PyObject *self, SIP_SSIZE_T seg,
+static Py_ssize_t sipVoidPtr_getreadbuffer(PyObject *self, Py_ssize_t seg,
         void **ptr)
 {
     sipVoidPtrObject *v;
@@ -496,7 +496,7 @@ static SIP_SSIZE_T sipVoidPtr_getreadbuffer(PyObject *self, SIP_SSIZE_T seg,
 /*
  * The write buffer implementation for Python v2.
  */
-static SIP_SSIZE_T sipVoidPtr_getwritebuffer(PyObject *self, SIP_SSIZE_T seg,
+static Py_ssize_t sipVoidPtr_getwritebuffer(PyObject *self, Py_ssize_t seg,
         void **ptr)
 {
     if (((sipVoidPtrObject *)self)->rw)
@@ -512,9 +512,9 @@ static SIP_SSIZE_T sipVoidPtr_getwritebuffer(PyObject *self, SIP_SSIZE_T seg,
 /*
  * The segment count implementation for Python v2.
  */
-static SIP_SSIZE_T sipVoidPtr_getsegcount(PyObject *self, SIP_SSIZE_T *lenp)
+static Py_ssize_t sipVoidPtr_getsegcount(PyObject *self, Py_ssize_t *lenp)
 {
-    SIP_SSIZE_T segs, len;
+    Py_ssize_t segs, len;
 
     len = ((sipVoidPtrObject *)self)->size;
     segs = (len < 0 ? 0 : 1);
@@ -552,7 +552,7 @@ static PyObject *sipVoidPtr_new(PyTypeObject *subtype, PyObject *args,
     static char *kwlist[] = {"address", "size", "writeable", NULL};
 
     struct vp_values vp_conversion;
-    SIP_SSIZE_T size = -1;
+    Py_ssize_t size = -1;
     int rw = -1;
     PyObject *obj;
 
@@ -680,7 +680,7 @@ PyObject *sip_api_convert_from_const_void_ptr(const void *val)
 /*
  * Convert a sized C/C++ void pointer to a sip.voidptr object.
  */
-PyObject *sip_api_convert_from_void_ptr_and_size(void *val, SIP_SSIZE_T size)
+PyObject *sip_api_convert_from_void_ptr_and_size(void *val, Py_ssize_t size)
 {
     return make_voidptr(val, size, TRUE);
 }
@@ -690,7 +690,7 @@ PyObject *sip_api_convert_from_void_ptr_and_size(void *val, SIP_SSIZE_T size)
  * Convert a sized C/C++ const void pointer to a sip.voidptr object.
  */
 PyObject *sip_api_convert_from_const_void_ptr_and_size(const void *val,
-        SIP_SSIZE_T size)
+        Py_ssize_t size)
 {
     return make_voidptr((void *)val, size, FALSE);
 }
@@ -730,7 +730,7 @@ static int check_rw(PyObject *self)
 /*
  * Check that an index is valid for a void pointer.
  */
-static int check_index(PyObject *self, SIP_SSIZE_T idx)
+static int check_index(PyObject *self, Py_ssize_t idx)
 {
     if (idx >= 0 && idx < ((sipVoidPtrObject *)self)->size)
         return 0;
@@ -756,7 +756,7 @@ static void bad_key(PyObject *key)
  * Check that the size of a value is the same as the size of the slice it is
  * replacing.
  */
-static int check_slice_size(SIP_SSIZE_T size, SIP_SSIZE_T value_size)
+static int check_slice_size(Py_ssize_t size, Py_ssize_t value_size)
 {
     if (value_size == size)
         return 0;
@@ -771,7 +771,7 @@ static int check_slice_size(SIP_SSIZE_T size, SIP_SSIZE_T value_size)
 /*
  * Do the work of converting a void pointer.
  */
-static PyObject *make_voidptr(void *voidptr, SIP_SSIZE_T size, int rw)
+static PyObject *make_voidptr(void *voidptr, Py_ssize_t size, int rw)
 {
     sipVoidPtrObject *self;
 
@@ -798,7 +798,7 @@ static PyObject *make_voidptr(void *voidptr, SIP_SSIZE_T size, int rw)
 static int vp_convertor(PyObject *arg, struct vp_values *vp)
 {
     void *ptr;
-    SIP_SSIZE_T size = -1;
+    Py_ssize_t size = -1;
     int rw = TRUE;
 
     if (arg == Py_None)
@@ -855,7 +855,7 @@ static int vp_convertor(PyObject *arg, struct vp_values *vp)
  * Get a size possibly supplied as an argument, otherwise get it from the
  * object.  Raise an exception if there was no size specified.
  */
-static SIP_SSIZE_T get_size_from_arg(sipVoidPtrObject *v, SIP_SSIZE_T size)
+static Py_ssize_t get_size_from_arg(sipVoidPtrObject *v, Py_ssize_t size)
 {
     /* Use the current size if one wasn't explicitly given. */
     if (size < 0)

@@ -1,7 +1,7 @@
 /*
  * The parse tree transformation module for SIP.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *
@@ -1967,12 +1967,12 @@ static void resolveFuncTypes(sipSpec *pt, moduleDef *mod, classDef *c_scope,
 
     res = &od->pysig.result;
 
-    /* These slots must return SIP_SSIZE_T (or int - deprecated). */
+    /* These slots must return Py_ssize_t or int. */
     if (isSSizeReturnSlot(od->common))
         if ((res->atype != ssize_type && res->atype != int_type) || res->nrderefs != 0 ||
             isReference(res) || isConstArg(res))
-            fatal("%s:%d: %s slots must return SIP_SSIZE_T\n", od->sloc.name,
-                    od->sloc.linenr, od->common->pyname->text);
+            fatal("%s:%d: %s slots must return Py_ssize_t or int\n",
+                    od->sloc.name, od->sloc.linenr, od->common->pyname->text);
 
     /* These slots must return int. */
     if (isIntReturnSlot(od->common))

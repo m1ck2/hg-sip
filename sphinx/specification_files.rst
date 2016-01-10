@@ -512,8 +512,8 @@ list of types that is the C++ signature of of the signal.
 
 .. sip-type:: SIP_SSIZE_T
 
-This is a ``Py_ssize_t`` in Python v2.5 and later and ``int`` in earlier
-versions of Python.
+This is a synonym for ``Py_ssize_t``.  It is provided to make it easier to
+write ``.sip`` files that will work with SIP v5 and SIP v4.
 
 
 Classic Division and True Division

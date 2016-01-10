@@ -1234,9 +1234,9 @@ specification files.
 
 .. c:function:: unsigned long sipLong_AsUnsignedLong(PyObject *obj)
 
-    This function is a thin wrapper around :c:func:`PyLong_AsUnsignedLong()`
-    that works around a bug in Python v2.3.x and earlier when converting
-    integer objects.
+    This is a macro that calls :c:func:`PyLong_AsUnsignedLongMask()`.  It is
+    provided to make it easier to write ``.sip`` files that will work with SIP
+    v5 and SIP v4.
 
 
 .. c:function:: void *sipMalloc(size_t nbytes)

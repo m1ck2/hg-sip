@@ -15,5 +15,3 @@ SIP Reference Guide
     c_api
     embedding
     python_api
-    build_system
-    distutils

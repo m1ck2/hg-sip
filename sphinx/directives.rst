@@ -1790,7 +1790,7 @@ int sipIsErr
     ``sipIsErr`` is not provided for destructors.
 
 *type* sipRes
-    The handwritten code should set this to the result to be returned.  The
+    The handwritten code should set this to any result to be returned.  The
     *type* of the variable is the same as the type defined in the Python
     signature in the specification with the following exception:
 

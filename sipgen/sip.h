@@ -24,13 +24,6 @@
 #include <sys/types.h>
 
 
-/*
- * Define the SIP version number.
- */
-#define SIP_VERSION         0x@RM_HEXVERSION@
-#define SIP_VERSION_STR     "@RM_RELEASE@"
-
-
 #ifdef TRUE
 #undef TRUE
 #endif
@@ -1288,17 +1281,17 @@ typedef struct _parserContext {
 } parserContext;
 
 
-extern char *sipVersion;                /* The version of SIP. */
+extern unsigned sipVersion;             /* The version of SIP. */
+extern const char *sipVersionStr;       /* The version of SIP as a string. */
 extern stringList *includeDirList;      /* The include directory list for SIP files. */
 
 
 void parse(sipSpec *, FILE *, char *, stringList *, stringList *, stringList *,
-        KwArgs, int);
+        int);
 void parserEOF(const char *,parserContext *);
 void transform(sipSpec *);
-void generateCode(sipSpec *, char *, char *, char *, const char *, int, int,
-        int, int, stringList *needed_qualifiers, stringList *, const char *,
-        int, int);
+void generateCode(sipSpec *, char *, const char *, int, int, int, int,
+        stringList *needed_qualifiers, stringList *, const char *, int);
 void generateExtracts(sipSpec *pt, const stringList *extracts);
 void addExtractPart(sipSpec *pt, const char *id, int order, codeBlock *part);
 void generateAPI(sipSpec *pt, moduleDef *mod, const char *apiFile);

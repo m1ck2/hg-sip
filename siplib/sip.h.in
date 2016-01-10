@@ -1,7 +1,7 @@
 /*
  * The SIP module interface.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *
@@ -46,8 +46,8 @@ extern "C" {
 
 
 /* Sanity check on the Python version. */
-#if PY_VERSION_HEX < 0x02030000
-#error "This version of SIP requires Python v2.3 or later"
+#if (PY_MAJOR_VERSION == 3 && PY_VERSION_HEX < 0x03010000) || PY_VERSION_HEX < 0x02070000
+#error "This version of SIP requires Python v3.1 or later or Python v2.7"
 #endif
 
 
@@ -67,6 +67,9 @@ extern "C" {
  * to 0.
  *
  * History:
+ *
+ * 20.0 The API implemented by SIP v5.0.
+ *      Removed sip_api_long_as_unsigned_long.
  *
  * 11.3 Added sip_api_get_interpreter() to the public API.
  *
@@ -216,8 +219,8 @@ extern "C" {
  *
  * 0.0  Original version.
  */
-#define SIP_API_MAJOR_NR    11
-#define SIP_API_MINOR_NR    3
+#define SIP_API_MAJOR_NR    20
+#define SIP_API_MINOR_NR    0
 
 
 /* The name of the sip module. */
@@ -235,32 +238,33 @@ typedef unsigned int uint;
 
 
 /* Some SIP compatibility stuff. */
-#define SIP_SSIZE_T         Py_ssize_t
-#define SIP_SSIZE_T_FORMAT  "%zd"
+#define SIP_SSIZE_T                 Py_ssize_t
+#define SIP_SSIZE_T_FORMAT          "%zd"
 #define SIP_USE_PYCAPSULE
+#define sipLong_AsUnsignedLong      PyLong_AsUnsignedLongMask
 
 /* Some Python compatibility stuff. */
 #if PY_MAJOR_VERSION >= 3
 
-#define SIPLong_FromLong    PyLong_FromLong
-#define SIPLong_AsLong      PyLong_AsLong
+#define SIPLong_FromLong            PyLong_FromLong
+#define SIPLong_AsLong              PyLong_AsLong
 
-#define SIPBytes_Check      PyBytes_Check
-#define SIPBytes_FromString PyBytes_FromString
+#define SIPBytes_Check              PyBytes_Check
+#define SIPBytes_FromString         PyBytes_FromString
 #define SIPBytes_FromStringAndSize  PyBytes_FromStringAndSize
-#define SIPBytes_AS_STRING  PyBytes_AS_STRING
-#define SIPBytes_GET_SIZE   PyBytes_GET_SIZE
+#define SIPBytes_AS_STRING          PyBytes_AS_STRING
+#define SIPBytes_GET_SIZE           PyBytes_GET_SIZE
 
 #else
 
-#define SIPLong_FromLong    PyInt_FromLong
-#define SIPLong_AsLong      PyInt_AsLong
+#define SIPLong_FromLong            PyInt_FromLong
+#define SIPLong_AsLong              PyInt_AsLong
 
-#define SIPBytes_Check      PyString_Check
-#define SIPBytes_FromString PyString_FromString
+#define SIPBytes_Check              PyString_Check
+#define SIPBytes_FromString         PyString_FromString
 #define SIPBytes_FromStringAndSize  PyString_FromStringAndSize
-#define SIPBytes_AS_STRING  PyString_AS_STRING
-#define SIPBytes_GET_SIZE   PyString_GET_SIZE
+#define SIPBytes_AS_STRING          PyString_AS_STRING
+#define SIPBytes_GET_SIZE           PyString_GET_SIZE
 
 #endif
 
@@ -605,9 +609,7 @@ typedef enum {
     hash_slot,          /* __hash__ */
     pos_slot,           /* __pos__ */
     abs_slot,           /* __abs__ */
-#if PY_VERSION_HEX >= 0x02050000
     index_slot,         /* __index__ */
-#endif
     iter_slot,          /* __iter__ */
     next_slot,          /* __next__ */
     setattr_slot,       /* __setattr__, __delattr__ */
@@ -1357,7 +1359,6 @@ typedef struct _sipAPIDef {
     void (*api_transfer_back)(PyObject *self);
     void (*api_transfer_to)(PyObject *self, PyObject *owner);
     void (*api_transfer_break)(PyObject *self);
-    unsigned long (*api_long_as_unsigned_long)(PyObject *o);
     PyObject *(*api_convert_from_void_ptr)(void *val);
     PyObject *(*api_convert_from_const_void_ptr)(const void *val);
     PyObject *(*api_convert_from_void_ptr_and_size)(void *val,

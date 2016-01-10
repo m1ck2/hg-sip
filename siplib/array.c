@@ -1,7 +1,7 @@
 /*
  * This file implements the API for the array type.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *
@@ -46,12 +46,7 @@ static int check_index(sipArrayObject *array, SIP_SSIZE_T idx);
 static void *get_value(sipArrayObject *array, PyObject *value);
 static void *get_slice(sipArrayObject *array, PyObject *value,
         SIP_SSIZE_T len);
-#if PY_VERSION_HEX < 0x02050000
-static void fix_bounds(int len, int *left, int *right);
-#endif
-#if PY_VERSION_HEX >= 0x02050000
 static void bad_key(PyObject *key);
-#endif
 static void *element(sipArrayObject *array, SIP_SSIZE_T idx);
 static PyObject *make_array(void *data, const sipTypeDef *td,
         const char *format, size_t stride, SIP_SSIZE_T len, int flags,
@@ -130,91 +125,21 @@ static PyObject *sipArray_item(PyObject *self, SIP_SSIZE_T idx)
 }
 
 
-#if PY_VERSION_HEX < 0x02050000
-/*
- * Implement sequence slice sub-script for the type.
- */
-static PyObject *sipArray_slice(PyObject *self, int left, int right)
-{
-    sipArrayObject *array = (sipArrayObject *)self;
-
-    fix_bounds(array->len, &left, &right);
-
-    if (left == right)
-        left = right = 0;
-
-    return make_array(element(array, left), array->td, array->format,
-            array->stride, right - left, (array->flags & ~SIP_OWNS_MEMORY),
-            array->owner);
-}
-
-
-/*
- * Implement sequence assignment item sub-script for the type.
- */
-static int sipArray_ass_item(PyObject *self, int idx, PyObject *value)
-{
-    sipArrayObject *array = (sipArrayObject *)self;
-    void *value_data;
-
-    if (check_writable(array) < 0 || check_index(array, idx) < 0)
-        return -1;
-
-    if ((value_data = get_value(array, value)) == NULL)
-        return -1;
-
-    memmove(element(array, idx), value_data, array->stride);
-
-    return 0;
-}
-
-
-/*
- * Implement sequence assignment slice sub-script for the type.
- */
-static int sipArray_ass_slice(PyObject *self, int left, int right,
-        PyObject *value)
-{
-    sipArrayObject *array = (sipArrayObject *)self;
-    void *value_data;
-
-    if (check_writable(array) < 0)
-        return -1;
-
-    fix_bounds(array->len, &left, &right);
-
-    if ((value_data = get_slice(array, value, right - left)) == NULL)
-        return -1;
-
-    memmove(element(array, left), value_data, (right - left) * array->stride);
-
-    return 0;
-}
-#endif
-
-
 /* The sequence methods data structure. */
 static PySequenceMethods sipArray_SequenceMethods = {
     sipArray_length,        /* sq_length */
     0,                      /* sq_concat */
     0,                      /* sq_repeat */
     sipArray_item,          /* sq_item */
-#if PY_VERSION_HEX >= 0x02050000
     0,                      /* sq_slice */
     0,                      /* sq_ass_item */
     0,                      /* sq_ass_slice */
-#else
-    sipArray_slice,         /* sq_slice */
-    sipArray_ass_item,      /* sq_ass_item */
-    sipArray_ass_slice,     /* sq_ass_slice */
-#endif
     0,                      /* sq_contains */
     0,                      /* sq_inplace_concat */
     0,                      /* sq_inplace_repeat */
 };
 
 
-#if PY_VERSION_HEX >= 0x02050000
 /*
  * Implement mapping sub-script for the type.
  */
@@ -325,12 +250,10 @@ static PyMappingMethods sipArray_MappingMethods = {
     sipArray_subscript,     /* mp_subscript */
     sipArray_ass_subscript, /* mp_ass_subscript */
 };
-#endif
 
 
-#if PY_VERSION_HEX >= 0x02060300
 /*
- * The buffer implementation for Python v2.6.3 and later.
+ * The buffer implementation.
  */
 static int sipArray_getbuffer(PyObject *self, Py_buffer *view, int flags)
 {
@@ -372,7 +295,6 @@ static int sipArray_getbuffer(PyObject *self, Py_buffer *view, int flags)
 
     return 0;
 }
-#endif
 
 
 #if PY_MAJOR_VERSION < 3
@@ -440,15 +362,9 @@ static PyBufferProcs sipArray_BufferProcs = {
     sipArray_getreadbuffer, /* bf_getreadbuffer */
     sipArray_getwritebuffer,    /* bf_getwritebuffer */
     sipArray_getsegcount,   /* bf_getsegcount */
-#if PY_VERSION_HEX >= 0x02050000
     (charbufferproc)sipArray_getreadbuffer, /* bf_getcharbuffer */
-#if PY_VERSION_HEX >= 0x02060300
     sipArray_getbuffer,     /* bf_getbuffer */
     0                       /* bf_releasebuffer */
-#endif
-#else
-    (getcharbufferproc)sipArray_getreadbuffer   /* bf_getcharbuffer */
-#endif
 #endif
 };
 
@@ -479,11 +395,7 @@ PyTypeObject sipArray_Type = {
     0,                      /* tp_repr */
     0,                      /* tp_as_number */
     &sipArray_SequenceMethods,  /* tp_as_sequence */
-#if PY_VERSION_HEX >= 0x02050000
     &sipArray_MappingMethods,   /* tp_as_mapping */
-#else
-    0,                      /* tp_as_mapping */
-#endif
     0,                      /* tp_hash */
     0,                      /* tp_call */
     0,                      /* tp_str */
@@ -521,9 +433,7 @@ PyTypeObject sipArray_Type = {
     0,                      /* tp_subclasses */
     0,                      /* tp_weaklist */
     0,                      /* tp_del */
-#if PY_VERSION_HEX >= 0x02060000
     0,                      /* tp_version_tag */
-#endif
 #if PY_VERSION_HEX >= 0x03040000
     0,                      /* tp_finalize */
 #endif
@@ -559,27 +469,6 @@ static int check_index(sipArrayObject *array, SIP_SSIZE_T idx)
 }
 
 
-#if PY_VERSION_HEX < 0x02050000
-/*
- * Fix the bounds of a slice in the same way that the Python buffer object
- * does.
- */
-static void fix_bounds(int len, int *left, int *right)
-{
-    if (*left < 0)
-        *left = 0;
-    else if (*left > len)
-        *left = len;
-
-    if (*right < *left)
-        *right = *left;
-    else if (*right > len)
-        *right = len;
-}
-#endif
-
-
-#if PY_VERSION_HEX >= 0x02050000
 /*
  * Raise an exception about a bad sub-script key.
  */
@@ -589,7 +478,6 @@ static void bad_key(PyObject *key)
             "cannot index a sip.array object using '%s'",
             Py_TYPE(key)->tp_name);
 }
-#endif
 
 
 /*
@@ -638,7 +526,7 @@ static void *get_value(sipArrayObject *array, PyObject *value)
             break;
 
         case 'B':
-            static_data.u_char_t = (unsigned char)sip_api_long_as_unsigned_long(value);
+            static_data.u_char_t = (unsigned char)PyLong_AsUnsignedLongMask(value);
             data = &static_data.u_char_t;
             break;
 
@@ -648,7 +536,7 @@ static void *get_value(sipArrayObject *array, PyObject *value)
             break;
 
         case 'H':
-            static_data.u_short_t = (unsigned short)sip_api_long_as_unsigned_long(value);
+            static_data.u_short_t = (unsigned short)PyLong_AsUnsignedLongMask(value);
             data = &static_data.u_short_t;
             break;
 
@@ -658,7 +546,7 @@ static void *get_value(sipArrayObject *array, PyObject *value)
             break;
 
         case 'I':
-            static_data.u_int_t = sip_api_long_as_unsigned_long(value);
+            static_data.u_int_t = PyLong_AsUnsignedLongMask(value);
             data = &static_data.u_int_t;
             break;
 
@@ -758,13 +646,8 @@ static void *get_slice(sipArrayObject *array, PyObject *value, SIP_SSIZE_T len)
     if (other->stride == array->stride)
     {
         PyErr_Format(PyExc_TypeError,
-#if PY_VERSION_HEX >= 0x02050000
                 "the array being assigned must have stride %zu",
                 array->stride);
-#else
-                "the array being assigned must have stride %ld",
-                (unsigned long)array->stride);
-#endif
 
         return NULL;
     }

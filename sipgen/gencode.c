@@ -565,7 +565,6 @@ static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
 "#define sipConvertFromNewPyType     sipAPI_%s->api_convert_from_new_pytype\n"
 "#define sipConvertFromEnum          sipAPI_%s->api_convert_from_enum\n"
 "#define sipGetState                 sipAPI_%s->api_get_state\n"
-"#define sipLong_AsUnsignedLong      sipAPI_%s->api_long_as_unsigned_long\n"
 "#define sipExportSymbol             sipAPI_%s->api_export_symbol\n"
 "#define sipImportSymbol             sipAPI_%s->api_import_symbol\n"
 "#define sipFindType                 sipAPI_%s->api_find_type\n"
@@ -627,7 +626,6 @@ static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
 "#define sipConvertFromMappedType    sipConvertFromType\n"
 "#define sipConvertFromNamedEnum(v, pt)  sipConvertFromEnum((v), ((sipEnumTypeObject *)(pt))->type)\n"
 "#define sipConvertFromNewInstance(p, wt, t) sipConvertFromNewType((p), (wt)->type, (t))\n"
-        ,mname
         ,mname
         ,mname
         ,mname
@@ -5107,11 +5105,11 @@ static int generateObjToCppConversion(argDef *ad,FILE *fp)
         break;
 
     case ubyte_type:
-        rhs = "(unsigned char)sipLong_AsUnsignedLong(sipPy)";
+        rhs = "(unsigned char)PyLong_AsUnsignedLongMask(sipPy)";
         break;
 
     case ushort_type:
-        rhs = "(unsigned short)sipLong_AsUnsignedLong(sipPy)";
+        rhs = "(unsigned short)PyLong_AsUnsignedLongMask(sipPy)";
         break;
 
     case short_type:
@@ -5119,7 +5117,7 @@ static int generateObjToCppConversion(argDef *ad,FILE *fp)
         break;
 
     case uint_type:
-        rhs = "(uint)sipLong_AsUnsignedLong(sipPy)";
+        rhs = "(uint)PyLong_AsUnsignedLongMask(sipPy)";
         break;
 
     case int_type:
@@ -5128,7 +5126,7 @@ static int generateObjToCppConversion(argDef *ad,FILE *fp)
         break;
 
     case ulong_type:
-        rhs = "sipLong_AsUnsignedLong(sipPy)";
+        rhs = "PyLong_AsUnsignedLongMask(sipPy)";
         break;
 
     case long_type:

@@ -43,7 +43,7 @@
  * we associate with a wrapped type.
  */
 
-static PyObject *sipWrapperType_alloc(PyTypeObject *self, SIP_SSIZE_T nitems);
+static PyObject *sipWrapperType_alloc(PyTypeObject *self, Py_ssize_t nitems);
 static PyObject *sipWrapperType_getattro(PyObject *self, PyObject *name);
 static int sipWrapperType_init(sipWrapperType *self, PyObject *args,
         PyObject *kwds);
@@ -275,13 +275,13 @@ static sipWrapperType sipWrapper_Type = {
 
 
 static void sip_api_bad_catcher_result(PyObject *method);
-static void sip_api_bad_length_for_slice(SIP_SSIZE_T seqlen,
-        SIP_SSIZE_T slicelen);
+static void sip_api_bad_length_for_slice(Py_ssize_t seqlen,
+        Py_ssize_t slicelen);
 static PyObject *sip_api_build_result(int *isErr, const char *fmt, ...);
 static PyObject *sip_api_call_method(int *isErr, PyObject *method,
         const char *fmt, ...);
-static SIP_SSIZE_T sip_api_convert_from_sequence_index(SIP_SSIZE_T idx,
-        SIP_SSIZE_T len);
+static Py_ssize_t sip_api_convert_from_sequence_index(Py_ssize_t idx,
+        Py_ssize_t len);
 static int sip_api_can_convert_to_type(PyObject *pyObj, const sipTypeDef *td,
         int flags);
 static void *sip_api_convert_to_type(PyObject *pyObj, const sipTypeDef *td,
@@ -615,7 +615,7 @@ typedef struct _sipProxyResolver {
  * The structures to support a Python type to hold a named enum.
  *****************************************************************************/
 
-static PyObject *sipEnumType_alloc(PyTypeObject *self, SIP_SSIZE_T nitems);
+static PyObject *sipEnumType_alloc(PyTypeObject *self, Py_ssize_t nitems);
 
 
 /*
@@ -723,7 +723,7 @@ static void *findSlotInClass(const sipClassTypeDef *psd, sipPySlotType st);
 static void *findSlotInSlotList(sipPySlotDef *psd, sipPySlotType st);
 static int objobjargprocSlot(PyObject *self, PyObject *arg1, PyObject *arg2,
         sipPySlotType st);
-static int ssizeobjargprocSlot(PyObject *self, SIP_SSIZE_T arg1,
+static int ssizeobjargprocSlot(PyObject *self, Py_ssize_t arg1,
         PyObject *arg2, sipPySlotType st);
 static PyObject *buildObject(PyObject *tup, const char *fmt, va_list va);
 static int parseKwdArgs(PyObject **parseErrp, PyObject *sipArgs,
@@ -737,13 +737,13 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
         va_list va);
 static int parseResult(PyObject *method, PyObject *res,
         sipSimpleWrapper *py_self, const char *fmt, va_list va);
-static PyObject *signature_FromDocstring(const char *doc, SIP_SSIZE_T line);
+static PyObject *signature_FromDocstring(const char *doc, Py_ssize_t line);
 static PyObject *detail_FromFailure(PyObject *failure_obj);
 static int isQObject(PyObject *obj);
 static int canConvertFromSequence(PyObject *seq, const sipTypeDef *td);
 static int convertFromSequence(PyObject *seq, const sipTypeDef *td,
-        void **array, SIP_SSIZE_T *nr_elem);
-static PyObject *convertToSequence(void *array, SIP_SSIZE_T nr_elem,
+        void **array, Py_ssize_t *nr_elem);
+static PyObject *convertToSequence(void *array, Py_ssize_t nr_elem,
         const sipTypeDef *td);
 static int getSelfFromArgs(sipTypeDef *td, PyObject *args, int argnr,
         sipSimpleWrapper **selfp);
@@ -814,7 +814,7 @@ static void removeFromParent(sipWrapper *self);
 static void release(void *addr, const sipTypeDef *td, int state);
 static void callPyDtor(sipSimpleWrapper *self);
 static int parseBytes_AsCharArray(PyObject *obj, const char **ap,
-        SIP_SSIZE_T *aszp);
+        Py_ssize_t *aszp);
 static int parseBytes_AsChar(PyObject *obj, char *ap);
 static int parseBytes_AsString(PyObject *obj, const char **ap);
 static int parseString_AsASCIIChar(PyObject *obj, char *ap);
@@ -827,8 +827,8 @@ static int parseString_AsEncodedChar(PyObject *bytes, PyObject *obj, char *ap);
 static PyObject *parseString_AsEncodedString(PyObject *bytes, PyObject *obj,
         const char **ap);
 #if defined(HAVE_WCHAR_H)
-static int parseWCharArray(PyObject *obj, wchar_t **ap, SIP_SSIZE_T *aszp);
-static int convertToWCharArray(PyObject *obj, wchar_t **ap, SIP_SSIZE_T *aszp);
+static int parseWCharArray(PyObject *obj, wchar_t **ap, Py_ssize_t *aszp);
+static int convertToWCharArray(PyObject *obj, wchar_t **ap, Py_ssize_t *aszp);
 static int parseWChar(PyObject *obj, wchar_t *ap);
 static int convertToWChar(PyObject *obj, wchar_t *ap);
 static int parseWCharString(PyObject *obj, wchar_t **ap);
@@ -2150,10 +2150,10 @@ static PyObject *buildObject(PyObject *obj, const char *fmt, va_list va)
         case 'g':
             {
                 char *s;
-                SIP_SSIZE_T l;
+                Py_ssize_t l;
 
                 s = va_arg(va, char *);
-                l = va_arg(va, SIP_SSIZE_T);
+                l = va_arg(va, Py_ssize_t);
 
                 if (s != NULL)
                 {
@@ -2172,10 +2172,10 @@ static PyObject *buildObject(PyObject *obj, const char *fmt, va_list va)
 #if defined(HAVE_WCHAR_H)
             {
                 wchar_t *s;
-                SIP_SSIZE_T l;
+                Py_ssize_t l;
 
                 s = va_arg(va, wchar_t *);
-                l = va_arg(va, SIP_SSIZE_T);
+                l = va_arg(va, Py_ssize_t);
 
                 if (s != NULL)
                     el = PyUnicode_FromWideChar(s, l);
@@ -2337,7 +2337,7 @@ static PyObject *buildObject(PyObject *obj, const char *fmt, va_list va)
                 wchar_t *s = va_arg(va, wchar_t *);
 
                 if (s != NULL)
-                    el = PyUnicode_FromWideChar(s, (SIP_SSIZE_T)wcslen(s));
+                    el = PyUnicode_FromWideChar(s, (Py_ssize_t)wcslen(s));
                 else
                 {
                     Py_INCREF(Py_None);
@@ -2408,7 +2408,7 @@ static PyObject *buildObject(PyObject *obj, const char *fmt, va_list va)
         case 'r':
             {
                 void *p = va_arg(va, void *);
-                SIP_SSIZE_T l = va_arg(va, SIP_SSIZE_T);
+                Py_ssize_t l = va_arg(va, Py_ssize_t);
                 const sipTypeDef *td = va_arg(va, const sipTypeDef *);
 
                 el = convertToSequence(p, l, td);
@@ -2623,7 +2623,7 @@ static int parseResult(PyObject *method, PyObject *res,
             case 'g':
                 {
                     const char **p = va_arg(va, const char **);
-                    SIP_SSIZE_T *szp = va_arg(va, SIP_SSIZE_T *);
+                    Py_ssize_t *szp = va_arg(va, Py_ssize_t *);
 
                     if (parseBytes_AsCharArray(arg, p, szp) < 0)
                         invalid = TRUE;
@@ -2635,7 +2635,7 @@ static int parseResult(PyObject *method, PyObject *res,
 #if defined(HAVE_WCHAR_H)
                 {
                     wchar_t **p = va_arg(va, wchar_t **);
-                    SIP_SSIZE_T *szp = va_arg(va, SIP_SSIZE_T *);
+                    Py_ssize_t *szp = va_arg(va, Py_ssize_t *);
 
                     if (parseWCharArray(arg, p, szp) < 0)
                         invalid = TRUE;
@@ -3639,7 +3639,7 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
         const char **kwdlist, PyObject **unused, const char *fmt, va_list va)
 {
     int compulsory, argnr, nr_args;
-    SIP_SSIZE_T nr_pos_args, nr_kwd_args, nr_kwd_args_used;
+    Py_ssize_t nr_pos_args, nr_kwd_args, nr_kwd_args_used;
     sipParseFailure failure;
 
     failure.reason = Ok;
@@ -3741,7 +3741,7 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
                 else
                 {
                     PyObject *key, *value, *unused_dict = NULL;
-                    SIP_SSIZE_T pos = 0;
+                    Py_ssize_t pos = 0;
 
                     /*
                      * Go through the keyword arguments to find any that were
@@ -3896,7 +3896,7 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
             if (unused == NULL && sipKwdArgs != NULL && nr_kwd_args_used != nr_kwd_args)
             {
                 PyObject *key, *value;
-                SIP_SSIZE_T pos = 0;
+                Py_ssize_t pos = 0;
 
                 while (PyDict_Next(sipKwdArgs, &pos, &key, &value))
                 {
@@ -4168,7 +4168,7 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
 
                 td = va_arg(va, const sipTypeDef *);
                 va_arg(va, void **);
-                va_arg(va, SIP_SSIZE_T *);
+                va_arg(va, Py_ssize_t *);
 
                 if (arg != NULL && !canConvertFromSequence(arg, td))
                 {
@@ -4476,7 +4476,7 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
                 /* Char array or None. */
 
                 const char **p = va_arg(va, const char **);
-                SIP_SSIZE_T *szp = va_arg(va, SIP_SSIZE_T *);
+                Py_ssize_t *szp = va_arg(va, Py_ssize_t *);
 
                 if (arg != NULL && parseBytes_AsCharArray(arg, p, szp) < 0)
                 {
@@ -4494,7 +4494,7 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
                 /* Wide char array or None. */
 
                 wchar_t **p = va_arg(va, wchar_t **);
-                SIP_SSIZE_T *szp = va_arg(va, SIP_SSIZE_T *);
+                Py_ssize_t *szp = va_arg(va, Py_ssize_t *);
 
                 if (arg != NULL && parseWCharArray(arg, p, szp) < 0)
                 {
@@ -5122,7 +5122,7 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
         va_list va)
 {
     int a, ok;
-    SIP_SSIZE_T nr_pos_args;
+    Py_ssize_t nr_pos_args;
 
     /* Handle the converions of "self" first. */
     switch (*fmt++)
@@ -5311,11 +5311,11 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
 
                 const sipTypeDef *td;
                 void **array;
-                SIP_SSIZE_T *nr_elem;
+                Py_ssize_t *nr_elem;
 
                 td = va_arg(va, const sipTypeDef *);
                 array = va_arg(va, void **);
-                nr_elem = va_arg(va, SIP_SSIZE_T *);
+                nr_elem = va_arg(va, Py_ssize_t *);
 
                 if (arg != NULL && !convertFromSequence(arg, td, array, nr_elem))
                     return FALSE;
@@ -5566,7 +5566,7 @@ static int isQObject(PyObject *obj)
  */
 static int canConvertFromSequence(PyObject *seq, const sipTypeDef *td)
 {
-    SIP_SSIZE_T i, size = PySequence_Size(seq);
+    Py_ssize_t i, size = PySequence_Size(seq);
 
     if (size < 0)
         return FALSE;
@@ -5597,10 +5597,10 @@ static int canConvertFromSequence(PyObject *seq, const sipTypeDef *td)
  * canConvertFromSequence().  Return TRUE if the conversion was successful.
  */
 static int convertFromSequence(PyObject *seq, const sipTypeDef *td,
-        void **array, SIP_SSIZE_T *nr_elem)
+        void **array, Py_ssize_t *nr_elem)
 {
     int iserr = 0;
-    SIP_SSIZE_T i, size = PySequence_Size(seq);
+    Py_ssize_t i, size = PySequence_Size(seq);
     sipArrayFunc array_helper;
     sipAssignFunc assign_helper;
     void *array_mem;
@@ -5655,10 +5655,10 @@ static int convertFromSequence(PyObject *seq, const sipTypeDef *td,
 /*
  * Convert an array of a type to a Python sequence.
  */
-static PyObject *convertToSequence(void *array, SIP_SSIZE_T nr_elem,
+static PyObject *convertToSequence(void *array, Py_ssize_t nr_elem,
         const sipTypeDef *td)
 {
-    SIP_SSIZE_T i;
+    Py_ssize_t i;
     PyObject *seq;
     sipCopyFunc copy_helper;
 
@@ -5830,8 +5830,8 @@ static void removeFromParent(sipWrapper *self)
  * Convert a sequence index.  Return the index or a negative value if there was
  * an error.
  */
-static SIP_SSIZE_T sip_api_convert_from_sequence_index(SIP_SSIZE_T idx,
-        SIP_SSIZE_T len)
+static Py_ssize_t sip_api_convert_from_sequence_index(Py_ssize_t idx,
+        Py_ssize_t len)
 {
     /* Negative indices start from the other end. */
     if (idx < 0)
@@ -7084,7 +7084,7 @@ static void sip_api_no_method(PyObject *parseErr, const char *scope,
         {
             static const char *summary = "arguments did not match any overloaded call:";
 
-            SIP_SSIZE_T i;
+            Py_ssize_t i;
 
             if (doc != NULL)
             {
@@ -7140,13 +7140,11 @@ static void sip_api_no_method(PyObject *parseErr, const char *scope,
                     else
                     {
 #if PY_MAJOR_VERSION >= 3
-                        failure = PyUnicode_FromFormat(
-                            "\n  overload " SIP_SSIZE_T_FORMAT ": %U", i + 1,
-                            detail);
+                        failure = PyUnicode_FromFormat("\n  overload %zd: %U",
+                                i + 1, detail);
 #else
-                        failure = PyString_FromFormat(
-                            "\n  overload " SIP_SSIZE_T_FORMAT ": %s", i + 1,
-                            PyString_AS_STRING(detail));
+                        failure = PyString_FromFormat("\n  overload %zd: %s",
+                                i + 1, PyString_AS_STRING(detail));
 #endif
                     }
 
@@ -7192,10 +7190,10 @@ static void sip_api_no_method(PyObject *parseErr, const char *scope,
  * Return a string/unicode object extracted from a particular line of a
  * docstring.
  */
-static PyObject *signature_FromDocstring(const char *doc, SIP_SSIZE_T line)
+static PyObject *signature_FromDocstring(const char *doc, Py_ssize_t line)
 {
     const char *eol;
-    SIP_SSIZE_T size = 0;
+    Py_ssize_t size = 0;
 
     /*
      * Find the start of the line.  If there is a non-default versioned
@@ -7428,11 +7426,11 @@ static void sip_api_bad_operator_arg(PyObject *self, PyObject *arg,
 /*
  * Report a sequence length that does not match the length of a slice.
  */
-static void sip_api_bad_length_for_slice(SIP_SSIZE_T seqlen,
-        SIP_SSIZE_T slicelen)
+static void sip_api_bad_length_for_slice(Py_ssize_t seqlen,
+        Py_ssize_t slicelen)
 {
     PyErr_Format(PyExc_ValueError,
-            "attempt to assign sequence of size " SIP_SSIZE_T_FORMAT " to slice of size " SIP_SSIZE_T_FORMAT,
+            "attempt to assign sequence of size %zd to slice of size %zd",
             seqlen, slicelen);
 }
 
@@ -8129,7 +8127,7 @@ static PyObject *sip_api_is_py_method(sip_gilstate_t *gil, char *pymc,
         sipSimpleWrapper *sipSelf, const char *cname, const char *mname)
 {
     PyObject *mname_obj, *reimp, *mro, *cls;
-    SIP_SSIZE_T i;
+    Py_ssize_t i;
 
     /*
      * This is the most common case (where there is no Python reimplementation)
@@ -9419,7 +9417,7 @@ static int objobjargprocSlot(PyObject *self, PyObject *arg1, PyObject *arg2,
 /*
  * Handle an ssizeobjargproc slot.
  */
-static int ssizeobjargprocSlot(PyObject *self, SIP_SSIZE_T arg1,
+static int ssizeobjargprocSlot(PyObject *self, Py_ssize_t arg1,
         PyObject *arg2, sipPySlotType st)
 {
     int (*f)(PyObject *, PyObject *);
@@ -9463,7 +9461,7 @@ static int ssizeobjargprocSlot(PyObject *self, SIP_SSIZE_T arg1,
 /*
  * The metatype alloc slot.
  */
-static PyObject *sipWrapperType_alloc(PyTypeObject *self, SIP_SSIZE_T nitems)
+static PyObject *sipWrapperType_alloc(PyTypeObject *self, Py_ssize_t nitems)
 {
     PyObject *o;
 
@@ -9901,7 +9899,7 @@ static int sipSimpleWrapper_init(sipSimpleWrapper *self, PyObject *args,
         if (PyDict_Size(unused) != 0)
         {
             PyObject *key, *value;
-            SIP_SSIZE_T pos = 0;
+            Py_ssize_t pos = 0;
 
             /* Just report one of the unused arguments. */
             PyDict_Next(unused, &pos, &key, &value);
@@ -9966,7 +9964,7 @@ static int sip_api_init_mixin(PyObject *self, PyObject *args, PyObject *kwds,
         const sipClassTypeDef *ctd)
 {
     int rc;
-    SIP_SSIZE_T pos;
+    Py_ssize_t pos;
     PyObject *unused, *mixin, *mixin_name, *key, *value;
     PyTypeObject *self_wt = sipTypeAsPyTypeObject(((sipWrapperType *)Py_TYPE(self))->type);
     PyTypeObject *wt = sipTypeAsPyTypeObject(&ctd->ctd_base);
@@ -10320,8 +10318,8 @@ static void sipSimpleWrapper_releasebuffer(sipSimpleWrapper *self,
 /*
  * The instance read buffer slot for Python v2.
  */
-static SIP_SSIZE_T sipSimpleWrapper_getreadbuffer(sipSimpleWrapper *self,
-        SIP_SSIZE_T segment, void **ptrptr)
+static Py_ssize_t sipSimpleWrapper_getreadbuffer(sipSimpleWrapper *self,
+        Py_ssize_t segment, void **ptrptr)
 {
     void *ptr;
     const sipClassTypeDef *ctd;
@@ -10338,8 +10336,8 @@ static SIP_SSIZE_T sipSimpleWrapper_getreadbuffer(sipSimpleWrapper *self,
 /*
  * The instance write buffer slot for Python v2.
  */
-static SIP_SSIZE_T sipSimpleWrapper_getwritebuffer(sipSimpleWrapper *self,
-        SIP_SSIZE_T segment, void **ptrptr)
+static Py_ssize_t sipSimpleWrapper_getwritebuffer(sipSimpleWrapper *self,
+        Py_ssize_t segment, void **ptrptr)
 {
     void *ptr;
     const sipClassTypeDef *ctd;
@@ -10356,8 +10354,8 @@ static SIP_SSIZE_T sipSimpleWrapper_getwritebuffer(sipSimpleWrapper *self,
 /*
  * The instance segment count slot for Python v2.
  */
-static SIP_SSIZE_T sipSimpleWrapper_getsegcount(sipSimpleWrapper *self,
-        SIP_SSIZE_T *lenp)
+static Py_ssize_t sipSimpleWrapper_getsegcount(sipSimpleWrapper *self,
+        Py_ssize_t *lenp)
 {
     void *ptr;
     const sipClassTypeDef *ctd;
@@ -10374,8 +10372,8 @@ static SIP_SSIZE_T sipSimpleWrapper_getsegcount(sipSimpleWrapper *self,
 /*
  * The instance char buffer slot for Python v2.
  */
-static SIP_SSIZE_T sipSimpleWrapper_getcharbuffer(sipSimpleWrapper *self,
-        SIP_SSIZE_T segment, void **ptrptr)
+static Py_ssize_t sipSimpleWrapper_getcharbuffer(sipSimpleWrapper *self,
+        Py_ssize_t segment, void **ptrptr)
 {
     void *ptr;
     const sipClassTypeDef *ctd;
@@ -10425,7 +10423,7 @@ static PyObject *slot_call(PyObject *self, PyObject *args, PyObject *kw)
 /*
  * The sequence type item slot.
  */
-static PyObject *slot_sq_item(PyObject *self, SIP_SSIZE_T n)
+static PyObject *slot_sq_item(PyObject *self, Py_ssize_t n)
 {
     PyObject *(*f)(PyObject *,PyObject *);
     PyObject *arg, *res;
@@ -10465,7 +10463,7 @@ static int slot_mp_ass_subscript(PyObject *self, PyObject *key,
 /*
  * The sequence type assign item slot.
  */
-static int slot_sq_ass_item(PyObject *self, SIP_SSIZE_T i, PyObject *o)
+static int slot_sq_ass_item(PyObject *self, Py_ssize_t i, PyObject *o)
 {
     return ssizeobjargprocSlot(self, i, o,
             (o != NULL ? setitem_slot : delitem_slot));
@@ -11523,7 +11521,7 @@ static int parseString_AsUTF8Char(PyObject *obj, char *ap)
  */
 static int parseString_AsEncodedChar(PyObject *bytes, PyObject *obj, char *ap)
 {
-    SIP_SSIZE_T size;
+    Py_ssize_t size;
 
     if (bytes == NULL)
     {
@@ -11699,10 +11697,10 @@ static PyObject *parseString_AsEncodedString(PyObject *bytes, PyObject *obj,
  * Parse a character array and return it's address and length.
  */
 static int parseBytes_AsCharArray(PyObject *obj, const char **ap,
-        SIP_SSIZE_T *aszp)
+        Py_ssize_t *aszp)
 {
     const char *a;
-    SIP_SSIZE_T asz;
+    Py_ssize_t asz;
 
     if (obj == Py_None)
     {
@@ -11735,7 +11733,7 @@ static int parseBytes_AsCharArray(PyObject *obj, const char **ap,
 static int parseBytes_AsChar(PyObject *obj, char *ap)
 {
     const char *chp;
-    SIP_SSIZE_T sz;
+    Py_ssize_t sz;
 
     if (SIPBytes_Check(obj))
     {
@@ -11763,7 +11761,7 @@ static int parseBytes_AsChar(PyObject *obj, char *ap)
 static int parseBytes_AsString(PyObject *obj, const char **ap)
 {
     const char *a;
-    SIP_SSIZE_T sz;
+    Py_ssize_t sz;
 
     if (parseBytes_AsCharArray(obj, &a, &sz) < 0)
         return -1;
@@ -11827,10 +11825,10 @@ static wchar_t *sip_api_unicode_as_wstring(PyObject *obj)
 /*
  * Parse a wide character array and return it's address and length.
  */
-static int parseWCharArray(PyObject *obj, wchar_t **ap, SIP_SSIZE_T *aszp)
+static int parseWCharArray(PyObject *obj, wchar_t **ap, Py_ssize_t *aszp)
 {
     wchar_t *a;
-    SIP_SSIZE_T asz;
+    Py_ssize_t asz;
 
     if (obj == Py_None)
     {
@@ -11877,9 +11875,9 @@ static int parseWCharArray(PyObject *obj, wchar_t **ap, SIP_SSIZE_T *aszp)
  * Convert a Unicode object to a wide character array and return it's address
  * and length.
  */
-static int convertToWCharArray(PyObject *obj, wchar_t **ap, SIP_SSIZE_T *aszp)
+static int convertToWCharArray(PyObject *obj, wchar_t **ap, Py_ssize_t *aszp)
 {
-    SIP_SSIZE_T ulen;
+    Py_ssize_t ulen;
     wchar_t *wc;
 
 #if PY_VERSION_HEX >= 0x03030000
@@ -12023,7 +12021,7 @@ static int parseWCharString(PyObject *obj, wchar_t **ap)
  */
 static int convertToWCharString(PyObject *obj, wchar_t **ap)
 {
-    SIP_SSIZE_T ulen;
+    Py_ssize_t ulen;
     wchar_t *wc;
 
 #if PY_VERSION_HEX >= 0x03030000
@@ -12092,7 +12090,7 @@ static void raiseNoWChar()
 /*
  * The enum type alloc slot.
  */
-static PyObject *sipEnumType_alloc(PyTypeObject *self, SIP_SSIZE_T nitems)
+static PyObject *sipEnumType_alloc(PyTypeObject *self, Py_ssize_t nitems)
 {
     sipEnumTypeObject *py_type;
     sipPySlotDef *psd;

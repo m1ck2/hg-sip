@@ -154,7 +154,7 @@ specification files.
         the Python method and would normally be the supplied ``sipMethod``.
 
 
-.. c:function:: void sipBadLengthForSlice(SIP_SSIZE_T seqlen, SIP_SSIZE_T slicelen)
+.. c:function:: void sipBadLengthForSlice(Py_ssize_t seqlen, Py_ssize_t slicelen)
 
     This raises a Python exception when the length of a slice object is
     inappropriate for a sequence-like object.  It is normally called by
@@ -208,7 +208,7 @@ specification files.
     ``f`` (float) [float]
         Convert a C/C++ ``float`` to a Python floating point number.
 
-    ``g`` (string/bytes) [char \*, :c:macro:`SIP_SSIZE_T`]
+    ``g`` (string/bytes) [char \*, Py_ssize_t]
         Convert a C/C++ character array and its length to a Python v2 string
         object or a Python v3 bytes object.  If the array is ``NULL`` then the
         length is ignored and the result is ``Py_None``.
@@ -231,7 +231,7 @@ specification files.
     ``o`` (long) [unsigned long long]
         Convert a C/C++ ``unsigned long long`` to a Python long.
 
-    ``r`` (wrapped instance) [*type* \*, :c:macro:`SIP_SSIZE_T`, const :c:type:`sipTypeDef` \*]
+    ``r`` (wrapped instance) [*type* \*, Py_ssize_t, const :c:type:`sipTypeDef` \*]
         Convert an array of C structures, C++ classes or mapped type instances
         to a Python tuple.  Note that copies of the array elements are made.
 
@@ -316,7 +316,7 @@ specification files.
         Convert a named C/C++ ``enum`` to an instance of the corresponding
         Python named enum type.
 
-    ``G`` (unicode) [wchar_t \*, :c:macro:`SIP_SSIZE_T`]
+    ``G`` (unicode) [wchar_t \*, Py_ssize_t]
         Convert a C/C++ wide character array and its length to a Python unicode
         object.  If the array is ``NULL`` then the length is ignored and the
         result is ``Py_None``.
@@ -472,7 +472,7 @@ specification files.
         the :class:`sip.voidptr` object.
 
 
-.. c:function:: PyObject *sipConvertFromConstVoidPtrAndSize(const void *cpp, SIP_SSIZE_T size)
+.. c:function:: PyObject *sipConvertFromConstVoidPtrAndSize(const void *cpp, Py_ssize_t size)
 
     This creates a :class:`sip.voidptr` object for a memory address.  The
     object will not be writeable and can be used as an immutable buffer object.
@@ -657,7 +657,7 @@ specification files.
     :directive:`%ConvertToSubClassCode` code.
 
 
-.. c:function:: SIP_SSIZE_T sipConvertFromSequenceIndex(SIP_SSIZE_T idx, SIP_SSIZE_T len)
+.. c:function:: Py_ssize_t sipConvertFromSequenceIndex(Py_ssize_t idx, Py_ssize_t len)
 
     This converts a Python sequence index (i.e. where a negative value refers
     to the offset from the end of the sequence) to a C/C++ array index.  If the
@@ -672,7 +672,7 @@ specification files.
         the unsigned array index.
 
 
-.. c:function:: int sipConvertFromSliceObject(PyObject *slice, SIP_SSIZE_T length, SIP_SSIZE_T *start, SIP_SSIZE_T *stop, SIP_SSIZE_T *step, SIP_SSIZE_T *slicelength)
+.. c:function:: int sipConvertFromSliceObject(PyObject *slice, Py_ssize_t length, Py_ssize_t *start, Py_ssize_t *stop, Py_ssize_t *step, Py_ssize_t *slicelength)
 
     This is a thin wrapper around the Python :c:func:`PySlice_GetIndicesEx()`
     function provided to make it easier to write handwritten code that is
@@ -723,7 +723,7 @@ specification files.
         the :class:`sip.voidptr` object.
 
 
-.. c:function:: PyObject *sipConvertFromVoidPtrAndSize(void *cpp, SIP_SSIZE_T size)
+.. c:function:: PyObject *sipConvertFromVoidPtrAndSize(void *cpp, Py_ssize_t size)
 
     This creates a :class:`sip.voidptr` object for a memory address.  The
     object will be writeable and can be used as a mutable buffer object.
@@ -736,7 +736,7 @@ specification files.
         the :class:`sip.voidptr` object.
 
 
-.. c:function:: PyObject *sipConvertToArray(void *data, const char *format, SIP_SSIZE_T len, int flags)
+.. c:function:: PyObject *sipConvertToArray(void *data, const char *format, Py_ssize_t len, int flags)
 
     .. versionadded:: 4.15
 
@@ -906,7 +906,7 @@ specification files.
     rather than after each call.)
 
 
-.. c:function:: PyObject *sipConvertToTypedArray(void *data, const sipTypeDef *td, const char *format, size_t stride, SIP_SSIZE_T len, int flags)
+.. c:function:: PyObject *sipConvertToTypedArray(void *data, const sipTypeDef *td, const char *format, size_t stride, Py_ssize_t len, int flags)
 
     .. versionadded:: 4.15
 
@@ -1348,7 +1348,7 @@ specification files.
     ``f`` (float) [float \*]
         Convert a Python floating point number to a C/C++ ``float``.
 
-    ``g`` (string/bytes) [const char \*\*, :c:macro:`SIP_SSIZE_T` \*]
+    ``g`` (string/bytes) [const char \*\*, Py_ssize_t \*]
         Convert a Python v2 string object or a Python v3 bytes object to a
         C/C++ character array and its length.  If the Python object is
         ``Py_None`` then the array and length are ``NULL`` and zero
@@ -1461,7 +1461,7 @@ specification files.
     ``F`` (wrapped enum) [:c:type:`sipTypeDef` \*, enum \*]
         Convert a Python named enum type to the corresponding C/C++ ``enum``.
 
-    ``G`` (unicode/string) [wchar_t \*\*, :c:macro:`SIP_SSIZE_T` \*]
+    ``G`` (unicode/string) [wchar_t \*\*, Py_ssize_t \*]
         Convert a Python v2 string or unicode object or a Python v3 string
         object to a C/C++ wide character array and its length.  If the Python
         object is ``Py_None`` then the array and length are ``NULL`` and zero

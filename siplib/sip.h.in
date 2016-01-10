@@ -323,8 +323,8 @@ typedef int (*sipClearFunc)(void *);
 typedef int (*sipGetBufferFunc)(PyObject *, void *, Py_buffer *, int);
 typedef void (*sipReleaseBufferFunc)(PyObject *, void *, Py_buffer *);
 #else
-typedef SIP_SSIZE_T (*sipBufferFunc)(PyObject *, void *, SIP_SSIZE_T, void **);
-typedef SIP_SSIZE_T (*sipSegCountFunc)(PyObject *, void *, SIP_SSIZE_T *);
+typedef Py_ssize_t (*sipBufferFunc)(PyObject *, void *, Py_ssize_t, void **);
+typedef Py_ssize_t (*sipSegCountFunc)(PyObject *, void *, Py_ssize_t *);
 #endif
 typedef void (*sipDeallocFunc)(struct _sipSimpleWrapper *);
 typedef void *(*sipCastFunc)(void *, const struct _sipTypeDef *);
@@ -335,9 +335,9 @@ typedef void (*sipVirtErrorHandlerFunc)(struct _sipSimpleWrapper *,
         sip_gilstate_t);
 typedef int (*sipVirtHandlerFunc)(sip_gilstate_t, sipVirtErrorHandlerFunc,
         struct _sipSimpleWrapper *, PyObject *, ...);
-typedef void (*sipAssignFunc)(void *, SIP_SSIZE_T, const void *);
-typedef void *(*sipArrayFunc)(SIP_SSIZE_T);
-typedef void *(*sipCopyFunc)(const void *, SIP_SSIZE_T);
+typedef void (*sipAssignFunc)(void *, Py_ssize_t, const void *);
+typedef void *(*sipArrayFunc)(Py_ssize_t);
+typedef void *(*sipCopyFunc)(const void *, Py_ssize_t);
 typedef void (*sipReleaseFunc)(void *, int);
 typedef PyObject *(*sipPickleFunc)(void *);
 typedef int (*sipAttrGetterFunc)(const struct _sipTypeDef *, PyObject *);
@@ -1326,14 +1326,14 @@ typedef struct _sipAPIDef {
     PyTypeObject *api_voidptr_type;
 
     void (*api_bad_catcher_result)(PyObject *method);
-    void (*api_bad_length_for_slice)(SIP_SSIZE_T seqlen, SIP_SSIZE_T slicelen);
+    void (*api_bad_length_for_slice)(Py_ssize_t seqlen, Py_ssize_t slicelen);
     PyObject *(*api_build_result)(int *isErr, const char *fmt, ...);
     PyObject *(*api_call_method)(int *isErr, PyObject *method, const char *fmt,
             ...);
     PyObject *(*api_connect_rx)(PyObject *txObj, const char *sig,
             PyObject *rxObj, const char *slot, int type);
-    SIP_SSIZE_T (*api_convert_from_sequence_index)(SIP_SSIZE_T idx,
-            SIP_SSIZE_T len);
+    Py_ssize_t (*api_convert_from_sequence_index)(Py_ssize_t idx,
+            Py_ssize_t len);
     int (*api_can_convert_to_type)(PyObject *pyObj, const sipTypeDef *td,
             int flags);
     void *(*api_convert_to_type)(PyObject *pyObj, const sipTypeDef *td,
@@ -1362,9 +1362,9 @@ typedef struct _sipAPIDef {
     PyObject *(*api_convert_from_void_ptr)(void *val);
     PyObject *(*api_convert_from_const_void_ptr)(const void *val);
     PyObject *(*api_convert_from_void_ptr_and_size)(void *val,
-            SIP_SSIZE_T size);
+            Py_ssize_t size);
     PyObject *(*api_convert_from_const_void_ptr_and_size)(const void *val,
-            SIP_SSIZE_T size);
+            Py_ssize_t size);
     void *(*api_convert_to_void_ptr)(PyObject *obj);
     int (*api_export_symbol)(const char *name, void *sym);
     void *(*api_import_symbol)(const char *name);
@@ -1472,9 +1472,9 @@ typedef struct _sipAPIDef {
     PyObject *(*api_convert_from_new_pytype)(void *cpp, PyTypeObject *py_type,
             sipWrapper *owner, sipSimpleWrapper **selfp, const char *fmt, ...);
     PyObject *(*api_convert_to_typed_array)(void *data, const sipTypeDef *td,
-            const char *format, size_t stride, SIP_SSIZE_T len, int flags);
+            const char *format, size_t stride, Py_ssize_t len, int flags);
     PyObject *(*api_convert_to_array)(void *data, const char *format,
-            SIP_SSIZE_T len, int flags);
+            Py_ssize_t len, int flags);
     int (*api_register_proxy_resolver)(const sipTypeDef *td,
             sipProxyResolverFunc resolver);
 

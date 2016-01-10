@@ -1,7 +1,7 @@
 /*
  * The transitional Python bindings for the C parts of the sip5 code generator.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *

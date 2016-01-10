@@ -321,7 +321,7 @@ static int isBackstop(qualDef *qd);
 %token          TK_SIPRXDIS
 %token          TK_SIPSLOTCON
 %token          TK_SIPSLOTDIS
-%token          TK_SIPSSIZET
+%token          TK_PYSSIZET
 %token <number> TK_NUMBER_VALUE
 %token <real>   TK_REAL_VALUE
 %token          TK_TYPEDEF
@@ -4369,7 +4369,7 @@ basetype:   scopedname {
             memset(&$$, 0, sizeof (argDef));
             $$.atype = pybuffer_type;
         }
-    |   TK_SIPSSIZET {
+    |   TK_PYSSIZET {
             memset(&$$, 0, sizeof (argDef));
             $$.atype = ssize_type;
         }
@@ -7222,7 +7222,7 @@ static void newFunction(sipSpec *pt, moduleDef *mod, classDef *c_scope,
 
         if ((len->methodcode = od->methodcode) == NULL)
         {
-            char *buf = sipStrdup("            sipRes = (SIP_SSIZE_T)sipCpp->");
+            char *buf = sipStrdup("            sipRes = (Py_ssize_t)sipCpp->");
             codeBlock *code;
 
             append(&buf, od->cppname);

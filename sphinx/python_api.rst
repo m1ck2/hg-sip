@@ -329,21 +329,10 @@ can be used by applications.
 
     .. method:: ascapsule() -> capsule
 
-        .. versionadded:: 4.10
-
-        This returns the address as an unnamed Python Capsule.  This requires
-        Python v3.1 or later or Python v2.7 or later.
+        This returns the address as an unnamed Python Capsule.
 
         :return:
             the Capsule.
-
-    .. method:: ascobject() -> cObject
-
-        This returns the address as a Python CObject.  This is deprecated with
-        Python v3.1 and is not supported with Python v3.2 and later.
-
-        :return:
-            the CObject.
 
     .. method:: asstring([size=-1]) -> string/bytes
 

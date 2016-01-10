@@ -84,18 +84,16 @@ specification files.
 
 .. c:macro:: SIP_SSIZE_T
 
-    This is a C preprocessor macro that is defined as ``Py_ssize_t`` for Python
-    v2.5 and later, and as ``int`` for earlier versions of Python.  It makes it
-    easier to write PEP 353 compliant handwritten code.
+    This is a C preprocessor macro that is always defined as ``Py_ssize_t``.
+    It is provided to make it easier to write ``.sip`` files that will work
+    with SIP v5 and SIP v4.
 
 
 .. c:macro:: SIP_SSIZE_T_FORMAT
 
-    .. versionadded:: 4.15.4
-
-    This is a C preprocessor macro that is defined as ``%zd`` for Python
-    v2.5 and later, and as ``%d`` for earlier versions of Python.  It makes it
-    easier to write PEP 353 compliant handwritten code.
+    This is a C preprocessor macro that is always defined as ``%zd``.  It is
+    provided to make it easier to write ``.sip`` files that will work with
+    SIP v5 and SIP v4.
 
 
 .. c:macro:: SIP_UNBLOCK_THREADS

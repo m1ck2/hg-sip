@@ -13,8 +13,6 @@ can be used by applications.
 
 .. class:: array
 
-    .. versionadded:: 4.15
-
     This is the type object for the type SIP uses to represent an array of a
     limited number of C/C++ types.  Typically the memory is not owned by Python
     so that it is not freed when the object is garbage collected.  A
@@ -57,8 +55,6 @@ can be used by applications.
 
 .. function:: enableautoconversion(type, enable) -> bool
 
-    .. versionadded:: 4.14.7
-
     Instances of some classes may be automatically converted to other Python
     objects even though the class has been wrapped.  This allows that behaviour
     to be suppressed so that an instances of the wrapped class is returned
@@ -76,8 +72,6 @@ can be used by applications.
 
 
 .. function:: getapi(name) -> version
-
-    .. versionadded:: 4.9
 
     This returns the version number that has been set for an API.  The version
     number is either set explicitly by a call to :func:`sip.setapi` or
@@ -103,8 +97,6 @@ can be used by applications.
 
 .. function:: ispycreated(obj) -> bool
 
-    .. versionadded:: 4.12.1
-
     This checks if the C++ instance or C structure was created by Python.  If
     it was then it is possible to call a C++ instance's protected methods.
 
@@ -125,8 +117,6 @@ can be used by applications.
 
 
 .. function:: setapi(name, version)
-
-    .. versionadded:: 4.9
 
     This sets the version number of an API.  An exception is raised if a
     different version number has already been set, either explicitly by a
@@ -151,8 +141,6 @@ can be used by applications.
 
 
 .. function:: setdestroyonexit(destroy)
-
-    .. versionadded:: 4.14.2
 
     When the Python interpreter exits it garbage collects those objects that it
     can.  This means that any corresponding C++ instances and C structures
@@ -199,19 +187,15 @@ can be used by applications.
 
 .. data:: SIP_VERSION
 
-    .. versionadded:: 4.2
-
     This is a Python integer object that represents the SIP version number as
-    a 3 part hexadecimal number (e.g. v4.0.0 is represented as ``0x040000``).
+    a 3 part hexadecimal number (e.g. v5.0.0 is represented as ``0x050000``).
 
 
 .. data:: SIP_VERSION_STR
 
-    .. versionadded:: 4.3
-
     This is a Python string object that defines the SIP version number as
-    represented as a string.  For development previews it will start with
-    ``preview-`` or ``snapshot-``.
+    represented as a string.  For development previews it will contain the
+    string ``.dev``.
 
 
 .. function:: transferback(obj)
@@ -265,8 +249,6 @@ can be used by applications.
 
     .. method:: __getitem__(idx) -> item
 
-        .. versionadded:: 4.12
-
         This returns the item at a given index.  An exception will be raised if
         the address does not have an associated size.  In this way it behaves
         like a Python ``memoryview`` object.
@@ -290,16 +272,12 @@ can be used by applications.
 
     .. method:: __len__() -> integer
 
-        .. versionadded:: 4.12
-
         This returns the size associated with the address.
         
         :return:
             the associated size.  An exception will be raised if there is none.
 
     .. method:: __setitem__(idx, item)
-
-        .. versionadded:: 4.12
 
         This updates the memory at a given index.  An exception will be raised
         if the address does not have an associated size or is not writable.  In
@@ -314,8 +292,6 @@ can be used by applications.
             data that is being updated.
 
     .. method:: asarray([size=-1]) -> :class:`sip.array`
-
-        .. versionadded:: 4.16.5
 
         This returned the block of memory as a :class:`sip.array` object.  The
         memory is *not* copied.

@@ -237,11 +237,11 @@ static PyObject *py_transform(PyObject *self, PyObject *args)
 static PyObject *py_generateCode(PyObject *self, PyObject *args)
 {
     sipSpec *pt;
-    char *codeDir, *srcSuffix, *consModule;
+    char *codeDir, *srcSuffix;
     int exceptions, tracing, releaseGIL, parts, docs;
     stringList *versions, *xfeatures;
 
-    if (!PyArg_ParseTuple(args, "O&O&O&pppiO&O&O&p",
+    if (!PyArg_ParseTuple(args, "O&O&O&pppiO&O&p",
             sipSpec_convertor, &pt,
             fs_convertor, &codeDir,
             fs_convertor, &srcSuffix,
@@ -251,12 +251,11 @@ static PyObject *py_generateCode(PyObject *self, PyObject *args)
             &parts,
             stringList_convertor, &versions,
             stringList_convertor, &xfeatures,
-            fs_convertor, &consModule,
             &docs))
         return NULL;
 
     generateCode(pt, codeDir, srcSuffix, exceptions, tracing, releaseGIL,
-            parts, versions, xfeatures, consModule, docs);
+            parts, versions, xfeatures, docs);
 
     Py_RETURN_NONE;
 }

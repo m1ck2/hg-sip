@@ -76,11 +76,6 @@ def main():
             help="enable the automatic generation of docstrings [default "
                     "disabled]")
 
-    parser.add_argument('-p', dest='consModule',
-            help="the name of the consolidated module that this is a "
-                    "component of",
-            metavar="MODULE")
-
     parser.add_argument('-P', dest='protHack', action='store_true',
             default=False,
             help="enable the protected/public hack [default disabled]")
@@ -125,7 +120,7 @@ def main():
     if args.codeDir is not None:
         generateCode(pt, args.codeDir, args.srcSuffix, args.exceptions,
                 args.tracing, args.releaseGIL, args.parts, args.versions,
-                args.xfeatures, args.consModule, args.docs)
+                args.xfeatures, args.docs)
 
     # Generate any extracts.
     generateExtracts(pt, args.extracts)

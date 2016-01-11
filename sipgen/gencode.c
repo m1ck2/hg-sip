@@ -66,10 +66,6 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
         const char *srcSuffix, int parts, stringList *needed_qualifiers,
         stringList *xsl);
 static void generateCompositeCpp(sipSpec *pt, const char *codeDir);
-static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
-        const char *srcSuffix);
-static void generateComponentCpp(sipSpec *pt, const char *codeDir,
-        const char *consModule);
 static void generateSipImport(moduleDef *mod, FILE *fp);
 static void generateSipImportVariables(FILE *fp);
 static void generateModInitStart(moduleDef *mod, int gen_c, FILE *fp);
@@ -285,8 +281,7 @@ static int emptyIfaceFile(sipSpec *pt, ifaceFileDef *iff);
  */
 void generateCode(sipSpec *pt, char *codeDir, const char *srcSuffix,
         int except, int trace, int releaseGIL, int parts,
-        stringList *needed_qualifiers, stringList *xsl, const char *consModule,
-        int docs)
+        stringList *needed_qualifiers, stringList *xsl, int docs)
 {
     exceptions = except;
     tracing = trace;
@@ -299,19 +294,6 @@ void generateCode(sipSpec *pt, char *codeDir, const char *srcSuffix,
 
     if (isComposite(pt->module))
         generateCompositeCpp(pt, codeDir);
-    else if (isConsolidated(pt->module))
-    {
-        moduleDef *mod;
-
-        for (mod = pt->modules; mod != NULL; mod = mod->next)
-            if (mod->container == pt->module)
-                generateCpp(pt, mod, codeDir, srcSuffix, parts,
-                            needed_qualifiers, xsl);
-
-        generateConsolidatedCpp(pt, codeDir, srcSuffix);
-    }
-    else if (consModule != NULL)
-        generateComponentCpp(pt, codeDir, consModule);
     else
         generateCpp(pt, pt->module, codeDir, srcSuffix, parts,
                     needed_qualifiers, xsl);
@@ -907,205 +889,6 @@ static void generateCompositeCpp(sipSpec *pt, const char *codeDir)
 
 
 /*
- * Generate the C/C++ code for a consolidated module.
- */
-static void generateConsolidatedCpp(sipSpec *pt, const char *codeDir,
-        const char *srcSuffix)
-{
-    char *cppfile;
-    const char *mname = pt->module->name;
-    const char *fullname = pt->module->fullname->text;
-    moduleDef *mod;
-    FILE *fp;
-
-    cppfile = concat(codeDir, "/sip", mname, "cmodule", srcSuffix, NULL);
-    fp = createCompilationUnit(pt->module, cppfile,
-            "Consolidated module code.");
-
-    prcode(fp,
-"\n"
-"#include <Python.h>\n"
-"#include <string.h>\n"
-"#include <sip.h>\n"
-        );
-
-    generateNameCache(pt, fp);
-
-    prcode(fp,
-"\n"
-"\n"
-"/* The component module initialisers. */\n"
-        );
-
-    /* Declare the component module initialisers. */
-    for (mod = pt->modules; mod != NULL; mod = mod->next)
-        if (mod->container == pt->module)
-            prcode(fp,
-"#if PY_MAJOR_VERSION >= 3\n"
-"extern PyObject *sip_init_%s(void);\n"
-"#else\n"
-"extern void sip_init_%s(void);\n"
-"#endif\n"
-                , mod->name
-                , mod->name);
-
-    /* Generate the init function. */
-    prcode(fp,
-"\n"
-"\n"
-        );
-
-    if (!generating_c)
-        prcode(fp,
-"extern \"C\" {static PyObject *sip_init(PyObject *, PyObject *);}\n"
-            );
-
-    prcode(fp,
-"static PyObject *sip_init(PyObject *%s, PyObject *arg)\n"
-"{\n"
-"    struct component {\n"
-"        const char *name;\n"
-"#if PY_MAJOR_VERSION >= 3\n"
-"        PyObject *(*init)(void);\n"
-"#else\n"
-"        void (*init)(void);\n"
-"#endif\n"
-"    };\n"
-"\n"
-"    static struct component components[] = {\n"
-        , (generating_c ? "self" : ""));
-
-    for (mod = pt->modules; mod != NULL; mod = mod->next)
-        if (mod->container == pt->module)
-            prcode(fp,
-"        {\"%s\", sip_init_%s},\n"
-                , mod->fullname->text, mod->name);
-
-    prcode(fp,
-"        {NULL, NULL}\n"
-"    };\n"
-"\n"
-"    const char *name;\n"
-"    struct component *scd;\n"
-"\n"
-"#if PY_MAJOR_VERSION >= 3\n"
-"    name = PyBytes_AsString(arg);\n"
-"#else\n"
-"    name = PyString_AsString(arg);\n"
-"#endif\n"
-"\n"
-"    if (name == NULL)\n"
-"        return NULL;\n"
-"\n"
-"    for (scd = components; scd->name != NULL; ++scd)\n"
-"        if (strcmp(scd->name, name) == 0)\n"
-"#if PY_MAJOR_VERSION >= 3\n"
-"            return (*scd->init)();\n"
-"#else\n"
-"        {\n"
-"            (*scd->init)();\n"
-"\n"
-"            Py_INCREF(Py_None);\n"
-"            return Py_None;\n"
-"        }\n"
-"#endif\n"
-"\n"
-"    PyErr_Format(PyExc_ImportError, \"unknown component module %%s\", name);\n"
-"\n"
-"    return NULL;\n"
-"}\n"
-        );
-
-    generateModDocstring(pt->module, fp);
-    generateModInitStart(pt->module, generating_c, fp);
-
-    prcode(fp,
-"    static PyMethodDef sip_methods[] = {\n"
-"        {\"init\", sip_init, METH_O, NULL},\n"
-"        {NULL, NULL, 0, NULL}\n"
-"    };\n"
-        );
-
-    generateModDefinition(pt->module, "sip_methods", fp);
-
-    prcode(fp,
-"\n"
-"#if PY_MAJOR_VERSION >= 3\n"
-"    return PyModule_Create(&sip_module_def);\n"
-"#else\n"
-        );
-
-    if (pt->module->docstring == NULL)
-        prcode(fp,
-"    Py_InitModule(\"%s\", sip_methods);\n"
-            , fullname);
-    else
-        prcode(fp,
-"    Py_InitModule3(\"%s\", sip_methods, doc_mod_%s);\n"
-            , fullname, mname);
-
-    prcode(fp,
-"#endif\n"
-"}\n"
-        );
-
-    closeFile(fp);
-    free(cppfile);
-}
-
-
-/*
- * Generate the C/C++ code for a component module.
- */
-static void generateComponentCpp(sipSpec *pt, const char *codeDir,
-        const char *consModule)
-{
-    char *cppfile;
-    FILE *fp;
-
-    cppfile = concat(codeDir, "/sip", pt->module->name, "cmodule.c", NULL);
-    fp = createCompilationUnit(pt->module, cppfile, "Component module code.");
-
-    prcode(fp,
-"\n"
-"#include <Python.h>\n"
-        );
-
-    generateModInitStart(pt->module, TRUE, fp);
-
-    prcode(fp,
-"    PyObject *sip_mod, *sip_result;\n"
-"\n"
-"    /* Import the consolidated module. */\n"
-"    if ((sip_mod = PyImport_ImportModule(\"%s\")) == NULL)\n"
-"        SIP_MODULE_RETURN(NULL);\n"
-"\n"
-        , consModule);
-
-    prcode(fp,
-"    /* Ask the consolidated module to do the initialistion. */\n"
-"#if PY_MAJOR_VERSION >= 3\n"
-"    sip_result = PyObject_CallMethod(sip_mod, \"init\", \"y\", \"%s\");\n"
-"#else\n"
-"    sip_result = PyObject_CallMethod(sip_mod, \"init\", \"s\", \"%s\");\n"
-"#endif\n"
-"    Py_DECREF(sip_mod);\n"
-"\n"
-"#if PY_MAJOR_VERSION >= 3\n"
-"    return sip_result;\n"
-"#else\n"
-"    Py_XDECREF(sip_result);\n"
-"#endif\n"
-"}\n"
-        , pt->module->fullname->text
-        , pt->module->fullname->text);
-
-    closeFile(fp);
-    free(cppfile);
-}
-
-
-/*
  * Generate the name cache definition.
  */
 static void generateNameCache(sipSpec *pt, FILE *fp)
@@ -1116,11 +899,6 @@ static void generateNameCache(sipSpec *pt, FILE *fp)
 "\n"
 "/* Define the strings used by this module. */\n"
         );
-
-    if (isConsolidated(pt->module))
-        prcode(fp,
-"extern const char sipStrings_%s[];\n"
-            , pt->module->name);
 
     prcode(fp,
 "const char sipStrings_%s[] = {\n"

@@ -3212,7 +3212,7 @@ static int parseResult(PyObject *method, PyObject *res,
                     }
                     else
                     {
-#if defined(SIP_USE_CAPSULE)
+#if defined(SIP_USE_PYCAPSULE)
                         void *v = PyCapsule_GetPointer(arg, name);
 #else
                         void *v = sip_api_convert_to_void_ptr(arg);

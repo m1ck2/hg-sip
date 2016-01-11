@@ -2171,8 +2171,6 @@ static int generateSubClassConvertors(sipSpec *pt, moduleDef *mod, FILE *fp)
 
     for (cd = pt->classes; cd != NULL; cd = cd->next)
     {
-        int needs_sipClass;
-
         if (cd->iff->module != mod)
             continue;
 
@@ -2190,41 +2188,22 @@ static int generateSubClassConvertors(sipSpec *pt, moduleDef *mod, FILE *fp)
 "extern \"C\" {static const sipTypeDef *sipSubClass_%C(void **);}\n"
                 , classFQCName(cd));
 
-        /* Allow the deprecated use of sipClass rather than sipType. */
-        needs_sipClass = usedInCode(cd->convtosubcode, "sipClass");
-
         prcode(fp,
 "static const sipTypeDef *sipSubClass_%C(void **sipCppRet)\n"
 "{\n"
 "    %S *sipCpp = reinterpret_cast<%S *>(*sipCppRet);\n"
+"    const sipTypeDef *sipType;\n"
+"\n"
             , classFQCName(cd)
             , classFQCName(cd->subbase), classFQCName(cd->subbase));
 
-        if (needs_sipClass)
-            prcode(fp,
-"    sipWrapperType *sipClass;\n"
-"\n"
-                );
-        else
-            prcode(fp,
-"    const sipTypeDef *sipType;\n"
-"\n"
-                );
-
         generateCppCodeBlock(cd->convtosubcode, fp);
 
-        if (needs_sipClass)
-            prcode(fp,
-"\n"
-"    return (sipClass ? sipClass->type : 0);\n"
-"}\n"
-                );
-        else
-            prcode(fp,
+        prcode(fp,
 "\n"
 "    return sipType;\n"
 "}\n"
-                );
+            );
 
         ++nrSccs;
     }

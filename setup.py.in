@@ -45,7 +45,7 @@ if sys.hexversion >= 0x03000000:
     sip5_module = Extension('sip5._sip', sip5_module_src,
             include_dirs=['sipgen'])
 
-    ext_modules.append(sip_module)
+    ext_modules.append(sip5_module)
     entry_points['console_scripts'] = ['sip5 = sip5.main:main']
     packages.append('sip5')
 

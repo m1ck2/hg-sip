@@ -8537,42 +8537,12 @@ static KwArgs keywordArgs(moduleDef *mod, optFlags *optflgs, signatureDef *sd,
         int need_name)
 {
     KwArgs kwargs;
-    optFlag *ka_anno, *no_ka_anno;
+    optFlag *ka_anno;
 
-    /* Get the default. */
-    kwargs = mod->kwargs;
-
-    /*
-     * Get the possible annotations allowing /KeywordArgs/ to have different
-     * types of values.
-     */
-    ka_anno = findOptFlag(optflgs, "KeywordArgs");
-    no_ka_anno = getOptFlag(optflgs, "NoKeywordArgs", bool_flag);
-
-    if (no_ka_anno != NULL)
-    {
-        if (ka_anno != NULL)
-            yyerror("/KeywordArgs/ and /NoKeywordArgs/ cannot both be specified");
-
-        deprecated("/NoKeywordArgs/ is deprecated, use /KeywordArgs=\"None\" instead");
-
-        kwargs = NoKwArgs;
-    }
-    else if (ka_anno != NULL)
-    {
-        /* A string value is the non-deprecated type. */
-        if (ka_anno->ftype == string_flag)
-        {
-            kwargs = convertKwArgs(ka_anno->fvalue.sval);
-        }
-        else
-        {
-            deprecated("/KeywordArgs/ is deprecated, use /KeywordArgs=\"All\" instead");
-
-            /* Get it again to check the type. */
-            ka_anno = getOptFlag(optflgs, "KeywordArgs", bool_flag);
-        }
-    }
+    if ((ka_anno = getOptFlag(optflgs, "KeywordArgs", string_flag)) != NULL)
+        kwargs = convertKwArgs(ka_anno->fvalue.sval);
+    else
+        kwargs = mod->kwargs;
 
     /* An ellipsis cannot be used with keyword arguments. */
     if (sd->nrArgs > 0 && sd->args[sd->nrArgs - 1].atype == ellipsis_type)

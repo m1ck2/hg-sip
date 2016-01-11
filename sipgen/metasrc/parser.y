@@ -1,7 +1,7 @@
 /*
  * The SIP parser.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *
@@ -229,8 +229,6 @@ static int isBackstop(qualDef *qd);
 %token          TK_PLUGIN
 %token          TK_VIRTERRORHANDLER
 %token          TK_DOCSTRING
-%token          TK_DOC
-%token          TK_EXPORTEDDOC
 %token          TK_EXTRACT
 %token          TK_MAKEFILE
 %token          TK_ACCESSCODE
@@ -569,8 +567,6 @@ modstatement:   module
     |   unitcode
     |   unitpostinccode
     |   prepycode
-    |   doc
-    |   exporteddoc
     |   extract
     |   makefile
     |   mappedtype
@@ -2120,18 +2116,6 @@ unitpostinccode:    TK_UNITPOSTINCLUDECODE codeblock {
 
 prepycode:  TK_PREPYCODE codeblock {
             /* Deprecated. */
-        }
-    ;
-
-doc:        TK_DOC codeblock {
-            if (notSkipping() && inMainModule())
-                appendCodeBlock(&currentSpec->docs, $2);
-        }
-    ;
-
-exporteddoc:    TK_EXPORTEDDOC codeblock {
-            if (notSkipping())
-                appendCodeBlock(&currentSpec->docs, $2);
         }
     ;
 

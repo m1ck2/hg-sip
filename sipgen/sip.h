@@ -1252,7 +1252,6 @@ typedef struct {
     typedefDef *typedefs;               /* List of typedefs. */
     virtErrorHandler *errorhandlers;    /* The list of virtual error handlers. */
     codeBlockList *exphdrcode;          /* Exported header code. */
-    codeBlockList *docs;                /* Documentation. */
     int sigslots;                       /* Set if signals or slots are used. */
     int genc;                           /* Set if we are generating C code. */
     struct _stringList *plugins;        /* The list of plugins. */

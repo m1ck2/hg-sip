@@ -1,7 +1,7 @@
 /*
  * The SIP lexer.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *
@@ -496,22 +496,6 @@ SIP_QOBJECT                 {return TK_QOBJECT;}
     /* The start of a docstring block. */
     codeIdx = 0;
     return TK_DOCSTRING;
-}
-
-^[ \t]*%Doc {
-    /* The start of a documentation block. */
-    deprecated("%Doc is deprecated, use %Extract instead");
-
-    codeIdx = 0;
-    return TK_DOC;
-}
-
-^[ \t]*%ExportedDoc {
-    /* The start of an exported documentation block. */
-    deprecated("%ExportedDoc is deprecated, use %Extract instead");
-
-    codeIdx = 0;
-    return TK_EXPORTEDDOC;
 }
 
 ^[ \t]*%Makefile {

@@ -295,10 +295,6 @@ static PyObject *sip_api_convert_from_new_pytype(void *cpp,
         const char *fmt, ...);
 static int sip_api_get_state(PyObject *transferObj);
 static PyObject *sip_api_get_pyobject(void *cppPtr, const sipTypeDef *td);
-static sipWrapperType *sip_api_map_int_to_class(int typeInt,
-        const sipIntTypeClassMap *map, int maplen);
-static sipWrapperType *sip_api_map_string_to_class(const char *typeString,
-        const sipStringTypeClassMap *map, int maplen);
 static int sip_api_parse_result_ex(sip_gilstate_t gil_state,
         sipVirtErrorHandlerFunc error_handler, sipSimpleWrapper *py_self,
         PyObject *method, PyObject *res, const char *fmt, ...);
@@ -344,9 +340,6 @@ static void sip_api_add_delayed_dtor(sipSimpleWrapper *w);
 static int sip_api_export_symbol(const char *name, void *sym);
 static void *sip_api_import_symbol(const char *name);
 static const sipTypeDef *sip_api_find_type(const char *type);
-static sipWrapperType *sip_api_find_class(const char *type);
-static const sipMappedType *sip_api_find_mapped_type(const char *type);
-static PyTypeObject *sip_api_find_named_enum(const char *type);
 static char sip_api_bytes_as_char(PyObject *obj);
 static const char *sip_api_bytes_as_string(PyObject *obj);
 static char sip_api_string_as_ascii_char(PyObject *obj);
@@ -362,7 +355,6 @@ static wchar_t *sip_api_unicode_as_wstring(PyObject *obj);
 static int sip_api_unicode_as_wchar(PyObject *obj);
 static int *sip_api_unicode_as_wstring(PyObject *obj);
 #endif
-static void sip_api_transfer_break(PyObject *self);
 static int sip_api_deprecated(const char *classname, const char *method);
 static int sip_api_register_py_type(PyTypeObject *supertype);
 static PyObject *sip_api_convert_from_enum(int eval, const sipTypeDef *td);
@@ -424,7 +416,6 @@ static const sipAPIDef sip_api = {
     sip_api_trace,
     sip_api_transfer_back,
     sip_api_transfer_to,
-    sip_api_transfer_break,
     sip_api_convert_from_void_ptr,
     sip_api_convert_from_const_void_ptr,
     sip_api_convert_from_void_ptr_and_size,
@@ -443,14 +434,6 @@ static const sipAPIDef sip_api = {
     sip_api_get_address,
     sip_api_set_destroy_on_exit,
     sip_api_enable_autoconversion,
-    /*
-     * The following are deprecated parts of the public API.
-     */
-    sip_api_find_named_enum,
-    sip_api_find_mapped_type,
-    sip_api_find_class,
-    sip_api_map_int_to_class,
-    sip_api_map_string_to_class,
     /*
      * The following may be used by Qt support code but by no other handwritten
      * code.
@@ -2232,19 +2215,6 @@ static PyObject *buildObject(PyObject *obj, const char *fmt, va_list va)
 
             break;
 
-        case 'E':
-            {
-                /* This is deprecated. */
-
-                int ev = va_arg(va, int);
-                PyTypeObject *et = va_arg(va, PyTypeObject *);
-
-                el = sip_api_convert_from_enum(ev,
-                        ((const sipEnumTypeObject *)et)->type);
-            }
-
-            break;
-
         case 'F':
             {
                 int ev = va_arg(va, int);
@@ -2357,19 +2327,6 @@ static PyObject *buildObject(PyObject *obj, const char *fmt, va_list va)
             el = PyLong_FromUnsignedLong(va_arg(va, unsigned));
             break;
 
-        case 'B':
-            {
-                /* This is deprecated. */
-
-                void *p = va_arg(va,void *);
-                sipWrapperType *wt = va_arg(va, sipWrapperType *);
-                PyObject *xfer = va_arg(va, PyObject *);
-
-                el = sip_api_convert_from_new_type(p, wt->type, xfer);
-            }
-
-            break;
-
         case 'N':
             {
                 void *p = va_arg(va, void *);
@@ -2377,19 +2334,6 @@ static PyObject *buildObject(PyObject *obj, const char *fmt, va_list va)
                 PyObject *xfer = va_arg(va, PyObject *);
 
                 el = sip_api_convert_from_new_type(p, td, xfer);
-            }
-
-            break;
-
-        case 'C':
-            {
-                /* This is deprecated. */
-
-                void *p = va_arg(va,void *);
-                sipWrapperType *wt = va_arg(va, sipWrapperType *);
-                PyObject *xfer = va_arg(va, PyObject *);
-
-                el = sip_api_convert_from_type(p, wt->type, xfer);
             }
 
             break;
@@ -2727,26 +2671,6 @@ static int parseResult(PyObject *method, PyObject *res,
 
                 break;
 
-            case 'E':
-                {
-                    /* This is deprecated. */
-
-                    PyTypeObject *et = va_arg(va, PyTypeObject *);
-                    int *p = va_arg(va, int *);
-
-                    if (sip_api_can_convert_to_enum(arg, ((sipEnumTypeObject *)et)->type))
-                    {
-                        if (p != NULL)
-                            *p = SIPLong_AsLong(arg);
-                    }
-                    else
-                    {
-                        invalid = TRUE;
-                    }
-                }
-
-                break;
-
             case 'F':
                 {
                     sipTypeDef *td = va_arg(va, sipTypeDef *);
@@ -2919,18 +2843,6 @@ static int parseResult(PyObject *method, PyObject *res,
 
                 break;
 
-            case 's':
-                {
-                    /* This is deprecated. */
-
-                    const char **p = va_arg(va, const char **);
-
-                    if (parseBytes_AsString(arg, p) < 0)
-                        invalid = TRUE;
-                }
-
-                break;
-
             case 'A':
                 {
                     int key = va_arg(va, int);
@@ -2993,74 +2905,6 @@ static int parseResult(PyObject *method, PyObject *res,
                 raiseNoWChar();
                 invalid = TRUE;
 #endif
-
-                break;
-
-            case 'C':
-                {
-                    /* This is deprecated. */
-
-                    if (*fmt == '\0')
-                    {
-                        invalid = TRUE;
-                    }
-                    else
-                    {
-                        int flags = *fmt++ - '0';
-                        int iserr = FALSE;
-                        sipWrapperType *type;
-                        void **cpp;
-                        int *state;
-
-                        type = va_arg(va, sipWrapperType *);
-
-                        if (flags & FMT_RP_NO_STATE_DEPR)
-                            state = NULL;
-                        else
-                            state = va_arg(va, int *);
-
-                        cpp = va_arg(va, void **);
-
-                        *cpp = sip_api_force_convert_to_type(arg, type->type, (flags & FMT_RP_FACTORY ? arg : NULL), (flags & FMT_RP_DEREF ? SIP_NOT_NONE : 0), state, &iserr);
-
-                        if (iserr)
-                            invalid = TRUE;
-                    }
-                }
-
-                break;
-
-            case 'D':
-                {
-                    /* This is deprecated. */
-
-                    if (*fmt == '\0')
-                    {
-                        invalid = TRUE;
-                    }
-                    else
-                    {
-                        int flags = *fmt++ - '0';
-                        int iserr = FALSE;
-                        const sipTypeDef *td;
-                        void **cpp;
-                        int *state;
-
-                        td = va_arg(va, const sipTypeDef *);
-
-                        if (flags & FMT_RP_NO_STATE_DEPR)
-                            state = NULL;
-                        else
-                            state = va_arg(va, int *);
-
-                        cpp = va_arg(va, void **);
-
-                        *cpp = sip_api_force_convert_to_type(arg, td, (flags & FMT_RP_FACTORY ? arg : NULL), (flags & FMT_RP_DEREF ? SIP_NOT_NONE : 0), state, &iserr);
-
-                        if (iserr)
-                            invalid = TRUE;
-                    }
-                }
 
                 break;
 
@@ -3191,13 +3035,7 @@ static int parseResult(PyObject *method, PyObject *res,
                     }
                     else
                     {
-#if defined(SIP_USE_CAPSULE)
                         void *v = PyCapsule_GetPointer(arg, name);
-#else
-                        void *v = sip_api_convert_to_void_ptr(arg);
-
-                        (void)name;
-#endif
 
                         if (PyErr_Occurred())
                             invalid = TRUE;
@@ -7531,27 +7369,6 @@ static void sip_api_transfer_back(PyObject *self)
 
 
 /*
- * Break the association of a C++ owned Python object with any parent.  This is
- * deprecated because it is the equivalent of sip_api_transfer_to(self, NULL).
- */
-static void sip_api_transfer_break(PyObject *self)
-{
-    if (self != NULL && PyObject_TypeCheck(self, (PyTypeObject *)&sipWrapper_Type))
-    {
-        sipSimpleWrapper *sw = (sipSimpleWrapper *)self;
-
-        if (sipCppHasRef(sw))
-        {
-            sipResetCppHasRef(sw);
-            Py_DECREF(sw);
-        }
-        else
-            removeFromParent((sipWrapper *)sw);
-    }
-}
-
-
-/*
  * Transfer ownership of a class instance to C/C++ from Python.
  */
 static void sip_api_transfer_to(PyObject *self, PyObject *owner)
@@ -8938,49 +8755,6 @@ static const sipTypeDef *sip_api_find_type(const char *type)
 
 
 /*
- * Return the mapped type structure for a particular mapped type.  This is
- * deprecated.
- */
-static const sipMappedType *sip_api_find_mapped_type(const char *type)
-{
-    const sipTypeDef *td = sip_api_find_type(type);
-
-    if (td != NULL && sipTypeIsMapped(td))
-        return (const sipMappedType *)td;
-
-    return NULL;
-}
-
-
-/*
- * Return the type structure for a particular class.  This is deprecated.
- */
-static sipWrapperType *sip_api_find_class(const char *type)
-{
-    const sipTypeDef *td = sip_api_find_type(type);
-
-    if (td != NULL && sipTypeIsClass(td))
-        return (sipWrapperType *)sipTypeAsPyTypeObject(td);
-
-    return NULL;
-}
-
-
-/*
- * Return the type structure for a particular named enum.  This is deprecated.
- */
-static PyTypeObject *sip_api_find_named_enum(const char *type)
-{
-    const sipTypeDef *td = sip_api_find_type(type);
-
-    if (td != NULL && sipTypeIsEnum(td))
-        return sipTypeAsPyTypeObject(td);
-
-    return NULL;
-}
-
-
-/*
  * Save the components of a Python method.
  */
 void sipSaveMethod(sipPyMethod *pm, PyObject *meth)
@@ -9136,70 +8910,6 @@ static int convertPass(const sipTypeDef **tdp, void **cppPtr)
      * convertors.
      */
     return FALSE;
-}
-
-
-/*
- * The bsearch() helper function for searching a sorted string map table.
- */
-static int compareStringMapEntry(const void *key,const void *el)
-{
-    return strcmp((const char *)key,((const sipStringTypeClassMap *)el)->typeString);
-}
-
-
-/*
- * A convenience function for %ConvertToSubClassCode for types represented as a
- * string.  Returns the Python class object or NULL if the type wasn't
- * recognised.  This is deprecated.
- */
-static sipWrapperType *sip_api_map_string_to_class(const char *typeString,
-        const sipStringTypeClassMap *map, int maplen)
-{
-    sipStringTypeClassMap *me;
-
-    me = (sipStringTypeClassMap *)bsearch((const void *)typeString,
-                          (const void *)map,maplen,
-                          sizeof (sipStringTypeClassMap),
-                          compareStringMapEntry);
-
-        return ((me != NULL) ? *me->pyType : NULL);
-}
-
-
-/*
- * The bsearch() helper function for searching a sorted integer map table.
- */
-static int compareIntMapEntry(const void *keyp,const void *el)
-{
-    int key = *(int *)keyp;
-
-    if (key > ((const sipIntTypeClassMap *)el)->typeInt)
-        return 1;
-
-    if (key < ((const sipIntTypeClassMap *)el)->typeInt)
-        return -1;
-
-    return 0;
-}
-
-
-/*
- * A convenience function for %ConvertToSubClassCode for types represented as
- * an integer.  Returns the Python class object or NULL if the type wasn't
- * recognised.  This is deprecated.
- */
-static sipWrapperType *sip_api_map_int_to_class(int typeInt,
-        const sipIntTypeClassMap *map, int maplen)
-{
-    sipIntTypeClassMap *me;
-
-    me = (sipIntTypeClassMap *)bsearch((const void *)&typeInt,
-                       (const void *)map,maplen,
-                       sizeof (sipIntTypeClassMap),
-                       compareIntMapEntry);
-
-        return ((me != NULL) ? *me->pyType : NULL);
 }
 
 

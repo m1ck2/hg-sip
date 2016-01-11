@@ -69,7 +69,13 @@ extern "C" {
  * History:
  *
  * 20.0 The API implemented by SIP v5.0.
- *      Removed sip_api_long_as_unsigned_long.
+ *      Removed sip_api_long_as_unsigned_long().
+ *      Removed sip_api_find_class().
+ *      Removed sip_api_find_named_enum().
+ *      Removed sip_api_find_mapped_type().
+ *      Removed sip_api_map_int_to_class().
+ *      Removed sip_api_map_string_to_class().
+ *      Removed sip_api_transfer_break().
  *
  * 11.3 Added sip_api_get_interpreter() to the public API.
  *
@@ -1244,32 +1250,6 @@ typedef struct _sipTypeInstanceDef {
 
 
 /*
- * Define a mapping between a wrapped type identified by a string and the
- * corresponding Python type.  This is deprecated.
- */
-typedef struct _sipStringTypeClassMap {
-    /* The type as a string. */
-    const char *typeString;
-
-    /* A pointer to the Python type. */
-    struct _sipWrapperType **pyType;
-} sipStringTypeClassMap;
-
-
-/*
- * Define a mapping between a wrapped type identified by an integer and the
- * corresponding Python type.  This is deprecated.
- */
-typedef struct _sipIntTypeClassMap {
-    /* The type as an integer. */
-    int typeInt;
-
-    /* A pointer to the Python type. */
-    struct _sipWrapperType **pyType;
-} sipIntTypeClassMap;
-
-
-/*
  * A Python method's component parts.  This allows us to re-create the method
  * without changing the reference counts of the components.
  */
@@ -1358,7 +1338,6 @@ typedef struct _sipAPIDef {
     void (*api_trace)(unsigned mask, const char *fmt, ...);
     void (*api_transfer_back)(PyObject *self);
     void (*api_transfer_to)(PyObject *self, PyObject *owner);
-    void (*api_transfer_break)(PyObject *self);
     PyObject *(*api_convert_from_void_ptr)(void *val);
     PyObject *(*api_convert_from_const_void_ptr)(const void *val);
     PyObject *(*api_convert_from_void_ptr_and_size)(void *val,
@@ -1380,17 +1359,6 @@ typedef struct _sipAPIDef {
     void *(*api_get_address)(struct _sipSimpleWrapper *w);
     void (*api_set_destroy_on_exit)(int);
     int (*api_enable_autoconversion)(const sipTypeDef *td, int enable);
-
-    /*
-     * The following are deprecated parts of the public API.
-     */
-    PyTypeObject *(*api_find_named_enum)(const char *type);
-    const sipMappedType *(*api_find_mapped_type)(const char *type);
-    sipWrapperType *(*api_find_class)(const char *type);
-    sipWrapperType *(*api_map_int_to_class)(int typeInt,
-            const sipIntTypeClassMap *map, int maplen);
-    sipWrapperType *(*api_map_string_to_class)(const char *typeString,
-            const sipStringTypeClassMap *map, int maplen);
 
     /*
      * The following may be used by Qt support code but no other handwritten
@@ -1612,12 +1580,6 @@ typedef struct _sipQtAPI {
         PySlice_GetIndicesEx((PySliceObject *)(o), (len), (start), (stop), \
                 (step), (slen))
 #endif
-
-
-/*
- * The following are deprecated parts of the public API.
- */
-#define sipClassName(w)     PyString_FromString(Py_TYPE(w)->tp_name)
 
 
 /*

@@ -214,16 +214,7 @@ void transform(sipSpec *pt)
     *tail = NULL;
 
     /* Transform the various types in the modules. */
-    if (isConsolidated(pt->module))
-    {
-        /* Transform the modules included by the consolidated module. */
-        for (mod = pt->modules->next; mod != NULL; mod = mod->next)
-            transformModules(pt, mod);
-    }
-    else
-    {
-        transformModules(pt, pt->modules);
-    }
+    transformModules(pt, pt->modules);
 
     /* Handle default ctors now that the argument types are resolved. */ 
     if (!pt->genc)
@@ -3259,24 +3250,6 @@ static void searchMappedTypes(sipSpec *pt, moduleDef *context,
     for (mtd = pt->mappedtypes; mtd != NULL; mtd = mtd->next)
         if (sameBaseType(ad, &mtd->type))
         {
-            /*
-             * If we a building a consolidated module and this mapped type is
-             * defined in a different module then see if that other module is
-             * in a different branch of the module hierarchy.
-             */
-            if (isConsolidated(pt->module) && context != mtd->iff->module)
-            {
-                moduleListDef *mld;
-
-                for (mld = context->allimports; mld != NULL; mld = mld->next)
-                    if (mld->module == mtd->iff->module)
-                        break;
-
-                /* If it's in a different branch then we ignore it. */
-                if (mld == NULL)
-                    continue;
-            }
-
             mtd = copyTemplateType(mtd, ad);
 
             /* Copy the type. */
@@ -3708,15 +3681,11 @@ static int compareTypes(const void *t1, const void *t2)
 
 
 /*
- * Return TRUE if we are generating code for a module, ie. we are a component
- * of a consolidated module, or the main module where there is no consolidated
+ * Return TRUE if we are generating code for a module, ie. we are the main
  * module.
  */
 static int generatingCodeForModule(sipSpec *pt, moduleDef *mod)
 {
-    if (isConsolidated(pt->module))
-        return (pt->module == mod->container);
-
     return (pt->module == mod);
 }
 

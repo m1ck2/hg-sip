@@ -68,23 +68,19 @@
 /* Handle module flags. */
 
 #define MOD_HAS_DELAYED_DTORS   0x0001  /* It has a class with a delayed dtor. */
-#define MOD_IS_CONSOLIDATED     0x0002  /* It is a consolidated module. */
-#define MOD_IS_COMPOSITE        0x0004  /* It is a composite module. */
-#define MOD_IS_TRANSFORMED      0x0008  /* It's types have been transformed. */
-#define MOD_USE_ARG_NAMES       0x0010  /* Use real argument names. */
-#define MOD_ALL_RAISE_PY_EXC    0x0020  /* All callable raise a Python exception. */
-#define MOD_SUPER_INIT_NO       0x0040  /* Don't call super().__init__(). */
-#define MOD_SUPER_INIT_YES      0x0080  /* Call super().__init__(). */
+#define MOD_IS_COMPOSITE        0x0002  /* It is a composite module. */
+#define MOD_IS_TRANSFORMED      0x0004  /* It's types have been transformed. */
+#define MOD_USE_ARG_NAMES       0x0008  /* Use real argument names. */
+#define MOD_ALL_RAISE_PY_EXC    0x0010  /* All callable raise a Python exception. */
+#define MOD_SUPER_INIT_NO       0x0020  /* Don't call super().__init__(). */
+#define MOD_SUPER_INIT_YES      0x0040  /* Call super().__init__(). */
 #define MOD_SUPER_INIT_UNDEF    0x0000  /* Calling super().__init__() is undefined. */
-#define MOD_SUPER_INIT_MASK     0x00c0  /* The mask for the above flags. */
+#define MOD_SUPER_INIT_MASK     0x0060  /* The mask for the above flags. */
 
 #define hasDelayedDtors(m)  ((m)->modflags & MOD_HAS_DELAYED_DTORS)
 #define setHasDelayedDtors(m)   ((m)->modflags |= MOD_HAS_DELAYED_DTORS)
-#define isConsolidated(m)   ((m)->modflags & MOD_IS_CONSOLIDATED)
-#define setIsConsolidated(m)    ((m)->modflags |= MOD_IS_CONSOLIDATED)
 #define isComposite(m)      ((m)->modflags & MOD_IS_COMPOSITE)
 #define setIsComposite(m)   ((m)->modflags |= MOD_IS_COMPOSITE)
-#define isContainer(m)      ((m)->modflags & (MOD_IS_CONSOLIDATED | MOD_IS_COMPOSITE))
 #define setIsTransformed(m) ((m)->modflags |= MOD_IS_TRANSFORMED)
 #define isTransformed(m)    ((m)->modflags & MOD_IS_TRANSFORMED)
 #define setUseArgNames(m)   ((m)->modflags |= MOD_USE_ARG_NAMES)
@@ -1291,7 +1287,7 @@ void parse(sipSpec *, FILE *, char *, stringList *, stringList *, stringList *,
 void parserEOF(const char *,parserContext *);
 void transform(sipSpec *);
 void generateCode(sipSpec *, char *, const char *, int, int, int, int,
-        stringList *needed_qualifiers, stringList *, const char *, int);
+        stringList *needed_qualifiers, stringList *, int);
 void generateExtracts(sipSpec *pt, const stringList *extracts);
 void addExtractPart(sipSpec *pt, const char *id, int order, codeBlock *part);
 void generateAPI(sipSpec *pt, moduleDef *mod, const char *apiFile);
@@ -1413,13 +1409,6 @@ typedef struct _compModuleCfg {
     const char *name;
     codeBlock *docstring;
 } compModuleCfg;
-
-/* %ConsolidatedModule */
-typedef struct _consModuleCfg {
-    int token;
-    const char *name;
-    codeBlock *docstring;
-} consModuleCfg;
 
 /* %DefaultDocstringFormat */
 typedef struct _defDocstringCfg {

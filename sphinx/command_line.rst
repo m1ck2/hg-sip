@@ -72,11 +72,6 @@ The full set of command line options is:
     Docstrings will be automatically generated that describe the signature of
     all functions, methods and constructors.
 
-.. cmdoption:: -p <MODULE>
-
-    The name of the :directive:`%ConsolidatedModule` which will contain the
-    wrapper code for this component module.
-
 .. cmdoption:: -P
 
     By default SIP generates code to provide access to protected C++ functions

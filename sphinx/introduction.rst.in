@@ -93,10 +93,6 @@ SIP, and the bindings it produces, have the following features:
   specify that a C++ function of method may block, therefore allowing the lock
   to be released and other Python threads to run
 
-- support for consolidated modules where the generated wrapper code for a
-  number of related modules may be included in a single, possibly private,
-  module
-
 - support for the concept of ownership of a C++ instance (i.e. what part of the
   code is responsible for calling the instance's destructor) and how the
   ownership may change during the execution of an application

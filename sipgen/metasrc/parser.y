@@ -203,7 +203,6 @@ static int isBackstop(qualDef *qd);
     apiCfg          api;
     autoPyNameCfg   autopyname;
     compModuleCfg   compmodule;
-    consModuleCfg   consmodule;
     defDocstringCfg defdocstring;
     defEncodingCfg  defencoding;
     defMetatypeCfg  defmetatype;
@@ -277,7 +276,6 @@ static int isBackstop(qualDef *qd);
 %token          TK_MODHEADERCODE
 %token          TK_TYPEHEADERCODE
 %token          TK_MODULE
-%token          TK_CONSMODULE
 %token          TK_COMPOMODULE
 %token          TK_CLASS
 %token          TK_STRUCT
@@ -451,13 +449,6 @@ static int isBackstop(qualDef *qd);
 %type <compmodule>      compmodule_body_directives
 %type <compmodule>      compmodule_body_directive
 
-%type <consmodule>      consmodule_args
-%type <consmodule>      consmodule_arg_list
-%type <consmodule>      consmodule_arg
-%type <consmodule>      consmodule_body
-%type <consmodule>      consmodule_body_directives
-%type <consmodule>      consmodule_body_directive
-
 %type <defdocstring>    defdocstring_args
 %type <defdocstring>    defdocstring_arg_list
 %type <defdocstring>    defdocstring_arg
@@ -554,7 +545,6 @@ statement:  {
     ;
 
 modstatement:   module
-    |   consmodule
     |   compmodule
     |   plugin
     |   copying
@@ -1586,94 +1576,6 @@ defsupertype_arg:   TK_NAME '=' dottedname {
             $$.token = TK_NAME;
 
             $$.name = $3;
-        }
-    ;
-
-consmodule: TK_CONSMODULE consmodule_args consmodule_body {
-            deprecated("%ConsolidatedModule is deprecated and will not be supported by SIP v5");
-
-            if (notSkipping())
-            {
-                /* Make sure this is the first mention of a module. */
-                if (currentSpec->module != currentModule)
-                    yyerror("A %ConsolidatedModule cannot be %Imported");
-
-                if (currentModule->fullname != NULL)
-                    yyerror("%ConsolidatedModule must appear before any %Module directive");
-
-                setModuleName(currentSpec, currentModule, $2.name);
-                appendCodeBlock(&currentModule->docstring, $3.docstring);
-
-                setIsConsolidated(currentModule);
-            }
-        }
-    ;
-
-consmodule_args:    dottedname {
-            resetLexerState();
-
-            $$.name = $1;
-        }
-    |   '(' consmodule_arg_list ')' {
-            $$ = $2;
-        }
-    ;
-
-consmodule_arg_list:    consmodule_arg
-    |   consmodule_arg_list ',' consmodule_arg {
-            $$ = $1;
-
-            switch ($3.token)
-            {
-            case TK_NAME: $$.name = $3.name; break;
-            }
-        }
-    ;
-
-consmodule_arg: TK_NAME '=' dottedname {
-            $$.token = TK_NAME;
-
-            $$.name = $3;
-        }
-    ;
-
-consmodule_body:    {
-            $$.token = 0;
-            $$.docstring = NULL;
-        }
-    |   '{' consmodule_body_directives '}' ';' {
-            $$ = $2;
-        }
-    ;
-
-consmodule_body_directives: consmodule_body_directive
-    |   consmodule_body_directives consmodule_body_directive {
-            $$ = $1;
-
-            switch ($2.token)
-            {
-            case TK_DOCSTRING: $$.docstring = $2.docstring; break;
-            }
-        }
-    ;
-
-consmodule_body_directive:  ifstart {
-            $$.token = TK_IF;
-        }
-    |   ifend {
-            $$.token = TK_END;
-        }
-    |   docstring {
-            if (notSkipping())
-            {
-                $$.token = TK_DOCSTRING;
-                $$.docstring = $1;
-            }
-            else
-            {
-                $$.token = 0;
-                $$.docstring = NULL;
-            }
         }
     ;
 
@@ -4663,16 +4565,6 @@ ifaceFileDef *findIfaceFile(sipSpec *pt, moduleDef *mod, scopedNameDef *fqname,
         if (iftype == mappedtype_iface && iff->module != mod)
         {
             mappedTypeDef *mtd;
-
-            /*
-             * This is a bit of a cheat.  With consolidated modules it's
-             * possible to have two implementations of a mapped type in
-             * different branches of the module hierarchy.  We assume that, if
-             * there really are multiple implementations in the same branch,
-             * then it will be picked up in a non-consolidated build.
-             */
-            if (isConsolidated(pt->module))
-                continue;
 
             for (mtd = pt->mappedtypes; mtd != NULL; mtd = mtd->next)
             {
@@ -8854,15 +8746,15 @@ static moduleDef *configureModule(sipSpec *pt, moduleDef *module,
             yyerror("Module is already defined");
 
     /*
-     * If we are in a container module then create a component module and make
+     * If we are in a composite module then create a component module and make
      * it current.
      */
-    if (isContainer(module) || module->container != NULL)
+    if (isComposite(module) || module->container != NULL)
     {
         mod = allocModule();
 
         mod->file = filename;
-        mod->container = (isContainer(module) ? module : module->container);
+        mod->container = (isComposite(module) ? module : module->container);
 
         module = mod;
     }

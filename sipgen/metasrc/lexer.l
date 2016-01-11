@@ -72,7 +72,6 @@ static void fatallex(char *);
 ^[ \t]*%API                 {BEGIN directive_start; return TK_API;}
 ^[ \t]*%AutoPyName          {BEGIN directive_start; return TK_AUTOPYNAME;}
 ^[ \t]*%CompositeModule     {BEGIN directive_start; return TK_COMPOMODULE;}
-^[ \t]*%ConsolidatedModule  {BEGIN directive_start; return TK_CONSMODULE;}
 ^[ \t]*%DefaultDocstringFormat  {BEGIN directive_start; return TK_DEFDOCSTRING;}
 ^[ \t]*%DefaultEncoding     {BEGIN directive_start; return TK_DEFENCODING;}
 ^[ \t]*%DefaultMetatype     {BEGIN directive_start; return TK_DEFMETATYPE;}

@@ -6,8 +6,9 @@ SIP can be downloaded and installed from
 
     pip3 install sip
 
-You may need to use ``pip`` rather than ``pip3`` depending on what version of
-Python you are targetting and what platform you are running on.
+This will install the :program:`sip5` code generator and the :mod:`sip` module
+for Python v3.  Using a version of :program:`pip` for Python v2.7 will install
+the :mod:`sip` module only.
 
 SIP can also be downloaded from the
 `Mercurial <http://mercurial.selenic.com/>`__ repository at

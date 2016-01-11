@@ -9,8 +9,8 @@ bindings for the Qt GUI toolkit - but is suitable for generating bindings for
 any C or C++ library.
 
 This version of SIP generates bindings for Python v3.1 or later and Python
-v2.7.  SIP v4 will generate bindings for Python v3.0 or Python v2.6 and
-earlier.
+v2.7.  SIP itself is written using Python v3.  SIP v4 will generate bindings
+for Python v3.0 or Python v2.6 and earlier.
 
 There are many other similar tools available.  One of the original such tools
 is `SWIG <http://www.swig.org>`__ and, in fact, SIP is so called because it

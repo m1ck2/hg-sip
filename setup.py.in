@@ -24,20 +24,30 @@ if sys.hexversion < 0x03010000 and (sys.hexversion >= 0x03000000 or sys.hexversi
     sys.exit(1)
 
 
-from setuptools import Extension, find_packages, setup
+from setuptools import Extension, setup
 
 
 # Get the long description for PyPI.
 with open('README') as readme:
     long_description = readme.read()
 
-# Build the sip5 module.
-sip5_module_src = glob.glob(os.path.join('sipgen', '*.c'))
-sip5_module = Extension('sip5._sip', sip5_module_src, include_dirs=['sipgen'])
-
 # Build the sip module.
 sip_module_src = glob.glob(os.path.join('siplib', '*.c')) + glob.glob(os.path.join('siplib', '*.cpp'))
 sip_module = Extension('sip', sip_module_src, include_dirs=['siplib'])
+
+ext_modules = [sip_module]
+entry_points = {}
+packages = []
+
+if sys.hexversion >= 0x03000000:
+    # Build the sip5 module.
+    sip5_module_src = glob.glob(os.path.join('sipgen', '*.c'))
+    sip5_module = Extension('sip5._sip', sip5_module_src,
+            include_dirs=['sipgen'])
+
+    ext_modules.append(sip_module)
+    entry_points['console_scripts'] = ['sip5 = sip5.main:main']
+    packages.append('sip5')
 
 # Do the setup.
 setup(
@@ -50,13 +60,11 @@ setup(
         url='http://www.riverbankcomputing.com/software/sip/',
         license='SIP',
         platforms=['Linux', 'OS X', 'Windows', 'iOS', 'Android'],
-        packages=find_packages(),
-        entry_points={
-            'console_scripts':  ['sip5 = sip5.main:main'],
-        },
-        ext_modules = [sip5_module, sip_module],
-        data_files = [
+        packages=packages,
+        entry_points=entry_points,
+        ext_modules=ext_modules,
+        data_files=[
                 (distutils.sysconfig.get_python_inc(prefix=sys.prefix),
                         [os.path.join('siplib', 'sip.h')])],
-        zip_safe = False
+        zip_safe=False
      )

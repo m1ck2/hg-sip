@@ -524,13 +524,11 @@ static const sipAPIDef sip_api = {
 
 
 /*
- * These are the format flags supported by result parsers.  Deprecated values
- * have a _DEPR suffix.
+ * These are the format flags supported by result parsers.
  */
 #define FMT_RP_DEREF            0x01    /* The pointer will be dereferenced. */
 #define FMT_RP_FACTORY          0x02    /* /Factory/ or /TransferBack/. */
 #define FMT_RP_MAKE_COPY        0x04    /* Return a copy of the value. */
-#define FMT_RP_NO_STATE_DEPR    0x04    /* Don't return the C/C++ state. */
 
 
 /*
@@ -9252,9 +9250,9 @@ static int sipWrapperType_init(sipWrapperType *self, PyObject *args,
          * We must be a generated type so remember the type object in the
          * generated type structure.
          */
-        assert(self->type->u.td_py_type == NULL);
+        assert(self->type->td_py_type == NULL);
 
-        self->type->u.td_py_type = (PyTypeObject *)self;
+        self->type->td_py_type = (PyTypeObject *)self;
     }
 
     return 0;
@@ -11817,7 +11815,7 @@ static PyObject *sipEnumType_alloc(PyTypeObject *self, Py_ssize_t nitems)
      * structure.  Strictly speaking this doesn't need to be done here.
      */
     py_type->type = currentType;
-    currentType->u.td_py_type = (PyTypeObject *)py_type;
+    currentType->td_py_type = (PyTypeObject *)py_type;
 
     /*
      * Initialise any slots.  This must be done here, after the type is

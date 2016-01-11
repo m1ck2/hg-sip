@@ -22,10 +22,10 @@ name to lower case and preceding it with an underscore.  For example:
     ``sipWrapperCheck`` becomes ``api_wrapper_check``
 
 Note that the type objects that SIP generates for a wrapped module (see
-:ref:`ref-type-structures`, :ref:`ref-enum-type-objects` and
-:ref:`ref-exception-objects`) cannot be refered to directly and must be
-obtained using the :c:func:`sipFindType()` function.  Of course, the
-corresponding modules must already have been imported into the interpreter.
+:ref:`ref-type-structures` and :ref:`ref-exception-objects`) cannot be refered
+to directly and must be obtained using the :c:func:`sipFindType()` function.
+Of course, the corresponding modules must already have been imported into the
+interpreter.
 
 The following code fragment shows how to get a pointer to the ``sipAPIDef``
 data structure::

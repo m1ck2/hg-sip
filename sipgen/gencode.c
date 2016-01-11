@@ -584,12 +584,8 @@ static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
 "#define sipExportModule             sipAPI_%s->api_export_module\n"
 "#define sipInitModule               sipAPI_%s->api_init_module\n"
 "#define sipGetInterpreter           sipAPI_%s->api_get_interpreter\n"
-"\n"
-"/* These are deprecated. */\n"
 "#define sipConvertToArray           sipAPI_%s->api_convert_to_array\n"
 "#define sipConvertToTypedArray      sipAPI_%s->api_convert_to_typed_array\n"
-"#define sipConvertToInstance(o, wt, t, f, s, e)     sipConvertToType((o), (wt)->type, (t), (f), (s), (e))\n"
-"#define sipForceConvertToMappedType sipForceConvertToType\n"
         ,mname
         ,mname
         ,mname
@@ -8247,8 +8243,6 @@ static void generateImportedClassAPI(classDef *cd, sipSpec *pt, moduleDef *mod,
 
         prcode(fp,
 "#define sipType_%C              sipModuleAPI_%s_%s->em_types[%d]\n"
-"#define sipClass_%C             sipModuleAPI_%s_%s->em_types[%d]->u.td_wrapper_type\n"
-            , classFQCName(cd), mname, imname, cd->iff->ifacenr
             , classFQCName(cd), mname, imname, cd->iff->ifacenr);
 
         if (cd->iff->type == namespace_iface)
@@ -8275,8 +8269,6 @@ static void generateClassAPI(classDef *cd, sipSpec *pt, FILE *fp)
     if (cd->real == NULL && cd->iff->first_alt == cd->iff)
         prcode(fp,
 "#define sipType_%C              sipModuleAPI_%s.em_types[%d]\n"
-"#define sipClass_%C             sipModuleAPI_%s.em_types[%d]->u.td_wrapper_type\n"
-            , classFQCName(cd), mname, cd->iff->ifacenr
             , classFQCName(cd), mname, cd->iff->ifacenr);
 
     generateEnumMacros(pt, cd->iff->module, cd, NULL, fp);
@@ -8309,7 +8301,7 @@ static void generateClassAPI(classDef *cd, sipSpec *pt, FILE *fp)
 
 
 /*
- * Generate the sipEnum_* macros.
+ * Generate the sipType_* macros for enums.
  */
 static void generateEnumMacros(sipSpec *pt, moduleDef *mod, classDef *cd,
         mappedTypeDef *mtd, FILE *fp)
@@ -8352,14 +8344,10 @@ static void generateEnumMacros(sipSpec *pt, moduleDef *mod, classDef *cd,
         if (mod == ed->module)
             prcode(fp,
 "#define sipType_%C              sipModuleAPI_%s.em_types[%d]\n"
-"#define sipEnum_%C              sipModuleAPI_%s.em_types[%d]->u.td_py_type\n"
-                , ed->fqcname, mod->name, ed->enumnr
                 , ed->fqcname, mod->name, ed->enumnr);
         else
             prcode(fp,
 "#define sipType_%C              sipModuleAPI_%s_%s->em_types[%d]\n"
-"#define sipEnum_%C              sipModuleAPI_%s_%s->em_types[%d]->u.td_py_type\n"
-                , ed->fqcname, mod->name, ed->module->name, ed->enumnr
                 , ed->fqcname, mod->name, ed->module->name, ed->enumnr);
     }
 }

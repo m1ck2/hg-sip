@@ -133,8 +133,6 @@ Argument Annotations
 
 .. argument-annotation:: DisallowNone
 
-    .. versionadded:: 4.16.4
-
     This boolean annotation specifies that the value of the corresponding
     argument (which should be a pointer to either a C++ class or a mapped type)
     must not be ``None``.
@@ -142,16 +140,12 @@ Argument Annotations
 
 .. argument-annotation:: DocType
 
-    .. versionadded:: 4.10
-
     This string annotation specifies the type of the argument as it will appear
     in any generated docstrings.  It is usually used with arguments of type
     :stype:`SIP_PYOBJECT` to provide a more specific type.
 
 
 .. argument-annotation:: DocValue
-
-    .. versionadded:: 4.10
 
     This string annotation specifies the default value of the argument as it
     will appear in any generated docstrings.
@@ -229,8 +223,6 @@ Argument Annotations
 
 .. argument-annotation:: NoCopy
 
-    .. versionadded:: 4.10.1
-
     This boolean annotation is used with arguments of virtual methods that are
     a ``const`` reference to a class.  Normally, if the class defines a copy
     constructor then a copy of the returned reference is automatically created
@@ -259,8 +251,6 @@ Argument Annotations
 
 
 .. argument-annotation:: PyInt
-
-    .. versionadded:: 4.12
 
     This boolean annotation is used with ``char``, ``signed char`` and
     ``unsigned char`` arguments to specify that they should be interpreted as
@@ -343,8 +333,6 @@ Class Annotations
 
 .. class-annotation:: AllowNone
 
-    .. versionadded:: 4.8.2
-
     Normally when a Python object is converted to a C/C++ instance ``None``
     is handled automatically before the class's
     :directive:`%ConvertToTypeCode` is called.  This boolean annotation
@@ -354,8 +342,6 @@ Class Annotations
 
 
 .. class-annotation:: API
-
-    .. versionadded:: 4.9
 
     This API range annotation is used to specify an API and corresponding
     range of version numbers that the class is enabled for.
@@ -430,16 +416,12 @@ Class Annotations
 
 .. class-annotation:: FileExtension
 
-    .. versionadded:: 4.16.6
-
     This string annotation is used to specify the filename extension to be used
     for the file containing the generated code for this class.  A separate file
     will be generated even if the :option:`-j <sip -j>` command line option is
     specified.
 
 .. class-annotation:: ExportDerived
-
-    .. versionadded:: 4.15
 
     In many cases SIP generates a derived class for each class being wrapped
     (see :ref:`ref-derived-classes`).  Normally this is used internally.  This
@@ -464,8 +446,6 @@ Class Annotations
 
 
 .. class-annotation:: Mixin
-
-    .. versionadded:: 4.15
 
     This boolean annotation specifies that the class can be used as a mixin
     with other wrapped classes.
@@ -516,8 +496,6 @@ Class Annotations
 
 .. class-annotation:: VirtualErrorHandler
 
-    .. versionadded:: 4.14
-
     This name annotation specifies the handler (defined by the
     :directive:`%VirtualErrorHandler` directive) that is called when a Python
     re-implementation of any of the class's virtual C++ functions raises a
@@ -544,8 +522,6 @@ Mapped Type Annotations
 
 .. mapped-type-annotation:: API
 
-    .. versionadded:: 4.9
-
     This API range annotation is used to specify an API and corresponding
     range of version numbers that the mapped type is enabled for.
 
@@ -558,8 +534,6 @@ Mapped Type Annotations
 
 
 .. mapped-type-annotation:: DocType
-
-    .. versionadded:: 4.10
 
     This string annotation serves the same purpose as the :aanno:`DocType`
     argument annotation when applied to the mapped type being defined.
@@ -591,8 +565,6 @@ Enum Annotations
 ----------------
 
 .. enum-annotation:: NoScope
-
-    .. versionadded:: 4.15
 
     This boolean annotation specifies the that scope of an enum's members
     should be omitted in the generated code.  Normally this would mean that the
@@ -642,16 +614,12 @@ Function Annotations
 
 .. function-annotation:: AbortOnException
 
-    .. versionadded:: 4.16.4
-
     This boolean annotation specifies that when a Python re-implementation of a
     virtual C++ function raises a Python exception then ``abort()`` is
     called after the error handler returns.
 
 
 .. function-annotation:: AllowNone
-
-    .. versionadded:: 4.16.4
 
     This boolean annotation is used to specify that the value returned by the
     function (which should be either :stype:`SIP_PYBUFFER`,
@@ -661,8 +629,6 @@ Function Annotations
 
 
 .. function-annotation:: API
-
-    .. versionadded:: 4.9
 
     This API range annotation is used to specify an API and corresponding
     range of version numbers that the function is enabled for.
@@ -698,16 +664,12 @@ Function Annotations
 
 .. function-annotation:: DisallowNone
 
-    .. versionadded:: 4.16.4
-
     This boolean annotation is used to specify that the value returned by the
     function (which should be a pointer to either a C++ class or a mapped type)
     must not be ``None``.
 
 
 .. function-annotation:: DocType
-
-    .. versionadded:: 4.10
 
     This string annotation serves the same purpose as the :aanno:`DocType`
     argument annotation when applied to the type of the value returned by the
@@ -739,16 +701,12 @@ Function Annotations
 
 .. function-annotation:: __imatmul__
 
-    .. versionadded:: 4.17
-
     This boolean annotation specifies that a ``__imatmul__()`` method should be
     automatically generated that will use the method being annotated to compute
     the value that the ``__imatmul__()`` method will return.
 
 
 .. function-annotation:: KeepReference
-
-    .. versionadded:: 4.12.2
 
     This optional integer annotation serves the same purpose as the
     :aanno:`KeepReference` argument annotation when applied to the type of the
@@ -760,8 +718,6 @@ Function Annotations
 
 
 .. function-annotation:: KeywordArgs
-
-    .. versionadded:: 4.10
 
     This string annotation specifies the level of support the argument parser
     generated for this function will provide for passing the parameters using
@@ -785,16 +741,12 @@ Function Annotations
 
 .. function-annotation:: __len__
 
-    .. versionadded:: 4.10.3
-
     This boolean annotation specifies that a ``__len__()`` method should be
     automatically generated that will use the method being annotated to compute
     the value that the ``__len__()`` method will return.
 
 
 .. function-annotation:: __matmul__
-
-    .. versionadded:: 4.17
 
     This boolean annotation specifies that a ``__matmul__()`` method should be
     automatically generated that will use the method being annotated to compute
@@ -815,8 +767,6 @@ Function Annotations
 
 
 .. function-annotation:: NoCopy
-
-    .. versionadded:: 4.10.1
 
     This boolean annotation is used with methods and global functions that
     return a ``const`` reference to a class.  Normally, if the class defines a
@@ -840,8 +790,6 @@ Function Annotations
 
 .. function-annotation:: NoKeywordArgs
 
-    .. versionadded:: 4.10
-
     .. deprecated:: 4.12
         Use the :fanno:`KeywordArgs` annotation with a value of ``"None"``.
 
@@ -856,8 +804,6 @@ Function Annotations
 
 .. function-annotation:: NoRaisesPyException
 
-    .. versionadded:: 4.13.1
-
     This boolean annotation specifies that the function or constructor does not
     raise a Python exception to indicate that an error occurred.
 
@@ -865,8 +811,6 @@ Function Annotations
 
 
 .. function-annotation:: NoVirtualErrorHandler
-
-    .. versionadded:: 4.14
 
     This boolean annotation specifies that when a Python re-implementation of a
     virtual C++ function raises a Python exception then ``PyErr_Print()`` is
@@ -924,16 +868,12 @@ Function Annotations
 
 .. function-annotation:: PyInt
 
-    .. versionadded:: 4.12
-
     This boolean annotation serves the same purpose as the :aanno:`PyInt`
     argument annotation when applied to the type of the value returned by the
     function.
 
 
 .. function-annotation:: RaisesPyException
-
-    .. versionadded:: 4.12.1
 
     This boolean annotation specifies that the function or constructor raises a
     Python exception to indicate that an error occurred.  Any current exception
@@ -953,8 +893,6 @@ Function Annotations
 
 
 .. function-annotation:: Sequence
-
-    .. versionadded:: 4.14.7
 
     This boolean annotation specifies that the operator should be interpreted
     as a sequence operator rather than a numeric operator.
@@ -1008,8 +946,6 @@ Function Annotations
 
 .. function-annotation:: VirtualErrorHandler
 
-    .. versionadded:: 4.14
-
     This name annotation specifies the handler (defined by the
     :directive:`%VirtualErrorHandler` directive) that is called when a Python
     re-implementation of the virtual C++ function raises a Python exception.
@@ -1026,8 +962,6 @@ Typedef Annotations
 
 .. typedef-annotation:: Capsule
 
-    .. versionadded:: 4.14.1
-
     This boolean annotation may only be used when the base type is ``void *``
     and specifies that a Python capsule object is used to wrap the value rather
     than a :class:`sip.voidptr`.  The advantage of using a capsule is that name
@@ -1038,8 +972,6 @@ Typedef Annotations
 
 
 .. typedef-annotation:: DocType
-
-    .. versionadded:: 4.10
 
     This string annotation serves the same purpose as the :aanno:`DocType`
     argument annotation when applied to the mapped type being defined.
@@ -1069,15 +1001,11 @@ Typedef Annotations
 
 .. typedef-annotation:: PyInt
 
-    .. versionadded:: 4.12
-
     This boolean annotation serves the same purpose as the :aanno:`PyInt`
     argument annotation when applied to the type being defined.
 
 
 .. typedef-annotation:: PyName
-
-    .. versionadded:: 4.13.1
 
     This name annotation only applies when the typedef is being used to create
     the wrapping for a class defined using a template and specifies an
@@ -1096,8 +1024,6 @@ Variable Annotations
 
 .. variable-annotation:: DocType
 
-    .. versionadded:: 4.10
-
     This string annotation serves the same purpose as the :aanno:`DocType`
     argument annotation when applied to the type of the variable being defined.
 
@@ -1110,8 +1036,6 @@ Variable Annotations
 
 .. variable-annotation:: NoSetter
 
-    .. versionadded:: 4.16
-
     This boolean annotation specifies that the variable will have no setter and
     will be read-only.  Because SIP does not fully understand C/C++ types
     (particularly ``const`` arrays) it is sometimes necessary to explicitly
@@ -1119,8 +1043,6 @@ Variable Annotations
 
 
 .. variable-annotation:: PyInt
-
-    .. versionadded:: 4.12
 
     This boolean annotation serves the same purpose as the :aanno:`PyInt`
     argument annotation when applied to the type of the variable being defined.

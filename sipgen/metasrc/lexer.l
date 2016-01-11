@@ -86,7 +86,6 @@ static void fatallex(char *);
 ^[ \t]*%License             {BEGIN directive_start; return TK_LICENSE;}
 ^[ \t]*%MappedType          {return TK_MAPPEDTYPE;}
 ^[ \t]*%Module              {BEGIN directive_start; return TK_MODULE;}
-^[ \t]*%OptionalInclude     {return TK_OPTINCLUDE;}
 ^[ \t]*%Platforms           {return TK_PLATFORMS;}
 ^[ \t]*%Plugin              {BEGIN directive_start; return TK_PLUGIN;}
 ^[ \t]*%Property            {BEGIN directive_start; return TK_PROPERTY;}
@@ -641,7 +640,7 @@ int setInputFile(FILE *open_fp, parserContext *pc, int optional)
     FILE *fp = open_fp;
 
     if (currentFile >= MAX_INCLUDE_DEPTH - 1)
-        fatal("Too many nested %%Include, %%OptionalInclude or %%Import statements\n");
+        fatal("Too many nested %%Include or %%Import statements\n");
 
     if (fp != NULL || (fp = openFile(pc->filename)) != NULL)
         fullname = sipStrdup(pc->filename);

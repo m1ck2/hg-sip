@@ -43,15 +43,11 @@ specification files.
 
 .. c:macro:: SIP_OWNS_MEMORY
 
-    .. versionadded:: 4.15.2
-
     This is a flag used by various array constructors that species that the
     array owns the memory that holds the array's contents.
 
 
 .. c:macro:: SIP_PROTECTED_IS_PUBLIC
-
-    .. versionadded:: 4.10
 
     This is a C preprocessor symbol that is defined automatically by the build
     system to specify that the generated code is being compiled with
@@ -62,15 +58,11 @@ specification files.
 
 .. c:macro:: SIP_READ_ONLY
 
-    .. versionadded:: 4.15.2
-
     This is a flag used by various array constructors that species that the
     array is read-only.
 
 
 .. c:function:: SIP_RELEASE_GIL(sip_gilstate_t sipGILState)
-
-    .. versionadded:: 4.14.4
 
     This is called from the handwritten code specified with the
     :directive:`VirtualErrorHandler` in order to release the Python Global
@@ -125,8 +117,6 @@ specification files.
 
 
 .. c:function:: sipErrorState sipBadCallableArg(int arg_nr, PyObject *arg)
-
-    .. versionadded:: 4.10
 
     This is called from :directive:`%MethodCode` to raise a Python exception
     when an argument to a function, a C++ constructor or method is found to
@@ -322,13 +312,9 @@ specification files.
         result is ``Py_None``.
 
     ``L`` (integer) [char]
-        .. versionadded:: 4.12
-
         Convert a C/C++ ``char`` to a Python integer.
 
     ``M`` (long) [unsigned char]
-        .. versionadded:: 4.12
-
         Convert a C/C++ ``unsigned char`` to a Python long.
 
     ``N`` (wrapped instance) [*type* \*, :c:type:`sipTypeDef` \*, PyObject \*]
@@ -353,8 +339,6 @@ specification files.
         Convert a C/C++ ``void *`` to a Python :class:`sip.voidptr` object.
 
     ``z`` (object) [const char \*, void \*]
-        .. versionadded:: 4.14.1
-
         Convert a C/C++ ``void *`` to a Python named capsule object.
 
 
@@ -605,8 +589,6 @@ specification files.
 
 .. c:function:: PyObject *sipConvertFromNewPyType(void *cpp, PyTypeObject *py_type, sipWrapper *owner, sipSimpleWrapper **selfp, const char *format, ...)
 
-    .. versionadded:: 4.15
-
     This converts a new C structure or a C++ class instance to an instance of a
     corresponding Python type (as opposed to the corresponding generated Python
     type).  This is useful when the C/C++ library provides some sort of
@@ -737,8 +719,6 @@ specification files.
 
 
 .. c:function:: PyObject *sipConvertToArray(void *data, const char *format, Py_ssize_t len, int flags)
-
-    .. versionadded:: 4.15
 
     This converts a one dimensional array of fundamental types to a
     :class:`sip.array` object.
@@ -908,8 +888,6 @@ specification files.
 
 .. c:function:: PyObject *sipConvertToTypedArray(void *data, const sipTypeDef *td, const char *format, size_t stride, Py_ssize_t len, int flags)
 
-    .. versionadded:: 4.15
-
     This converts a one dimensional array of instances of a C structure, C++
     class or mapped type to a :class:`sip.array` object.
 
@@ -954,8 +932,6 @@ specification files.
 
 
 .. c:function:: int sipEnableAutoconversion(const sipTypeDef *td, int enable)
-
-    .. versionadded:: 4.14.7
 
     Instances of some classes may be automatically converted to other Python
     objects even though the class has been wrapped.  This allows that behaviour
@@ -1095,8 +1071,6 @@ specification files.
 
 .. c:function:: void *sipGetAddress(sipSimpleWrapper *obj)
 
-    .. versionadded:: 4.12
-
     This returns the address of the C structure or C++ class instance wrapped
     by a Python object.
 
@@ -1108,8 +1082,6 @@ specification files.
 
 .. c:function:: PyInterpreterState *sipGetInterpreter()
 
-    .. versionadded:: 4.17.1
-
     This returns the address of the Python interpreter.  If it is ``NULL`` then
     calls to the Python interpreter library must not be made.
 
@@ -1118,8 +1090,6 @@ specification files.
 
 
 .. c:function:: void *sipGetMixinAddress(sipSimpleWrapper *obj, const sipTypeDef *td)
-
-    .. versionadded:: 4.15
 
     This returns the address of the C++ class instance that implements the
     mixin of a wrapped Python object.
@@ -1212,8 +1182,6 @@ specification files.
 
 
 .. c:function:: int sipIsAPIEnabled(const char *name, int from, int to)
-
-    .. versionadded:: 4.9
 
     This checks to see if the current version number of an API falls within a
     given range.  See :ref:`ref-incompat-apis` for more detail.
@@ -1481,13 +1449,9 @@ specification files.
             0x04 returns a copy of the C/C++ instance.
 
     ``L`` (integer) [signed char \*]
-        .. versionadded:: 4.12
-
         Convert a Python integer to a C/C++ ``signed char``.
 
     ``M`` (long) [unsigned char \*]
-        .. versionadded:: 4.12
-
         Convert a Python long to a C/C++ ``unsigned char``.
 
     ``N`` (object) [PyTypeObject \*, PyObject \*\*]
@@ -1513,23 +1477,17 @@ specification files.
         Convert a Python :class:`sip.voidptr` object to a C/C++ ``void *``.
 
     ``z`` (object) [const char \*, void \*\*]
-        .. versionadded:: 4.14.1
-
         Convert a Python named capsule object to a C/C++ ``void *``.
 
     ``Z`` (object) []
         Check that a Python object is ``Py_None``.  No value is returned.
 
     ``!`` (object) [PyObject \*\*]
-        .. versionadded:: 4.14.1
-
         A Python object is checked to see if it implements the buffer protocol
         and then returned without any conversions.  The reference count is
         incremented.  The Python object may not be ``Py_None``.
 
     ``$`` (object) [PyObject \*\*]
-        .. versionadded:: 4.14.1
-
         A Python object is checked to see if it implements the buffer protocol
         and then returned without any conversions.  The reference count is
         incremented.  The Python object may be ``Py_None``.
@@ -1568,8 +1526,6 @@ specification files.
 
 
 .. c:function:: int sipRegisterProxyResolver(const sipTypeDef *td, sipProxyResolverFunc resolver)
-
-    .. versionadded:: 4.15
 
     This registers a resolver that will called just before SIP wraps a C/C++
     pointer in a Python object.  The resolver may choose to replace the C/C++
@@ -1665,8 +1621,6 @@ specification files.
 
 
 .. c:function:: void sipSetDestroyOnExit(int destroy)
-
-    .. versionadded:: 4.14.7
 
     When the Python interpreter exits it garbage collects those objects that it
     can.  This means that any corresponding C++ instances and C structures

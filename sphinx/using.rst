@@ -418,8 +418,6 @@ override this behaviour when required.
 Managing Incompatible APIs
 --------------------------
 
-.. versionadded:: 4.9
-
 Sometimes it is necessary to change the way something is wrapped in a way that
 introduces an incompatibility.  For example a new feature of Python may
 suggest that something may be wrapped in a different way to exploit that
@@ -483,8 +481,6 @@ instead as might be expected.
 
 Building a Private Copy of the ``sip`` Module
 ---------------------------------------------
-
-.. versionadded:: 4.12
 
 The ``sip`` module is intended to be be used by all the SIP generated modules
 of a particular Python installation.  For example PyQt3 and PyQt4 are

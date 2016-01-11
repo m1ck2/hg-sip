@@ -12,25 +12,7 @@ are enclosed in [*brackets*].
 Some directives are used to specify handwritten code.  Handwritten code must
 not define names that start with the prefix ``sip``.
 
-
-Revised Directive Syntax
-------------------------
-
-.. versionadded:: 4.12
-
-The directive syntax used in older versions has some problems:
-
-- it is inconsistent in places
-
-- it can be problematic to parse
-
-- it is inflexible.
-
-SIP v4.12 introduced a revised directive syntax that addresses these problems
-and deprecates the old syntax.  Support for the old syntax will be removed in
-SIP v5.
-
-The revised syntax is:
+The directive syntax is:
 
 .. parsed-literal::
 
@@ -107,8 +89,6 @@ For example::
 
 .. directive:: %API
 
-.. versionadded:: 4.9
-
 .. parsed-literal::
 
     %API(name = *name*, version = *integer*)
@@ -124,8 +104,6 @@ For example::
 
 
 .. directive:: %AutoPyName
-
-.. versionadded:: 4.12
 
 .. parsed-literal::
 
@@ -785,8 +763,6 @@ For example::
 
 .. directive:: %DefaultDocstringFormat
 
-.. versionadded:: 4.13
-
 .. parsed-literal::
 
     %DefaultDocstringFormat(name = ["raw" | "deindented"])
@@ -900,8 +876,6 @@ For example::
 
 .. directive:: %Docstring
 
-.. versionadded:: 4.10
-
 .. parsed-literal::
 
     %Docstring(format = ["raw" | "deindented"])
@@ -922,8 +896,6 @@ docstring that describes the Python signature of a function or method overload.
 This means that SIP will generate less informative exceptions (i.e. without a
 full signature) when it fails to match a set of arguments to any function or
 method overload.
-
-.. versionadded:: 4.13
 
 The format may either be ``"raw"`` or ``"deindented"``.  If it is not specified
 then the value specified by any :directive:`%DefaultDocstringFormat` directive
@@ -1060,8 +1032,6 @@ Python modules should not explicitly call functions in another Python module.
 
 .. directive:: %Extract
 
-.. versionadded:: 4.12
-
 .. parsed-literal::
 
     %Extract(id = *name* [, order = *integer*])
@@ -1125,8 +1095,6 @@ For example::
 
 
 .. directive:: %FinalisationCode
-
-.. versionadded:: 4.15
 
 .. parsed-literal::
 
@@ -1475,8 +1443,6 @@ For example::
 
 
 .. directive:: %InstanceCode
-
-.. versionadded:: 4.14
 
 .. parsed-literal::
 
@@ -2084,8 +2050,6 @@ Platforms are mutually exclusive - only one platform can be enabled at a time.
 By default all platforms are disabled.  The SIP :option:`-t <sip -t>` command
 line option is used to enable a platform.
 
-.. versionadded:: 4.14
-
 If a platform is enabled then SIP will automatically generate a corresponding C
 preprocessor symbol for use by handwritten code.  The symbol is the name of
 the platform prefixed by ``SIP_PLATFORM_``.
@@ -2150,8 +2114,6 @@ For example::
 
 
 .. directive:: %Property
-
-.. versionadded:: 4.12
 
 .. parsed-literal::
 
@@ -2276,14 +2238,10 @@ version, the version immediately preceeding the backstop is enabled instead.
 The :directive:`%Timeline` directive can be used any number of times in a
 module to allow multiple libraries to be wrapped in the same module.
 
-.. versionadded:: 4.12
-
-SIP automatically defines a timeline containing all versions of SIP since
-v4.12.  The name of the version is ``SIP_`` followed by the individual parts of
-the version number separated by an underscore.  SIP v4.12 is therefore
-``SIP_4_12`` and SIP v4.13.2 is ``SIP_4_13_2``.
-
-.. versionadded:: 4.14
+SIP automatically defines a timeline containing all versions of SIP.  The name
+of the version is ``SIP_`` followed by the individual parts of the version
+number separated by an underscore.  SIP v5.1 is therefore ``SIP_5_1`` and SIP
+v5.2.4 is ``SIP_5_2_4``.
 
 If a particular version is enabled then SIP will automatically generate a
 corresponding C preprocessor symbol for use by handwritten code.  The symbol is
@@ -2301,7 +2259,7 @@ For example::
     void foo(int = 0);
     %End
 
-    %If (- SIP_4_13)
+    %If (- SIP_5_1)
     void bar();
     %End
 
@@ -2384,8 +2342,6 @@ typically used to ``#include`` a C++ precompiled header file.
 
 .. directive:: %UnitPostIncludeCode
 
-.. versionadded:: 4.11
-
 .. parsed-literal::
 
     %UnitPostIncludeCode
@@ -2398,8 +2354,6 @@ C++ source file).
 
 
 .. directive:: %VirtualCallCode
-
-.. versionadded:: 4.16.7
 
 .. parsed-literal::
 
@@ -2556,8 +2510,6 @@ For example::
 
 
 .. directive:: %VirtualErrorHandler
-
-.. versionadded:: 4.14
 
 .. parsed-literal::
 

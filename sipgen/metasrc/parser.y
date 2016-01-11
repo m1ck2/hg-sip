@@ -6143,8 +6143,6 @@ codeBlockList *templateCode(sipSpec *pt, ifaceFileList **used,
             {
                 static char *gen_names[] = {
                     "sipType_",
-                    "sipClass_",
-                    "sipEnum_",
                     "sipException_",
                     NULL
                 };

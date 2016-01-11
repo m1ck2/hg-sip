@@ -725,14 +725,8 @@ typedef struct _sipTypeDef {
     /* The C/C++ name of the type. */
     int td_cname;
 
-    /*
-     * The Python type object.  This needs to be a union until we remove the
-     * deprecated sipClass_* macros.
-     */
-    union {
-        PyTypeObject *td_py_type;
-        sipWrapperType *td_wrapper_type;
-    } u;
+    /* The Python type object. */
+    PyTypeObject *td_py_type;
 } sipTypeDef;
 
 
@@ -1568,7 +1562,7 @@ typedef struct _sipQtAPI {
 #define sipTypeIsNamespace(td)  (((td)->td_flags & SIP_TYPE_TYPE_MASK) == SIP_TYPE_NAMESPACE)
 #define sipTypeIsMapped(td) (((td)->td_flags & SIP_TYPE_TYPE_MASK) == SIP_TYPE_MAPPED)
 #define sipTypeIsEnum(td)   (((td)->td_flags & SIP_TYPE_TYPE_MASK) == SIP_TYPE_ENUM)
-#define sipTypeAsPyTypeObject(td)   ((td)->u.td_py_type)
+#define sipTypeAsPyTypeObject(td)   ((td)->td_py_type)
 #define sipTypeName(td)     sipNameFromPool((td)->td_module, (td)->td_cname)
 
 #define sipIsExactWrappedType(wt)   (sipTypeAsPyTypeObject((wt)->type) == (PyTypeObject *)(wt))

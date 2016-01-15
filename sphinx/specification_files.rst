@@ -355,6 +355,7 @@ file.
             **bool** |
             **void** |
             **PyObject** |
+            **Py_ssize_t** |
             :stype:`SIP_PYBUFFER` |
             :stype:`SIP_PYCALLABLE` |
             :stype:`SIP_PYDICT` |

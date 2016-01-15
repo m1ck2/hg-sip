@@ -1,7 +1,7 @@
 /*
  * The XML and API file generator module for SIP.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *
@@ -150,7 +150,7 @@ static int apiCtor(sipSpec *pt, moduleDef *mod, classDef *scope, ctorDef *ct,
         need_comma = apiArgument(pt, ad, FALSE, need_comma, sec, TRUE, TRUE,
                 FALSE, fp);
 
-        if (ad->atype == rxcon_type || ad->atype == rxdis_type)
+        if (ad->atype == rxcon_type)
             need_sec = TRUE;
     }
 
@@ -260,7 +260,7 @@ static int apiArgument(sipSpec *pt, argDef *ad, int out, int need_comma,
     if (isArraySize(ad))
         return need_comma;
 
-    if (sec && (ad->atype == slotcon_type || ad->atype == slotdis_type))
+    if (sec && (ad->atype == slotcon_type)
         return need_comma;
 
     if ((tname = pyType(pt, ad, sec, &tscope)) == NULL)
@@ -526,7 +526,7 @@ static int xmlCtor(sipSpec *pt, classDef *scope, ctorDef *ct, int sec,
 
         xmlArgument(pt, ad, dirAttribute(ad), FALSE, sec, indent, fp);
 
-        if (ad->atype == rxcon_type || ad->atype == rxdis_type)
+        if (ad->atype == rxcon_type)
             need_sec = TRUE;
     }
 
@@ -651,7 +651,7 @@ static int xmlOverload(sipSpec *pt, classDef *scope, memberDef *md,
 
         xmlArgument(pt, ad, dirAttribute(ad), FALSE, sec, indent, fp);
 
-        if (ad->atype == rxcon_type || ad->atype == rxdis_type)
+        if (ad->atype == rxcon_type)
             need_sec = TRUE;
     }
 
@@ -699,7 +699,7 @@ static void xmlArgument(sipSpec *pt, argDef *ad, const char *dir, int res_xfer,
     if (isArraySize(ad))
         return;
 
-    if (sec && (ad->atype == slotcon_type || ad->atype == slotdis_type))
+    if (sec && (ad->atype == slotcon_type)
         return;
 
     xmlIndent(indent, fp);
@@ -759,7 +759,6 @@ static void xmlType(sipSpec *pt, argDef *ad, int sec, FILE *fp)
         break;
 
     case rxcon_type:
-    case rxdis_type:
         if (!sec)
             type_type = "class";
         break;
@@ -769,7 +768,6 @@ static void xmlType(sipSpec *pt, argDef *ad, int sec, FILE *fp)
         break;
 
     case slotcon_type:
-    case slotdis_type:
         {
             int a;
 
@@ -983,7 +981,6 @@ static const char *pyType(sipSpec *pt, argDef *ad, int sec, classDef **scope)
         break;
 
     case rxcon_type:
-    case rxdis_type:
         if (sec)
             type_name = "callable";
         else
@@ -1130,7 +1127,7 @@ int prPythonSignature(sipSpec *pt, FILE *fp, signatureDef *sd, int sec,
         need_comma = apiArgument(pt, ad, FALSE, need_comma, sec, names,
                 defaults, in_str, fp);
 
-        if (ad->atype == rxcon_type || ad->atype == rxdis_type)
+        if (ad->atype == rxcon_type)
             need_sec = TRUE;
     }
 

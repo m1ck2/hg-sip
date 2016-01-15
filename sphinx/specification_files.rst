@@ -288,11 +288,9 @@ file.
             :stype:`SIP_ANYSLOT` [*default-value*] |
             :stype:`SIP_QOBJECT` |
             :stype:`SIP_RXOBJ_CON` |
-            :stype:`SIP_RXOBJ_DIS` |
             :stype:`SIP_SIGNAL` [*default-value*] |
             :stype:`SIP_SLOT` [*default-value*] |
             :stype:`SIP_SLOT_CON` |
-            :stype:`SIP_SLOT_DIS` |
             :stype:`SIP_SSIZE_T`]
 
     *default-value* ::= **=** *expression*
@@ -463,13 +461,6 @@ This is a ``QObject *`` that is a C++ instance of a class derived from Qt's
 QObject *`` in functions that implement a connection to a slot.
 
 
-.. sip-type:: SIP_RXOBJ_DIS
-
-This is a ``QObject *`` that is a C++ instance of a class derived from Qt's
-``QObject`` class.  It is used as the type of the receiver instead of ``const
-QObject *`` in functions that implement a disconnection from a slot.
-
-
 .. sip-type:: SIP_SIGNAL
 
 This is a ``const char *`` that is used as the type of the signal instead of
@@ -501,14 +492,6 @@ accelerator.  The C++ signature is::
 The corresponding SIP specification is::
 
     bool connectItem(int, SIP_RXOBJ_CON, SIP_SLOT_CON(int));
-
-
-.. sip-type:: SIP_SLOT_DIS
-
-This is a ``const char *`` that is used as the type of the member instead of
-``const char *`` in functions that implement the disconnection of an
-internally generated signal to a slot.  The type includes a comma separated
-list of types that is the C++ signature of of the signal.
 
 
 .. sip-type:: SIP_SSIZE_T

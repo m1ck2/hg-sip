@@ -142,9 +142,7 @@ SIP_SIGNAL                  {return TK_SIPSIGNAL;}
 SIP_SLOT                    {return TK_SIPSLOT;}
 SIP_ANYSLOT                 {return TK_SIPANYSLOT;}
 SIP_RXOBJ_CON               {return TK_SIPRXCON;}
-SIP_RXOBJ_DIS               {return TK_SIPRXDIS;}
 SIP_SLOT_CON                {return TK_SIPSLOTCON;}
-SIP_SLOT_DIS                {return TK_SIPSLOTDIS;}
 SIP_QOBJECT                 {return TK_QOBJECT;}
 \.\.\.                      {return TK_ELLIPSIS;}
 

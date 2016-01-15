@@ -312,9 +312,7 @@ static int isBackstop(qualDef *qd);
 %token          TK_SIPSLOT
 %token          TK_SIPANYSLOT
 %token          TK_SIPRXCON
-%token          TK_SIPRXDIS
 %token          TK_SIPSLOTCON
-%token          TK_SIPSLOTDIS
 %token          TK_PYSSIZET
 %token <number> TK_NUMBER_VALUE
 %token <real>   TK_REAL_VALUE
@@ -3615,9 +3613,9 @@ virtualcatchercode: {
     ;
 
 arglist:    rawarglist {
-            int a, nrrxcon, nrrxdis, nrslotcon, nrslotdis, nrarray, nrarraysize;
+            int a, nrrxcon, nrslotcon, nrarray, nrarraysize;
 
-            nrrxcon = nrrxdis = nrslotcon = nrslotdis = nrarray = nrarraysize = 0;
+            nrrxcon = nrslotcon = nrarray = nrarraysize = 0;
 
             for (a = 0; a < $1.nrArgs; ++a)
             {
@@ -3629,16 +3627,8 @@ arglist:    rawarglist {
                     ++nrrxcon;
                     break;
 
-                case rxdis_type:
-                    ++nrrxdis;
-                    break;
-
                 case slotcon_type:
                     ++nrslotcon;
-                    break;
-
-                case slotdis_type:
-                    ++nrslotdis;
                     break;
 
                 /* Suppress a compiler warning. */
@@ -3655,9 +3645,6 @@ arglist:    rawarglist {
 
             if (nrrxcon != nrslotcon || nrrxcon > 1)
                 yyerror("SIP_RXOBJ_CON and SIP_SLOT_CON must both be given and at most once");
-
-            if (nrrxdis != nrslotdis || nrrxdis > 1)
-                yyerror("SIP_RXOBJ_DIS and SIP_SLOT_DIS must both be given and at most once");
 
             if (nrarray != nrarraysize || nrarray > 1)
                 yyerror("/Array/ and /ArraySize/ must both be given and at most once");
@@ -3755,36 +3742,10 @@ argvalue:   TK_SIPSIGNAL optname optflags optassign {
 
             currentSpec -> sigslots = TRUE;
         }
-    |   TK_SIPRXDIS optname optflags {
-            checkNoAnnos(&$3, "SIP_RXOBJ_DIS has no annotations");
-
-            $$.atype = rxdis_type;
-            $$.argflags = 0;
-            $$.nrderefs = 0;
-            $$.name = cacheName(currentSpec, $2);
-
-            currentSpec -> sigslots = TRUE;
-        }
     |   TK_SIPSLOTCON '(' arglist ')' optname optflags {
             checkNoAnnos(&$6, "SIP_SLOT_CON has no annotations");
 
             $$.atype = slotcon_type;
-            $$.argflags = ARG_IS_CONST;
-            $$.nrderefs = 0;
-            $$.name = cacheName(currentSpec, $5);
-
-            memset(&$3.result, 0, sizeof (argDef));
-            $3.result.atype = void_type;
-
-            $$.u.sa = sipMalloc(sizeof (signatureDef));
-            *$$.u.sa = $3;
-
-            currentSpec -> sigslots = TRUE;
-        }
-    |   TK_SIPSLOTDIS '(' arglist ')' optname optflags {
-            checkNoAnnos(&$6, "SIP_SLOT_DIS has no annotations");
-
-            $$.atype = slotdis_type;
             $$.argflags = ARG_IS_CONST;
             $$.nrderefs = 0;
             $$.name = cacheName(currentSpec, $5);

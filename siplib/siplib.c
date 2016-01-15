@@ -4252,46 +4252,10 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
                 break;
             }
 
-        case 'Q':
-            {
-                /* Qt receiver to disconnect. */
-
-                va_arg(va, char *);
-                va_arg(va, void **);
-                va_arg(va, const char **);
-
-                if (arg != NULL && !isQObject(arg))
-                {
-                    failure.reason = WrongType;
-                    failure.detail_obj = arg;
-                    Py_INCREF(arg);
-                }
-
-                break;
-            }
-
         case 'g':
         case 'y':
             {
                 /* Python slot to connect. */
-
-                va_arg(va, char *);
-                va_arg(va, void **);
-                va_arg(va, const char **);
-
-                if (arg != NULL && (sipQtSupport == NULL || !PyCallable_Check(arg)))
-                {
-                    failure.reason = WrongType;
-                    failure.detail_obj = arg;
-                    Py_INCREF(arg);
-                }
-
-                break;
-            }
-
-        case 'Y':
-            {
-                /* Python slot to disconnect. */
 
                 va_arg(va, char *);
                 va_arg(va, void **);
@@ -5073,20 +5037,6 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
                 break;
             }
 
-        case 'Q':
-            {
-                /* Qt receiver to disconnect. */
-
-                char *sig = va_arg(va, char *);
-                void **rx = va_arg(va, void **);
-                const char **slot = va_arg(va, const char **);
-
-                if (arg != NULL)
-                    *rx = sipGetRx(self, sig, arg, *slot, slot);
-
-                break;
-            }
-
         case 'g':
             {
                 /* Python single shot slot to connect. */
@@ -5123,20 +5073,6 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
                     if (*rx == NULL)
                         return FALSE;
                 }
-
-                break;
-            }
-
-        case 'Y':
-            {
-                /* Python slot to disconnect. */
-
-                char *sig = va_arg(va, char *);
-                void **rx = va_arg(va, void **);
-                const char **slot = va_arg(va, const char **);
-
-                if (arg != NULL)
-                    *rx = sipGetRx(self, sig, arg, NULL, slot);
 
                 break;
             }

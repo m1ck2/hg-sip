@@ -7937,7 +7937,6 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
         case signal_type:
         case slot_type:
         case slotcon_type:
-        case slotdis_type:
             fmt = "s";
             break;
 
@@ -7959,7 +7958,6 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
 
         case fake_void_type:
         case rxcon_type:
-        case rxdis_type:
         case qobject_type:
             fmt = "D";
             break;
@@ -8028,7 +8026,7 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
         }
 
         if (ad->atype == mapped_type || ad->atype == class_type ||
-            ad->atype == rxcon_type || ad->atype == rxdis_type ||
+            ad->atype == rxcon_type ||
             ad->atype == qobject_type || ad->atype == fake_void_type)
         {
             int copy = copyConstRefArg(ad);
@@ -8829,7 +8827,6 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
         case slot_type:
         case anyslot_type:
         case slotcon_type:
-        case slotdis_type:
             nr_derefs = 1;
 
             /* Drop through. */
@@ -8932,7 +8929,6 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
             break;
 
         case rxcon_type:
-        case rxdis_type:
             nr_derefs = 1;
             prcode(fp, "QObject");
             break;
@@ -9089,7 +9085,7 @@ static void generateVariable(moduleDef *mod, ifaceFileDef *scope, argDef *ad,
 
     resetIsReference(ad);
 
-    if (ad->nrderefs == 0 && ad->atype != slotcon_type && ad->atype != slotdis_type)
+    if (ad->nrderefs == 0 && ad->atype != slotcon_type)
         resetIsConstArg(ad);
 
     prcode(fp,
@@ -12679,9 +12675,9 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
         int secCall, FILE *fp)
 {
     int a, isQtSlot, optargs, arraylenarg, sigarg, handle_self, single_arg;
-    int slotconarg, slotdisarg, need_owner;
+    int slotconarg, need_owner;
     ifaceFileDef *scope;
-    argDef *arraylenarg_ad, *sigarg_ad, *slotconarg_ad, *slotdisarg_ad;
+    argDef *arraylenarg_ad, *sigarg_ad, *slotconarg_ad;
 
     if (mt_scope != NULL)
         scope = mt_scope->iff;
@@ -12723,18 +12719,12 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
             break;
 
         case rxcon_type:
-        case rxdis_type:
             isQtSlot = TRUE;
             break;
 
         case slotcon_type:
             slotconarg_ad = ad;
             slotconarg = a;
-            break;
-
-        case slotdis_type:
-            slotdisarg_ad = ad;
-            slotdisarg = a;
             break;
 
         /* Supress a compiler warning. */
@@ -13067,16 +13057,11 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
             break;
 
         case slotcon_type:
-        case slotdis_type:
             fmt = (secCall ? "" : "S");
             break;
 
         case rxcon_type:
             fmt = (secCall ? (isSingleShot(ad) ? "g" : "y") : "q");
-            break;
-
-        case rxdis_type:
-            fmt = (secCall ? "Y" : "Q");
             break;
 
         case mapped_type:
@@ -13246,19 +13231,7 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
                 break;
             }
 
-        case rxdis_type:
-            {
-                prcode(fp,", \"(");
-
-                generateCalledArgs(NULL, scope, slotdisarg_ad->u.sa, Declaration, TRUE, fp);
-
-                prcode(fp, ")\", &%a, &%a", mod, ad, a, mod, slotdisarg_ad, slotdisarg);
-
-                break;
-            }
-
         case slotcon_type:
-        case slotdis_type:
             if (!secCall)
                 prcode(fp, ", &%a", mod, ad, a);
 

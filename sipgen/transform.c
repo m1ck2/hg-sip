@@ -2228,9 +2228,7 @@ static int supportedType(classDef *cd,overDef *od,argDef *ad,int outputs)
     case signal_type:
     case slot_type:
     case rxcon_type:
-    case rxdis_type:
     case slotcon_type:
-    case slotdis_type:
     case qobject_type:
     case ellipsis_type:
         /* These can only appear in argument lists without * or &. */
@@ -2724,7 +2722,6 @@ int sameBaseType(argDef *a1, argDef *a2)
         break;
 
     case slotcon_type:
-    case slotdis_type:
         if (!sameSignature(a1->u.sa, a2->u.sa, TRUE))
             return FALSE;
 
@@ -3002,7 +2999,7 @@ static void resolveType(sipSpec *pt, moduleDef *mod, classDef *c_scope,
     }
 
     /* Get the base type of any slot arguments. */
-    if (type->atype == slotcon_type || type->atype == slotdis_type)
+    if (type->atype == slotcon_type)
     {
         int sa;
 

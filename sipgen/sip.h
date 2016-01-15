@@ -1,7 +1,7 @@
 /*
  * The main header file for SIP.
  *
- * Copyright (c) 2015 Riverbank Computing Limited <info@riverbankcomputing.com>
+ * Copyright (c) 2016 Riverbank Computing Limited <info@riverbankcomputing.com>
  *
  * This file is part of SIP.
  *
@@ -600,9 +600,7 @@ typedef enum {
     signal_type,
     slot_type,
     rxcon_type,
-    rxdis_type,
     slotcon_type,
-    slotdis_type,
     ustring_type,
     string_type,
     short_type,

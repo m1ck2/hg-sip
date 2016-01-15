@@ -763,10 +763,6 @@ static void xmlType(sipSpec *pt, argDef *ad, int sec, FILE *fp)
             type_type = "class";
         break;
 
-    case qobject_type:
-        type_type = "class";
-        break;
-
     case slotcon_type:
         {
             int a;
@@ -986,10 +982,6 @@ static const char *pyType(sipSpec *pt, argDef *ad, int sec, classDef **scope)
         else
             type_name = "QObject";
 
-        break;
-
-    case qobject_type:
-        type_name = "QObject";
         break;
 
     case ustring_type:

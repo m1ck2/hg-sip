@@ -285,8 +285,6 @@ file.
 
     *argument* ::= [
             *type* [*name*] [*argument-annotations*] [*default-value*] |
-            :stype:`SIP_ANYSLOT` [*default-value*] |
-            :stype:`SIP_QOBJECT` |
             :stype:`SIP_RXOBJ_CON` |
             :stype:`SIP_SIGNAL` [*default-value*] |
             :stype:`SIP_SLOT` [*default-value*] |
@@ -397,14 +395,6 @@ Additional SIP Types
 
 SIP supports a number of additional data types that can be used in Python
 signatures.
-
-
-.. sip-type:: SIP_ANYSLOT
-
-This is both a ``const char *`` and a ``PyObject *`` that is used as the type
-of the member instead of ``const char *`` in functions that implement the
-connection or disconnection of an explicitly generated signal to a slot.
-Handwritten code must be provided to interpret the conversion correctly.
 
 
 .. sip-type:: SIP_PYBUFFER

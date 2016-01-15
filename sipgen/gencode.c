@@ -7958,7 +7958,6 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
 
         case fake_void_type:
         case rxcon_type:
-        case qobject_type:
             fmt = "D";
             break;
 
@@ -8026,8 +8025,7 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
         }
 
         if (ad->atype == mapped_type || ad->atype == class_type ||
-            ad->atype == rxcon_type ||
-            ad->atype == qobject_type || ad->atype == fake_void_type)
+            ad->atype == rxcon_type || ad->atype == fake_void_type)
         {
             int copy = copyConstRefArg(ad);
 
@@ -8976,7 +8974,6 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
         case pyslice_type:
         case pytype_type:
         case pybuffer_type:
-        case qobject_type:
         case ellipsis_type:
             prcode(fp, "PyObject *");
             break;
@@ -13107,10 +13104,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
 
         case pybuffer_type:
             fmt = (isAllowNone(ad) ? "$" : "!");
-            break;
-
-        case qobject_type:
-            fmt = "R";
             break;
 
         case ellipsis_type:

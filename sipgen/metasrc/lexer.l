@@ -143,7 +143,6 @@ SIP_SLOT                    {return TK_SIPSLOT;}
 SIP_ANYSLOT                 {return TK_SIPANYSLOT;}
 SIP_RXOBJ_CON               {return TK_SIPRXCON;}
 SIP_SLOT_CON                {return TK_SIPSLOTCON;}
-SIP_QOBJECT                 {return TK_QOBJECT;}
 \.\.\.                      {return TK_ELLIPSIS;}
 
 <directive>format           {return TK_FORMAT;}

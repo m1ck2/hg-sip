@@ -622,7 +622,6 @@ typedef enum {
     pydict_type,
     pycallable_type,
     pyslice_type,
-    qobject_type,
     function_type,
     pytype_type,
     ellipsis_type,

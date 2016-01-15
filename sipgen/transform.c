@@ -2229,7 +2229,6 @@ static int supportedType(classDef *cd,overDef *od,argDef *ad,int outputs)
     case slot_type:
     case rxcon_type:
     case slotcon_type:
-    case qobject_type:
     case ellipsis_type:
         /* These can only appear in argument lists without * or &. */
 

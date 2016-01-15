@@ -4109,29 +4109,6 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
                 break;
             }
 
-        case 'R':
-            {
-                /* Sub-class of QObject. */
-
-                PyObject **p = va_arg(va, PyObject **);
-
-                if (arg != NULL)
-                {
-                    if (isQObject(arg))
-                    {
-                        *p = arg;
-                    }
-                    else
-                    {
-                        failure.reason = WrongType;
-                        failure.detail_obj = arg;
-                        Py_INCREF(arg);
-                    }
-                }
-
-                break;
-            }
-
         case 'F':
             {
                 /* Python callable object. */

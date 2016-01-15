@@ -328,7 +328,6 @@ static int isBackstop(qualDef *qd);
 %token          TK_NULL_VALUE
 %token          TK_OPERATOR
 %token          TK_THROW
-%token          TK_QOBJECT
 %token          TK_EXCEPTION
 %token          TK_RAISECODE
 %token          TK_VIRTERRORCODE
@@ -3757,14 +3756,6 @@ argvalue:   TK_SIPSIGNAL optname optflags optassign {
             *$$.u.sa = $3;
 
             currentSpec -> sigslots = TRUE;
-        }
-    |   TK_QOBJECT optname optflags {
-            checkNoAnnos(&$3, "SIP_QOBJECT has no annotations");
-
-            $$.atype = qobject_type;
-            $$.argflags = 0;
-            $$.nrderefs = 0;
-            $$.name = cacheName(currentSpec, $2);
         }
     |   argtype optassign {
             $$ = $1;

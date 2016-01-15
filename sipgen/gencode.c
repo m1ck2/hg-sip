@@ -1254,7 +1254,7 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
         else
             prcode(fp, "0");
 
-        prcode(fp, ", 0, SIP_TYPE_ENUM, %n, {0}}, %n, %d, ", ed->cname, ed->pyname, type_nr);
+        prcode(fp, ", 0, SIP_TYPE_ENUM, %n, 0}, %n, %d, ", ed->cname, ed->pyname, type_nr);
 
         if (ed->slots != NULL)
             prcode(fp, "slots_%C", ed->fqcname);
@@ -3562,7 +3562,7 @@ static void generateMappedTypeCpp(mappedTypeDef *mtd, sipSpec *pt, FILE *fp)
 "        0,\n"
 "        %sSIP_TYPE_MAPPED,\n"
 "        %n,\n"
-"        {0}\n"
+"        0\n"
 "    },\n"
 "    {\n"
         , (handlesNone(mtd) ? "SIP_TYPE_ALLOW_NONE|" : "")
@@ -9597,7 +9597,7 @@ static void generateTypeDefinition(sipSpec *pt, classDef *cd, FILE *fp)
 
     prcode(fp,
 "        %n,\n"
-"        {0}\n"
+"        0\n"
 "    },\n"
 "    {\n"
         , cd->iff->name);

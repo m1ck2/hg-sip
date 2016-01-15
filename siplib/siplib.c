@@ -3886,48 +3886,6 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
             break;
 #endif
 
-        case 'U':
-            {
-                /* Slot name or callable, return the name or callable. */
-
-                char **sname = va_arg(va, char **);
-                PyObject **scall = va_arg(va, PyObject **);
-
-                if (arg != NULL)
-                {
-                    *sname = NULL;
-                    *scall = NULL;
-
-                    if (SIPBytes_Check(arg))
-                    {
-                        char *s = SIPBytes_AS_STRING(arg);
-
-                        if (*s == '1' || *s == '2' || *s == '9')
-                        {
-                            *sname = s;
-                        }
-                        else
-                        {
-                            failure.reason = WrongType;
-                            failure.detail_obj = arg;
-                            Py_INCREF(arg);
-                        }
-                    }
-                    else if (PyCallable_Check(arg))
-                    {
-                         *scall = arg;
-                    }
-                    else if (arg != Py_None)
-                    {
-                        failure.reason = WrongType;
-                        failure.detail_obj = arg;
-                        Py_INCREF(arg);
-                    }
-                }
-
-                break;
-            }
-
         case 'S':
             {
                 /* Slot name, return the name. */
@@ -5261,7 +5219,6 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
         case 'T':
         case 'k':
         case 'K':
-        case 'U':
             va_arg(va, void *);
 
             /* Drop through. */

@@ -1058,7 +1058,6 @@ static const char *pyType(sipSpec *pt, argDef *ad, int sec, classDef **scope)
         break;
 
     case slotcon_type:
-    case anyslot_type:
         type_name = "SLOT()";
         break;
 

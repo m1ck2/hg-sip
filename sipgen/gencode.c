@@ -8823,7 +8823,6 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
 
         case signal_type:
         case slot_type:
-        case anyslot_type:
         case slotcon_type:
             nr_derefs = 1;
 
@@ -9088,9 +9087,6 @@ static void generateVariable(moduleDef *mod, ifaceFileDef *scope, argDef *ad,
     prcode(fp,
 "        %A %a", scope, ad, mod, ad, argnr);
 
-    if (atype == anyslot_type)
-        prcode(fp, "Name");
-
     *ad = orig;
 
     generateDefaultValue(mod, ad, argnr, fp);
@@ -9136,14 +9132,6 @@ static void generateVariable(moduleDef *mod, ifaceFileDef *scope, argDef *ad,
 "        PyObject *%aKeep%s;\n"
                     , mod, ad, argnr, (ad->defval != NULL ? " = 0" : ""));
 
-            break;
-
-        case anyslot_type:
-            prcode(fp,
-"        PyObject *%aCallable", mod, ad, argnr);
-            generateDefaultValue(mod, ad, argnr, fp);
-            prcode(fp, ";\n"
-                );
             break;
 
         /* Supress a compiler warning. */
@@ -13049,10 +13037,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
             fmt = "S";
             break;
 
-        case anyslot_type:
-            fmt = "U";
-            break;
-
         case slotcon_type:
             fmt = (secCall ? "" : "S");
             break;
@@ -13228,10 +13212,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
             if (!secCall)
                 prcode(fp, ", &%a", mod, ad, a);
 
-            break;
-
-        case anyslot_type:
-            prcode(fp, ", &%aName, &%aCallable", mod, ad, a, mod, ad, a);
             break;
 
         case pytuple_type:

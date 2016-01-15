@@ -627,7 +627,6 @@ typedef enum {
     ellipsis_type,
     longlong_type,
     ulonglong_type,
-    anyslot_type,
     cbool_type,
     sstring_type,
     wstring_type,

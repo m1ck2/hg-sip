@@ -7934,7 +7934,6 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
             fmt = "d";
             break;
 
-        case signal_type:
         case slot_type:
         case slotcon_type:
             fmt = "s";
@@ -8821,7 +8820,6 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
             prcode(fp, "wchar_t");
             break;
 
-        case signal_type:
         case slot_type:
         case slotcon_type:
             nr_derefs = 1;
@@ -12659,10 +12657,10 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
         classDef *c_scope, mappedTypeDef *mt_scope, ctorDef *ct, overDef *od,
         int secCall, FILE *fp)
 {
-    int a, isQtSlot, optargs, arraylenarg, sigarg, handle_self, single_arg;
+    int a, isQtSlot, optargs, arraylenarg, handle_self, single_arg;
     int slotconarg, need_owner;
     ifaceFileDef *scope;
-    argDef *arraylenarg_ad, *sigarg_ad, *slotconarg_ad;
+    argDef *arraylenarg_ad, *slotconarg_ad;
 
     if (mt_scope != NULL)
         scope = mt_scope->iff;
@@ -12689,7 +12687,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
      * Generate the local variables that will hold the parsed arguments and
      * values returned via arguments.
      */
-    sigarg = -1;
     need_owner = FALSE;
 
     for (a = 0; a < sd->nrArgs; ++a)
@@ -12698,11 +12695,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
 
         switch (ad->atype)
         {
-        case signal_type:
-            sigarg_ad = ad;
-            sigarg = a;
-            break;
-
         case rxcon_type:
             isQtSlot = TRUE;
             break;
@@ -13029,10 +13021,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
             fmt = "Xd";
             break;
 
-        case signal_type:
-            fmt = "G";
-            break;
-
         case slot_type:
             fmt = "S";
             break;
@@ -13192,18 +13180,11 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
 
         case rxcon_type:
             {
-                if (sigarg > 0)
-                    prcode(fp, ", %a", mod, sigarg_ad, sigarg);
-                else
-                {
-                    prcode(fp,", \"(");
+                prcode(fp,", \"(");
 
-                    generateCalledArgs(NULL, scope, slotconarg_ad->u.sa, Declaration, TRUE, fp);
+                generateCalledArgs(NULL, scope, slotconarg_ad->u.sa, Declaration, TRUE, fp);
 
-                    prcode(fp,")\"");
-                }
-
-                prcode(fp, ", &%a, &%a", mod, ad, a, mod, slotconarg_ad, slotconarg);
+                prcode(fp, ")\", &%a, &%a", mod, ad, a, mod, slotconarg_ad, slotconarg);
 
                 break;
             }

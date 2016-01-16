@@ -286,7 +286,6 @@ file.
     *argument* ::= [
             *type* [*name*] [*argument-annotations*] [*default-value*] |
             :stype:`SIP_RXOBJ_CON` |
-            :stype:`SIP_SIGNAL` [*default-value*] |
             :stype:`SIP_SLOT` [*default-value*] |
             :stype:`SIP_SLOT_CON` |
             :stype:`SIP_SSIZE_T`]
@@ -438,26 +437,11 @@ This is a ``PyObject *`` that is a Python tuple object.
 This is a ``PyObject *`` that is a Python type object.
 
 
-.. sip-type:: SIP_QOBJECT
-
-.. deprecated:: 4.18
-
-This is a ``QObject *`` that is a C++ instance of a class derived from Qt's
-``QObject`` class.
-
-
 .. sip-type:: SIP_RXOBJ_CON
 
 This is a ``QObject *`` that is a C++ instance of a class derived from Qt's
 ``QObject`` class.  It is used as the type of the receiver instead of ``const
 QObject *`` in functions that implement a connection to a slot.
-
-
-.. sip-type:: SIP_SIGNAL
-
-This is a ``const char *`` that is used as the type of the signal instead of
-``const char *`` in functions that implement the connection or disconnection
-of an explicitly generated signal to a slot.
 
 
 .. sip-type:: SIP_SLOT

@@ -968,10 +968,6 @@ static const char *pyType(sipSpec *pt, argDef *ad, int sec, classDef **scope)
             type_name = "int";
         break;
 
-    case signal_type:
-        type_name = "SIGNAL()";
-        break;
-
     case slot_type:
         type_name = "SLOT()";
         break;

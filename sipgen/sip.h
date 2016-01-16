@@ -597,7 +597,6 @@ typedef enum {
     void_type,
     enum_type,
     template_type,
-    signal_type,
     slot_type,
     rxcon_type,
     slotcon_type,

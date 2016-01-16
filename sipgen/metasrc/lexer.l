@@ -138,7 +138,6 @@ SIP_PYCALLABLE              {return TK_PYCALLABLE;}
 SIP_PYSLICE                 {return TK_PYSLICE;}
 SIP_PYTYPE                  {return TK_PYTYPE;}
 SIP_PYBUFFER                {return TK_PYBUFFER;}
-SIP_SIGNAL                  {return TK_SIPSIGNAL;}
 SIP_SLOT                    {return TK_SIPSLOT;}
 SIP_RXOBJ_CON               {return TK_SIPRXCON;}
 SIP_SLOT_CON                {return TK_SIPSLOTCON;}

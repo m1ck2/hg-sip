@@ -3920,40 +3920,6 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
                 break;
             }
 
-        case 'G':
-            {
-                /* Signal name, return the name. */
-
-                char **p = va_arg(va, char **);
-
-                if (arg != NULL)
-                {
-                    if (SIPBytes_Check(arg))
-                    {
-                        char *s = SIPBytes_AS_STRING(arg);
-
-                        if (*s == '2' || *s == '9')
-                        {
-                            *p = s;
-                        }
-                        else
-                        {
-                            failure.reason = WrongType;
-                            failure.detail_obj = arg;
-                            Py_INCREF(arg);
-                        }
-                    }
-                    else
-                    {
-                        failure.reason = WrongType;
-                        failure.detail_obj = arg;
-                        Py_INCREF(arg);
-                    }
-                }
-
-                break;
-            }
-
         case 'r':
             {
                 /* Sequence of class or mapped type instances. */

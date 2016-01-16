@@ -308,7 +308,6 @@ static int isBackstop(qualDef *qd);
 %token          TK_LOGICAL_OR
 %token          TK_CONST
 %token          TK_STATIC
-%token          TK_SIPSIGNAL
 %token          TK_SIPSLOT
 %token          TK_SIPRXCON
 %token          TK_SIPSLOTCON
@@ -3689,18 +3688,7 @@ rawarglist: {
         }
     ;
 
-argvalue:   TK_SIPSIGNAL optname optflags optassign {
-            checkNoAnnos(&$3, "SIP_SIGNAL has no annotations");
-
-            $$.atype = signal_type;
-            $$.argflags = ARG_IS_CONST;
-            $$.nrderefs = 0;
-            $$.name = cacheName(currentSpec, $2);
-            $$.defval = $4;
-
-            currentSpec -> sigslots = TRUE;
-        }
-    |   TK_SIPSLOT optname optflags optassign {
+argvalue:   TK_SIPSLOT optname optflags optassign {
             checkNoAnnos(&$3, "SIP_SLOT has no annotations");
 
             $$.atype = slot_type;

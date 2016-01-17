@@ -285,9 +285,7 @@ file.
 
     *argument* ::= [
             *type* [*name*] [*argument-annotations*] [*default-value*] |
-            :stype:`SIP_RXOBJ_CON` |
             :stype:`SIP_SLOT` [*default-value*] |
-            :stype:`SIP_SLOT_CON` |
             :stype:`SIP_SSIZE_T`]
 
     *default-value* ::= **=** *expression*
@@ -437,37 +435,11 @@ This is a ``PyObject *`` that is a Python tuple object.
 This is a ``PyObject *`` that is a Python type object.
 
 
-.. sip-type:: SIP_RXOBJ_CON
-
-This is a ``QObject *`` that is a C++ instance of a class derived from Qt's
-``QObject`` class.  It is used as the type of the receiver instead of ``const
-QObject *`` in functions that implement a connection to a slot.
-
-
 .. sip-type:: SIP_SLOT
 
 This is a ``const char *`` that is used as the type of the member instead of
 ``const char *`` in functions that implement the connection or disconnection
 of an explicitly generated signal to a slot.
-
-
-.. sip-type:: SIP_SLOT_CON
-
-This is a ``const char *`` that is used as the type of the member instead of
-``const char *`` in functions that implement the connection of an internally
-generated signal to a slot.  The type includes a comma separated list of types
-that is the C++ signature of of the signal.
-
-To take an example, ``QAccel::connectItem()`` connects an internally generated
-signal to a slot.  The signal is emitted when the keyboard accelerator is
-activated and it has a single integer argument that is the ID of the
-accelerator.  The C++ signature is::
-
-    bool connectItem(int id, const QObject *receiver, const char *member);
-
-The corresponding SIP specification is::
-
-    bool connectItem(int, SIP_RXOBJ_CON, SIP_SLOT_CON(int));
 
 
 .. sip-type:: SIP_SSIZE_T

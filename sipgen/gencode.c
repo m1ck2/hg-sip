@@ -191,7 +191,7 @@ static void generateAccessFunctions(sipSpec *pt, moduleDef *mod, classDef *cd,
 static void generateConvertToDefinitions(mappedTypeDef *, classDef *, FILE *);
 static void generateEncodedType(moduleDef *mod, classDef *cd, int last,
         FILE *fp);
-static int generateArgParser(moduleDef *mod, signatureDef *sd,
+static void generateArgParser(moduleDef *mod, signatureDef *sd,
         classDef *c_scope, mappedTypeDef *mt_scope, ctorDef *ct, overDef *od,
         int secCall, FILE *fp);
 static void generateTry(throwArgs *, FILE *);
@@ -7935,7 +7935,6 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
             break;
 
         case slot_type:
-        case slotcon_type:
             fmt = "s";
             break;
 
@@ -7956,7 +7955,6 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
             /* Drop through. */
 
         case fake_void_type:
-        case rxcon_type:
             fmt = "D";
             break;
 
@@ -8024,7 +8022,7 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
         }
 
         if (ad->atype == mapped_type || ad->atype == class_type ||
-            ad->atype == rxcon_type || ad->atype == fake_void_type)
+            ad->atype == fake_void_type)
         {
             int copy = copyConstRefArg(ad);
 
@@ -8821,7 +8819,6 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
             break;
 
         case slot_type:
-        case slotcon_type:
             nr_derefs = 1;
 
             /* Drop through. */
@@ -8921,11 +8918,6 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
                 prScopedName(fp, ad->u.snd, "::");
             }
 
-            break;
-
-        case rxcon_type:
-            nr_derefs = 1;
-            prcode(fp, "QObject");
             break;
 
         case mapped_type:
@@ -9079,7 +9071,7 @@ static void generateVariable(moduleDef *mod, ifaceFileDef *scope, argDef *ad,
 
     resetIsReference(ad);
 
-    if (ad->nrderefs == 0 && ad->atype != slotcon_type)
+    if (ad->nrderefs == 0)
         resetIsConstArg(ad);
 
     prcode(fp,
@@ -10143,8 +10135,7 @@ static void generateSignalTableEntry(sipSpec *pt, classDef *cd, overDef *sig,
             fprintf(fp, "\"\\1");
             prScopedPythonName(fp, cd->ecd, cd->pyname->text);
             fprintf(fp, ".%s", md->pyname->text);
-            prPythonSignature(pt, fp, &sig->pysig, FALSE, FALSE, FALSE, FALSE,
-                    TRUE);
+            prPythonSignature(pt, fp, &sig->pysig, FALSE, FALSE, FALSE, TRUE);
             fprintf(fp, "\"");
         }
 
@@ -10529,7 +10520,7 @@ static void generateTypeInit(classDef *cd, moduleDef *mod, FILE *fp)
      */
     for (ct = cd->ctors; ct != NULL; ct = ct->next)
     {
-        int needSecCall, error_flag, old_error_flag;
+        int error_flag, old_error_flag;
         apiVersionRangeDef *avr;
 
         if (isPrivateCtor(ct))
@@ -10560,30 +10551,8 @@ static void generateTypeInit(classDef *cd, moduleDef *mod, FILE *fp)
             error_flag = old_error_flag = FALSE;
         }
 
-        needSecCall = generateArgParser(mod, &ct->pysig, cd, NULL, ct, NULL,
-                FALSE, fp);
+        generateArgParser(mod, &ct->pysig, cd, NULL, ct, NULL, FALSE, fp);
         generateConstructorCall(cd, ct, error_flag, old_error_flag, mod, fp);
-
-        if (needSecCall)
-        {
-            prcode(fp,
-"    }\n"
-"\n"
-                );
-
-            if (avr != NULL)
-                prcode(fp,
-"    if (sipIsAPIEnabled(%N, %d, %d))\n"
-                    , avr->api_name, avr->from, avr->to);
-
-            prcode(fp,
-"    {\n"
-                );
-
-            generateArgParser(mod, &ct->pysig, cd, NULL, ct, NULL, TRUE, fp);
-            generateConstructorCall(cd, ct, error_flag, old_error_flag, mod,
-                    fp);
-        }
 
         prcode(fp,
 "    }\n"
@@ -11196,7 +11165,6 @@ static void generateFunctionBody(overDef *od, classDef *c_scope,
         mappedTypeDef *mt_scope, classDef *ocd, int deref, moduleDef *mod,
         FILE *fp)
 {
-    int needSecCall;
     signatureDef saved;
     ifaceFileDef *o_scope;
     apiVersionRangeDef *avr;
@@ -11248,31 +11216,10 @@ static void generateFunctionBody(overDef *od, classDef *c_scope,
             od->pysig.args[0].original_type = NULL;
             od->pysig.args[0].u.cd = ocd;
         }
-
-        generateArgParser(mod, &od->pysig, c_scope, mt_scope, NULL, od, FALSE,
-                fp);
-        needSecCall = FALSE;
     }
-    else if (isIntArgSlot(od->common) || isZeroArgSlot(od->common))
-        needSecCall = FALSE;
-    else
-        needSecCall = generateArgParser(mod, &od->pysig, c_scope, mt_scope,
-                NULL, od, FALSE, fp);
 
+    generateArgParser(mod, &od->pysig, c_scope, mt_scope, NULL, od, FALSE, fp);
     generateFunctionCall(c_scope, mt_scope, o_scope, od, deref, mod, fp);
-
-    if (needSecCall)
-    {
-        prcode(fp,
-"    }\n"
-"\n"
-"    {\n"
-            );
-
-        generateArgParser(mod, &od->pysig, c_scope, mt_scope, NULL, od, TRUE,
-                fp);
-        generateFunctionCall(c_scope, mt_scope, o_scope, od, deref, mod, fp);
-    }
 
     prcode(fp,
 "    }\n"
@@ -12653,14 +12600,14 @@ static void generateNumberSlotCall(moduleDef *mod, overDef *od, char *op,
 /*
  * Generate the argument variables for a member function/constructor/operator.
  */
-static int generateArgParser(moduleDef *mod, signatureDef *sd,
+static void generateArgParser(moduleDef *mod, signatureDef *sd,
         classDef *c_scope, mappedTypeDef *mt_scope, ctorDef *ct, overDef *od,
         int secCall, FILE *fp)
 {
-    int a, isQtSlot, optargs, arraylenarg, handle_self, single_arg;
-    int slotconarg, need_owner;
+    int a, optargs, arraylenarg, handle_self, single_arg;
+    int need_owner;
     ifaceFileDef *scope;
-    argDef *arraylenarg_ad, *slotconarg_ad;
+    argDef *arraylenarg_ad;
 
     if (mt_scope != NULL)
         scope = mt_scope->iff;
@@ -12680,9 +12627,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
 
     handle_self = (od != NULL && od->common->slot == no_slot && !isStatic(od) && c_scope != NULL);
 
-    /* Assume there isn't a Qt slot. */
-    isQtSlot = FALSE;
-
     /*
      * Generate the local variables that will hold the parsed arguments and
      * values returned via arguments.
@@ -12692,22 +12636,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
     for (a = 0; a < sd->nrArgs; ++a)
     {
         argDef *ad = &sd->args[a];
-
-        switch (ad->atype)
-        {
-        case rxcon_type:
-            isQtSlot = TRUE;
-            break;
-
-        case slotcon_type:
-            slotconarg_ad = ad;
-            slotconarg = a;
-            break;
-
-        /* Supress a compiler warning. */
-        default:
-            ;
-        }
 
         if (isArraySize(ad))
         {
@@ -12849,8 +12777,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
 
     if (handle_self)
         prcode(fp,"%c",(isReallyProtected(od) ? 'p' : 'B'));
-    else if (isQtSlot && od == NULL)
-        prcode(fp,"C");
 
     for (a = 0; a < sd->nrArgs; ++a)
     {
@@ -13025,14 +12951,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
             fmt = "S";
             break;
 
-        case slotcon_type:
-            fmt = (secCall ? "" : "S");
-            break;
-
-        case rxcon_type:
-            fmt = (secCall ? (isSingleShot(ad) ? "g" : "y") : "q");
-            break;
-
         case mapped_type:
         case class_type:
             if (isArray(ad))
@@ -13104,8 +13022,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
 
     if (handle_self)
         prcode(fp,", &sipSelf, sipType_%C, &sipCpp",classFQCName(c_scope));
-    else if (isQtSlot && od == NULL)
-        prcode(fp,", sipSelf");
 
     for (a = 0; a < sd->nrArgs; ++a)
     {
@@ -13178,23 +13094,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
             prcode(fp, ", &%a", mod, ad, a);
             break;
 
-        case rxcon_type:
-            {
-                prcode(fp,", \"(");
-
-                generateCalledArgs(NULL, scope, slotconarg_ad->u.sa, Declaration, TRUE, fp);
-
-                prcode(fp, ")\", &%a, &%a", mod, ad, a, mod, slotconarg_ad, slotconarg);
-
-                break;
-            }
-
-        case slotcon_type:
-            if (!secCall)
-                prcode(fp, ", &%a", mod, ad, a);
-
-            break;
-
         case pytuple_type:
             prcode(fp, ", &PyTuple_Type, &%a", mod, ad, a);
             break;
@@ -13236,8 +13135,6 @@ static int generateArgParser(moduleDef *mod, signatureDef *sd,
     }
 
     prcode(fp,"))\n");
-
-    return isQtSlot;
 }
 
 
@@ -14347,8 +14244,6 @@ static void generateDocstring(sipSpec *pt, overDef *overs, memberDef *md,
 
     for (od = overs; od != NULL; od = od->next)
     {
-        int need_sec;
-
         if (!overloadHasDocstring(pt, od, md))
             continue;
 
@@ -14368,22 +14263,7 @@ static void generateDocstring(sipSpec *pt, overDef *overs, memberDef *md,
             prcode(fp, ".");
 
         prcode(fp, "%s", md->pyname->text);
-        need_sec = prPythonSignature(pt, fp, &od->pysig, FALSE, TRUE, TRUE,
-                TRUE, FALSE);
-
-        if (need_sec)
-        {
-            prcode(fp, "%s", sep);
-
-            prScopedPythonName(fp, scope_scope, scope_name);
-
-            if (scope_name != NULL)
-                prcode(fp, ".");
-
-            prcode(fp, "%s", md->pyname->text);
-            prPythonSignature(pt, fp, &od->pysig, TRUE, TRUE, TRUE, TRUE,
-                    FALSE);
-        }
+        prPythonSignature(pt, fp, &od->pysig, TRUE, TRUE, TRUE, FALSE);
     }
 
     if (sep != NULL)
@@ -14436,8 +14316,6 @@ static void generateClassDocstring(sipSpec *pt, classDef *cd, FILE *fp)
 
     for (ct = cd->ctors; ct != NULL; ct = ct->next)
     {
-        int need_sec;
-
         if (!overloadHasClassDocstring(pt, ct))
             continue;
 
@@ -14452,19 +14330,8 @@ static void generateClassDocstring(sipSpec *pt, classDef *cd, FILE *fp)
         }
 
         prScopedPythonName(fp, cd->ecd, cd->pyname->text);
-        need_sec = prPythonSignature(pt, fp, &ct->pysig, FALSE, TRUE, TRUE,
-                TRUE, FALSE);
+        prPythonSignature(pt, fp, &ct->pysig, TRUE, TRUE, TRUE, FALSE);
         ++currentLineNr;
-
-        if (need_sec)
-        {
-            fprintf(fp, "%s", sep);
-
-            prScopedPythonName(fp, cd->ecd, cd->pyname->text);
-            prPythonSignature(pt, fp, &ct->pysig, TRUE, TRUE, TRUE, TRUE,
-                    FALSE);
-            ++currentLineNr;
-        }
     }
 
     if (sep != NULL)

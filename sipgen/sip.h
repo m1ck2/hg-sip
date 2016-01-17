@@ -405,11 +405,10 @@
 #define ARG_IN              0x00000200  /* It passes an argument. */
 #define ARG_OUT             0x00000400  /* It returns a result. */
 #define ARG_CONSTRAINED     0x00000800  /* Suppress type conversion. */
-#define ARG_SINGLE_SHOT     0x00001000  /* The slot is only ever fired once. */
-#define ARG_RESULT_SIZE     0x00002000  /* It defines the result size. */
-#define ARG_KEEP_REF        0x00004000  /* Keep a reference. */
-#define ARG_NO_COPY         0x00008000  /* Disable copying of const refs. */
-#define ARG_DISALLOW_NONE   0x00010000  /* Disallow None as a value. */
+#define ARG_RESULT_SIZE     0x00001000  /* It defines the result size. */
+#define ARG_KEEP_REF        0x00002000  /* Keep a reference. */
+#define ARG_NO_COPY         0x00004000  /* Disable copying of const refs. */
+#define ARG_DISALLOW_NONE   0x00008000  /* Disallow None as a value. */
 
 #define isReference(a)      ((a)->argflags & ARG_IS_REF)
 #define setIsReference(a)   ((a)->argflags |= ARG_IS_REF)
@@ -438,7 +437,6 @@
 #define isConstrained(a)    ((a)->argflags & ARG_CONSTRAINED)
 #define setIsConstrained(a) ((a)->argflags |= ARG_CONSTRAINED)
 #define resetIsConstrained(a)   ((a)->argflags &= ~ARG_CONSTRAINED)
-#define isSingleShot(a)     ((a)->argflags & ARG_SINGLE_SHOT)
 #define isResultSize(a)     ((a)->argflags & ARG_RESULT_SIZE)
 #define setResultSize(a)    ((a)->argflags |= ARG_RESULT_SIZE)
 #define keepReference(a)    ((a)->argflags & ARG_KEEP_REF)
@@ -598,8 +596,6 @@ typedef enum {
     enum_type,
     template_type,
     slot_type,
-    rxcon_type,
-    slotcon_type,
     ustring_type,
     string_type,
     short_type,
@@ -1318,8 +1314,8 @@ void prcode(FILE *fp, const char *fmt, ...);
 void prOverloadName(FILE *fp, overDef *od);
 void prOverloadDecl(FILE *fp, ifaceFileDef *scope, overDef *od, int defval);
 void prScopedPythonName(FILE *fp, classDef *scope, const char *pyname);
-int prPythonSignature(sipSpec *pt, FILE *fp, signatureDef *sd, int sec,
-        int names, int defaults, int in_str, int is_signal);
+void prPythonSignature(sipSpec *pt, FILE *fp, signatureDef *sd, int names,
+        int defaults, int in_str, int is_signal);
 void searchTypedefs(sipSpec *pt, scopedNameDef *snd, argDef *ad);
 int isZeroArgSlot(memberDef *md);
 int isIntReturnSlot(memberDef *md);

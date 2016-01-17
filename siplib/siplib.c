@@ -3531,10 +3531,6 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
             break;
         }
 
-    case 'C':
-        *selfp = (sipSimpleWrapper *)va_arg(va,PyObject *);
-        break;
-
     default:
         --fmt;
     }
@@ -3886,40 +3882,6 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
             break;
 #endif
 
-        case 'S':
-            {
-                /* Slot name, return the name. */
-
-                char **p = va_arg(va, char **);
-
-                if (arg != NULL)
-                {
-                    if (SIPBytes_Check(arg))
-                    {
-                        char *s = SIPBytes_AS_STRING(arg);
-
-                        if (*s == '1' || *s == '2' || *s == '9')
-                        {
-                            *p = s;
-                        }
-                        else
-                        {
-                            failure.reason = WrongType;
-                            failure.detail_obj = arg;
-                            Py_INCREF(arg);
-                        }
-                    }
-                    else
-                    {
-                        failure.reason = WrongType;
-                        failure.detail_obj = arg;
-                        Py_INCREF(arg);
-                    }
-                }
-
-                break;
-            }
-
         case 'r':
             {
                 /* Sequence of class or mapped type instances. */
@@ -4132,43 +4094,6 @@ static int parsePass1(PyObject **parseErrp, sipSimpleWrapper **selfp,
                     }
                 }
  
-                break;
-            }
-
-        case 'q':
-            {
-                /* Qt receiver to connect. */
-
-                va_arg(va, char *);
-                va_arg(va, void **);
-                va_arg(va, const char **);
-
-                if (arg != NULL && !isQObject(arg))
-                {
-                    failure.reason = WrongType;
-                    failure.detail_obj = arg;
-                    Py_INCREF(arg);
-                }
-
-                break;
-            }
-
-        case 'g':
-        case 'y':
-            {
-                /* Python slot to connect. */
-
-                va_arg(va, char *);
-                va_arg(va, void **);
-                va_arg(va, const char **);
-
-                if (arg != NULL && (sipQtSupport == NULL || !PyCallable_Check(arg)))
-                {
-                    failure.reason = WrongType;
-                    failure.detail_obj = arg;
-                    Py_INCREF(arg);
-                }
-
                 break;
             }
 
@@ -4868,10 +4793,6 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
             break;
         }
 
-    case 'C':
-        va_arg(va, PyObject *);
-        break;
-
     default:
         --fmt;
     }
@@ -4917,66 +4838,6 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
             --a;
 
             break;
-
-        case 'q':
-            {
-                /* Qt receiver to connect. */
-
-                char *sig = va_arg(va, char *);
-                void **rx = va_arg(va, void **);
-                const char **slot = va_arg(va, const char **);
-
-                if (arg != NULL)
-                {
-                    *rx = sip_api_convert_rx((sipWrapper *)self, sig, arg,
-                            *slot, slot, 0);
-
-                    if (*rx == NULL)
-                        return FALSE;
-                }
-
-                break;
-            }
-
-        case 'g':
-            {
-                /* Python single shot slot to connect. */
-
-                char *sig = va_arg(va, char *);
-                void **rx = va_arg(va, void **);
-                const char **slot = va_arg(va, const char **);
-
-                if (arg != NULL)
-                {
-                    *rx = sip_api_convert_rx((sipWrapper *)self, sig, arg,
-                            NULL, slot, SIP_SINGLE_SHOT);
-
-                    if (*rx == NULL)
-                        return FALSE;
-                }
-
-                break;
-            }
-
-        case 'y':
-            {
-                /* Python slot to connect. */
-
-                char *sig = va_arg(va, char *);
-                void **rx = va_arg(va, void **);
-                const char **slot = va_arg(va, const char **);
-
-                if (arg != NULL)
-                {
-                    *rx = sip_api_convert_rx((sipWrapper *)self, sig, arg,
-                            NULL, slot, 0);
-
-                    if (*rx == NULL)
-                        return FALSE;
-                }
-
-                break;
-            }
 
         case 'r':
             {

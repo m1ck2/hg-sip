@@ -595,7 +595,6 @@ typedef enum {
     void_type,
     enum_type,
     template_type,
-    slot_type,
     ustring_type,
     string_type,
     short_type,

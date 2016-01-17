@@ -7934,10 +7934,6 @@ static void generateTupleBuilder(moduleDef *mod, signatureDef *sd,FILE *fp)
             fmt = "d";
             break;
 
-        case slot_type:
-            fmt = "s";
-            break;
-
         case mapped_type:
         case class_type:
             if (isArray(ad))
@@ -8817,11 +8813,6 @@ static void generateNamedBaseType(ifaceFileDef *scope, argDef *ad,
         case wstring_type:
             prcode(fp, "wchar_t");
             break;
-
-        case slot_type:
-            nr_derefs = 1;
-
-            /* Drop through. */
 
         case byte_type:
         case ascii_string_type:
@@ -12945,10 +12936,6 @@ static void generateArgParser(moduleDef *mod, signatureDef *sd,
 
         case cdouble_type:
             fmt = "Xd";
-            break;
-
-        case slot_type:
-            fmt = "S";
             break;
 
         case mapped_type:

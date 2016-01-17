@@ -285,7 +285,6 @@ file.
 
     *argument* ::= [
             *type* [*name*] [*argument-annotations*] [*default-value*] |
-            :stype:`SIP_SLOT` [*default-value*] |
             :stype:`SIP_SSIZE_T`]
 
     *default-value* ::= **=** *expression*
@@ -433,13 +432,6 @@ This is a ``PyObject *`` that is a Python tuple object.
 .. sip-type:: SIP_PYTYPE
 
 This is a ``PyObject *`` that is a Python type object.
-
-
-.. sip-type:: SIP_SLOT
-
-This is a ``const char *`` that is used as the type of the member instead of
-``const char *`` in functions that implement the connection or disconnection
-of an explicitly generated signal to a slot.
 
 
 .. sip-type:: SIP_SSIZE_T

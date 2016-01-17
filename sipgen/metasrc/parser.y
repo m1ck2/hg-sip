@@ -172,7 +172,6 @@ static moduleDef *configureModule(sipSpec *pt, moduleDef *module,
 static void addAutoPyName(moduleDef *mod, const char *remove_leading);
 static KwArgs convertKwArgs(const char *kwargs);
 static void checkAnnos(optFlags *annos, const char *valid[]);
-static void checkNoAnnos(optFlags *annos, const char *msg);
 static void appendCodeBlock(codeBlockList **headp, codeBlock *cb);
 static void handleKeepReference(optFlags *optflgs, argDef *ad, moduleDef *mod);
 static void mappedTypeAnnos(mappedTypeDef *mtd, optFlags *optflgs);
@@ -3668,18 +3667,7 @@ rawarglist: {
         }
     ;
 
-argvalue:   TK_SIPSLOT optname optflags optassign {
-            checkNoAnnos(&$3, "SIP_SLOT has no annotations");
-
-            $$.atype = slot_type;
-            $$.argflags = ARG_IS_CONST;
-            $$.nrderefs = 0;
-            $$.name = cacheName(currentSpec, $2);
-            $$.defval = $4;
-
-            currentSpec -> sigslots = TRUE;
-        }
-    |   argtype optassign {
+argvalue:   argtype optassign {
             $$ = $1;
             $$.defval = $2;
         }
@@ -8644,16 +8632,6 @@ static void checkAnnos(optFlags *annos, const char *valid[])
                 deprecated("Annotation is invalid");
         }
     }
-}
-
-
-/*
- * Check that no annotations were given.
- */
-static void checkNoAnnos(optFlags *annos, const char *msg)
-{
-    if (annos->nrFlags != 0)
-        deprecated(msg);
 }
 
 

@@ -876,10 +876,6 @@ static const char *pyType(sipSpec *pt, argDef *ad, classDef **scope)
             type_name = "int";
         break;
 
-    case slot_type:
-        type_name = "SLOT()";
-        break;
-
     case ustring_type:
     case string_type:
     case sstring_type:

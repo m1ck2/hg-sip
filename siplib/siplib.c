@@ -664,9 +664,6 @@ static PyTypeObject sipEnumType_Type = {
 sipQtAPI *sipQtSupport = NULL;
 sipTypeDef *sipQObjectType;
 
-static int got_kw_handler = FALSE;
-static int (*kw_handler)(PyObject *, void *, PyObject *);
-
 
 /*
  * Various strings as Python objects created as and when needed.
@@ -1563,13 +1560,6 @@ static int sip_api_export_module(sipExportedModuleDef *client,
     /* Add it to the list of client modules. */
     client->em_next = moduleList;
     moduleList = client;
-
-    /* Get any keyword handler.  Remove this in SIP v5. */
-    if (!got_kw_handler)
-    {
-        kw_handler = sip_api_import_symbol("pyqt_kw_handler");
-        got_kw_handler = TRUE;
-    }
 
     return 0;
 }
@@ -9094,7 +9084,7 @@ static int sipSimpleWrapper_init(sipSimpleWrapper *self, PyObject *args,
         PyObject *parseErr = NULL, **unused_p = NULL;
 
         /* See if we are interested in any unused keyword arguments. */
-        if (sipTypeCallSuperInit(&ctd->ctd_base) || final_func != NULL || kw_handler != NULL)
+        if (sipTypeCallSuperInit(&ctd->ctd_base) || final_func != NULL)
             unused_p = &unused;
 
         /* Call the C++ ctor. */
@@ -9244,23 +9234,6 @@ static int sipSimpleWrapper_init(sipSimpleWrapper *self, PyObject *args,
             Py_DECREF(unused);
             unused = new_unused;
         }
-    }
-
-    /* Call the handler if we have one.  Remove this in SIP v5. */
-    if (kw_handler != NULL && unused != NULL && isQObject((PyObject *)self))
-    {
-        int rc = kw_handler((PyObject *)self, sipNew, unused);
-
-        /*
-         * A handler will always consume all unused keyword arguments (or raise
-         * an exception) so discard the dict now.
-         */
-        Py_DECREF(unused);
-
-        if (rc < 0)
-            return -1;
-
-        unused = NULL;
     }
 
     /* See if we should call the equivalent of super().__init__(). */

@@ -3614,11 +3614,6 @@ static void createSortedNumberedTypesTable(sipSpec *pt, moduleDef *mod)
         {
         case class_type:
             ad->u.cd->iff->ifacenr = i;
-
-            /* If we find a class called QObject, assume it's Qt. */
-            if (strcmp(ad->name->text, "QObject") == 0)
-                mod->qobjclass = i;
-
             break;
 
         case mapped_type:

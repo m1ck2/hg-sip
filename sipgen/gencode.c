@@ -10925,7 +10925,10 @@ static void generateFunctionBody(overDef *od, classDef *c_scope,
         }
     }
 
-    generateArgParser(mod, &od->pysig, c_scope, mt_scope, NULL, od, FALSE, fp);
+    if (!isIntArgSlot(od->common) && !isZeroArgSlot(od->common))
+        generateArgParser(mod, &od->pysig, c_scope, mt_scope, NULL, od, FALSE,
+                fp);
+
     generateFunctionCall(c_scope, mt_scope, o_scope, od, deref, mod, fp);
 
     prcode(fp,

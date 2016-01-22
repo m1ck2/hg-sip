@@ -525,16 +525,11 @@ static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
 "#define sipIsPyMethod               sipAPI_%s->api_is_py_method\n"
 "#define sipCallHook                 sipAPI_%s->api_call_hook\n"
 "#define sipEndThread                sipAPI_%s->api_end_thread\n"
-"#define sipConnectRx                sipAPI_%s->api_connect_rx\n"
-"#define sipDisconnectRx             sipAPI_%s->api_disconnect_rx\n"
 "#define sipRaiseUnknownException    sipAPI_%s->api_raise_unknown_exception\n"
 "#define sipRaiseTypeException       sipAPI_%s->api_raise_type_exception\n"
 "#define sipBadLengthForSlice        sipAPI_%s->api_bad_length_for_slice\n"
 "#define sipAddTypeInstance          sipAPI_%s->api_add_type_instance\n"
-"#define sipFreeSipslot              sipAPI_%s->api_free_sipslot\n"
-"#define sipSameSlot                 sipAPI_%s->api_same_slot\n"
 "#define sipPySlotExtend             sipAPI_%s->api_pyslot_extend\n"
-"#define sipConvertRx                sipAPI_%s->api_convert_rx\n"
 "#define sipAddDelayedDtor           sipAPI_%s->api_add_delayed_dtor\n"
 "#define sipCanConvertToType         sipAPI_%s->api_can_convert_to_type\n"
 "#define sipConvertToType            sipAPI_%s->api_convert_to_type\n"
@@ -562,11 +557,6 @@ static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
 "#define sipConvertFromConstVoidPtr  sipAPI_%s->api_convert_from_const_void_ptr\n"
 "#define sipConvertFromVoidPtrAndSize    sipAPI_%s->api_convert_from_void_ptr_and_size\n"
 "#define sipConvertFromConstVoidPtrAndSize   sipAPI_%s->api_convert_from_const_void_ptr_and_size\n"
-"#define sipInvokeSlot               sipAPI_%s->api_invoke_slot\n"
-"#define sipInvokeSlotEx             sipAPI_%s->api_invoke_slot_ex\n"
-"#define sipSaveSlot                 sipAPI_%s->api_save_slot\n"
-"#define sipClearAnySlotReference    sipAPI_%s->api_clear_any_slot_reference\n"
-"#define sipVisitSlot                sipAPI_%s->api_visit_slot\n"
 "#define sipWrappedTypeName(wt)      ((wt)->type->td_cname)\n"
 "#define sipDeprecated               sipAPI_%s->api_deprecated\n"
 "#define sipGetReference             sipAPI_%s->api_get_reference\n"
@@ -586,16 +576,6 @@ static void generateInternalAPIHeader(sipSpec *pt, moduleDef *mod,
 "#define sipGetInterpreter           sipAPI_%s->api_get_interpreter\n"
 "#define sipConvertToArray           sipAPI_%s->api_convert_to_array\n"
 "#define sipConvertToTypedArray      sipAPI_%s->api_convert_to_typed_array\n"
-        ,mname
-        ,mname
-        ,mname
-        ,mname
-        ,mname
-        ,mname
-        ,mname
-        ,mname
-        ,mname
-        ,mname
         ,mname
         ,mname
         ,mname

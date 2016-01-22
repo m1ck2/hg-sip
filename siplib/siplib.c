@@ -274,6 +274,199 @@ static sipWrapperType sipWrapper_Type = {
 };
 
 
+/*
+ * The Python type that is the super-type for all C++ wrapper types that do not
+ * support parent/child relationships.  Note that we pretend to be a mapping
+ * object and a sequence object at the same time.  Python will choose one over
+ * another, depending on the context, but we implement as much as we can and
+ * don't make assumptions about which Python will choose.
+ */
+
+static PyObject *sipSimpleWrapper_new(sipWrapperType *wt, PyObject *args,
+        PyObject *kwds);
+static int sipSimpleWrapper_init(sipSimpleWrapper *self, PyObject *args,
+        PyObject *kwds);
+static void sipSimpleWrapper_dealloc(sipSimpleWrapper *self);
+static int sipSimpleWrapper_traverse(sipSimpleWrapper *self, visitproc visit,
+        void *arg);
+static int sipSimpleWrapper_clear(sipSimpleWrapper *self);
+static PyObject *sipSimpleWrapper_get_dict(sipSimpleWrapper *sw,
+        void *closure);
+static int sipSimpleWrapper_set_dict(sipSimpleWrapper *sw, PyObject *value,
+        void *closure);
+
+
+/*
+ * The table of getters and setters.
+ */
+static PyGetSetDef sipSimpleWrapper_getset[] = {
+    {(char *)"__dict__", (getter)sipSimpleWrapper_get_dict,
+            (setter)sipSimpleWrapper_set_dict, NULL, NULL},
+    {NULL, NULL, NULL, NULL, NULL}
+};
+
+
+static sipWrapperType sipSimpleWrapper_Type = {
+#if !defined(STACKLESS)
+    {
+#endif
+        {
+            PyVarObject_HEAD_INIT(&sipWrapperType_Type, 0)
+            "sip.simplewrapper",    /* tp_name */
+            sizeof (sipSimpleWrapper),  /* tp_basicsize */
+            0,              /* tp_itemsize */
+            (destructor)sipSimpleWrapper_dealloc,   /* tp_dealloc */
+            0,              /* tp_print */
+            0,              /* tp_getattr */
+            0,              /* tp_setattr */
+            0,              /* tp_as_async (Python v3.5), tp_compare (Python v2) */
+            0,              /* tp_repr */
+            0,              /* tp_as_number */
+            0,              /* tp_as_sequence */
+            0,              /* tp_as_mapping */
+            0,              /* tp_hash */
+            0,              /* tp_call */
+            0,              /* tp_str */
+            0,              /* tp_getattro */
+            0,              /* tp_setattro */
+            0,              /* tp_as_buffer */
+            Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /* tp_flags */
+            0,              /* tp_doc */
+            (traverseproc)sipSimpleWrapper_traverse,    /* tp_traverse */
+            (inquiry)sipSimpleWrapper_clear,    /* tp_clear */
+            0,              /* tp_richcompare */
+            0,              /* tp_weaklistoffset */
+            0,              /* tp_iter */
+            0,              /* tp_iternext */
+            0,              /* tp_methods */
+            0,              /* tp_members */
+            sipSimpleWrapper_getset,    /* tp_getset */
+            0,              /* tp_base */
+            0,              /* tp_dict */
+            0,              /* tp_descr_get */
+            0,              /* tp_descr_set */
+            offsetof(sipSimpleWrapper, dict),   /* tp_dictoffset */
+            (initproc)sipSimpleWrapper_init,    /* tp_init */
+            0,              /* tp_alloc */
+            (newfunc)sipSimpleWrapper_new,  /* tp_new */
+            0,              /* tp_free */
+            0,              /* tp_is_gc */
+            0,              /* tp_bases */
+            0,              /* tp_mro */
+            0,              /* tp_cache */
+            0,              /* tp_subclasses */
+            0,              /* tp_weaklist */
+            0,              /* tp_del */
+            0,              /* tp_version_tag */
+#if PY_VERSION_HEX >= 0x03040000
+            0,              /* tp_finalize */
+#endif
+        },
+#if PY_VERSION_HEX >= 0x03050000
+        {
+            0,              /* am_await */
+            0,              /* am_aiter */
+            0,              /* am_anext */
+        },
+#endif
+        {
+            0,              /* nb_add */
+            0,              /* nb_subtract */
+            0,              /* nb_multiply */
+#if PY_MAJOR_VERSION < 3
+            0,              /* nb_divide */
+#endif
+            0,              /* nb_remainder */
+            0,              /* nb_divmod */
+            0,              /* nb_power */
+            0,              /* nb_negative */
+            0,              /* nb_positive */
+            0,              /* nb_absolute */
+            0,              /* nb_bool (Python v3), nb_nonzero (Python v2) */
+            0,              /* nb_invert */
+            0,              /* nb_lshift */
+            0,              /* nb_rshift */
+            0,              /* nb_and */
+            0,              /* nb_xor */
+            0,              /* nb_or */
+#if PY_MAJOR_VERSION < 3
+            0,              /* nb_coerce */
+#endif
+            0,              /* nb_int */
+            0,              /* nb_reserved (Python v3), nb_long (Python v2) */
+            0,              /* nb_float */
+#if PY_MAJOR_VERSION < 3
+            0,              /* nb_oct */
+            0,              /* nb_hex */
+#endif
+            0,              /* nb_inplace_add */
+            0,              /* nb_inplace_subtract */
+            0,              /* nb_inplace_multiply */
+#if PY_MAJOR_VERSION < 3
+            0,              /* nb_inplace_divide */
+#endif
+            0,              /* nb_inplace_remainder */
+            0,              /* nb_inplace_power */
+            0,              /* nb_inplace_lshift */
+            0,              /* nb_inplace_rshift */
+            0,              /* nb_inplace_and */
+            0,              /* nb_inplace_xor */
+            0,              /* nb_inplace_or */
+            0,              /* nb_floor_divide */
+            0,              /* nb_true_divide */
+            0,              /* nb_inplace_floor_divide */
+            0,              /* nb_inplace_true_divide */
+            0,              /* nb_index */
+#if PY_VERSION_HEX >= 0x03050000
+            0,              /* nb_matrix_multiply */
+            0,              /* nb_inplace_matrix_multiply */
+#endif
+        },
+        {
+            0,              /* mp_length */
+            0,              /* mp_subscript */
+            0,              /* mp_ass_subscript */
+        },
+        {
+            0,              /* sq_length */
+            0,              /* sq_concat */
+            0,              /* sq_repeat */
+            0,              /* sq_item */
+            0,              /* was_sq_slice */
+            0,              /* sq_ass_item */
+            0,              /* was_sq_ass_slice */
+            0,              /* sq_contains */
+            0,              /* sq_inplace_concat */
+            0,              /* sq_inplace_repeat */
+        },
+        {
+#if PY_MAJOR_VERSION >= 3
+            0,              /* bf_getbuffer */
+            0,              /* bf_releasebuffer */
+#else
+            0,              /* bf_getreadbuffer */
+            0,              /* bf_getwritebuffer */
+            0,              /* bf_getsegcount */
+            0,              /* bf_getcharbuffer */
+            0,              /* bf_getbuffer */
+            0,              /* bf_releasebuffer */
+#endif
+        },
+        0,                  /* ht_name */
+        0,                  /* ht_slots */
+#if PY_MAJOR_VERSION >= 3
+        0,                  /* ht_qualname */
+        0,                  /* ht_cached_keys */
+#endif
+#if !defined(STACKLESS)
+    },
+#endif
+    0,
+    0,
+    0,
+};
+
+
 static void sip_api_bad_catcher_result(PyObject *method);
 static void sip_api_bad_length_for_slice(Py_ssize_t seqlen,
         Py_ssize_t slicelen);
@@ -363,8 +556,6 @@ static const sipTypeDef *sip_api_type_scope(const sipTypeDef *td);
 static const char *sip_api_resolve_typedef(const char *name);
 static int sip_api_register_attribute_getter(const sipTypeDef *td,
         sipAttrGetterFunc getter);
-static void sip_api_clear_any_slot_reference(sipSlot *slot);
-static int sip_api_visit_slot(sipSlot *slot, visitproc visit, void *arg);
 static void sip_api_keep_reference(PyObject *self, int key, PyObject *obj);
 static PyObject *sip_api_get_reference(PyObject *self, int key);
 static void sip_api_add_exception(sipErrorState es, PyObject **parseErrp);
@@ -397,7 +588,6 @@ static const sipAPIDef sip_api = {
     sip_api_bad_length_for_slice,
     sip_api_build_result,
     sip_api_call_method,
-    sip_api_connect_rx,
     sip_api_convert_from_sequence_index,
     sip_api_can_convert_to_type,
     sip_api_convert_to_type,
@@ -408,7 +598,6 @@ static const sipAPIDef sip_api = {
     sip_api_convert_from_new_type,
     sip_api_convert_from_enum,
     sip_api_get_state,
-    sip_api_disconnect_rx,
     sip_api_free,
     sip_api_get_pyobject,
     sip_api_malloc,
@@ -434,17 +623,6 @@ static const sipAPIDef sip_api = {
     sip_api_get_address,
     sip_api_set_destroy_on_exit,
     sip_api_enable_autoconversion,
-    /*
-     * The following may be used by Qt support code but by no other handwritten
-     * code.
-     */
-    sip_api_free_sipslot,
-    sip_api_same_slot,
-    sip_api_convert_rx,
-    sip_api_invoke_slot,
-    sip_api_save_slot,
-    sip_api_clear_any_slot_reference,
-    sip_api_visit_slot,
     /*
      * The following are not part of the public API.
      */
@@ -492,11 +670,6 @@ static const sipAPIDef sip_api = {
     sip_api_convert_to_typed_array,
     sip_api_convert_to_array,
     sip_api_register_proxy_resolver,
-    /*
-     * The following may be used by Qt support code but by no other handwritten
-     * code.
-     */
-    sip_api_invoke_slot_ex,
     /*
      * The following is not part of the public API.
      */
@@ -659,13 +832,6 @@ static PyTypeObject sipEnumType_Type = {
 
 
 /*
- * Remove these in SIP v5.
- */
-sipQtAPI *sipQtSupport = NULL;
-sipTypeDef *sipQObjectType;
-
-
-/*
  * Various strings as Python objects created as and when needed.
  */
 static PyObject *licenseName = NULL;
@@ -717,7 +883,6 @@ static int parseResult(PyObject *method, PyObject *res,
         sipSimpleWrapper *py_self, const char *fmt, va_list va);
 static PyObject *signature_FromDocstring(const char *doc, Py_ssize_t line);
 static PyObject *detail_FromFailure(PyObject *failure_obj);
-static int isQObject(PyObject *obj);
 static int canConvertFromSequence(PyObject *seq, const sipTypeDef *td);
 static int convertFromSequence(PyObject *seq, const sipTypeDef *td,
         void **array, Py_ssize_t *nr_elem);
@@ -1054,8 +1219,6 @@ PyMODINIT_FUNC SIP_MODULE_ENTRY(void)
 
         /* Initialise the object map. */
         sipOMInit(&cppPyMap);
-
-        sipQtSupport = NULL;
 
         /*
          * Get the current interpreter.  This will be shared between all
@@ -1535,16 +1698,6 @@ static int sip_api_export_module(sipExportedModuleDef *client,
 
             return -1;
         }
-
-        /* Only one module can claim to wrap QObject. */
-        if (em->em_qt_api != NULL && client->em_qt_api != NULL)
-        {
-            PyErr_Format(PyExc_RuntimeError,
-                    "the %s and %s modules both wrap the QObject class",
-                    full_name, sipNameOfModule(em));
-
-            return -1;
-        }
     }
 
     /* Convert the module name to an object. */
@@ -1670,13 +1823,6 @@ static int sip_api_init_module(sipExportedModuleDef *client,
             else if (createClassType(client, ctd, mod_dict) < 0)
                 return -1;
         }
-    }
-
-    /* Set any Qt support API. */
-    if (client->em_qt_api != NULL)
-    {
-        sipQtSupport = client->em_qt_api;
-        sipQObjectType = *sipQtSupport->qt_qobject;
     }
 
     /* Append any initialiser extenders to the relevant classes. */
@@ -5076,15 +5222,6 @@ static int parsePass2(sipSimpleWrapper *self, int selfarg, PyObject *sipArgs,
 
 
 /*
- * Return TRUE if an object is a QObject.
- */
-static int isQObject(PyObject *obj)
-{
-    return (sipQtSupport != NULL && PyObject_TypeCheck(obj, sipTypeAsPyTypeObject(sipQObjectType)));
-}
-
-
-/*
  * See if a Python object is a sequence of a particular type.
  */
 static int canConvertFromSequence(PyObject *seq, const sipTypeDef *td)
@@ -8440,19 +8577,6 @@ static const sipTypeDef *sip_api_find_type(const char *type)
 
 
 /*
- * Save the components of a Python method.
- */
-void sipSaveMethod(sipPyMethod *pm, PyObject *meth)
-{
-    pm->mfunc = PyMethod_GET_FUNCTION(meth);
-    pm->mself = PyMethod_GET_SELF(meth);
-#if PY_MAJOR_VERSION < 3
-    pm->mclass = PyMethod_GET_CLASS(meth);
-#endif
-}
-
-
-/*
  * Call a hook.
  */
 static void sip_api_call_hook(const char *hookname)
@@ -8539,9 +8663,9 @@ static int convertPass(const sipTypeDef **tdp, void **cppPtr)
              * by derived classes.  We therefore see if the target type is a
              * sub-class of the root, ie. see if the convertor might be able to
              * convert the target type to something more specific.  Note that
-             * we only consider direct sub-classes so that (for example) a
-             * QLayout is only handled by the QObject convertor and not by the
-             * QLayoutItem convertor.
+             * we only consider direct sub-classes so that (for example) in
+             * PyQt a QLayout is only handled by the QObject convertor and not
+             * by the QLayoutItem convertor.
              */
             base_type = sipTypeAsPyTypeObject(scc->scc_basetype);
 
@@ -9943,183 +10067,6 @@ static int sipSimpleWrapper_set_dict(sipSimpleWrapper *sw, PyObject *value,
 
 
 /*
- * The table of getters and setters.
- */
-static PyGetSetDef sipSimpleWrapper_getset[] = {
-    {(char *)"__dict__", (getter)sipSimpleWrapper_get_dict,
-            (setter)sipSimpleWrapper_set_dict, NULL, NULL},
-    {NULL, NULL, NULL, NULL, NULL}
-};
-
-
-/*
- * The type data structure.  Note that we pretend to be a mapping object and a
- * sequence object at the same time.  Python will choose one over another,
- * depending on the context, but we implement as much as we can and don't make
- * assumptions about which Python will choose.
- */
-sipWrapperType sipSimpleWrapper_Type = {
-#if !defined(STACKLESS)
-    {
-#endif
-        {
-            PyVarObject_HEAD_INIT(&sipWrapperType_Type, 0)
-            "sip.simplewrapper",    /* tp_name */
-            sizeof (sipSimpleWrapper),  /* tp_basicsize */
-            0,              /* tp_itemsize */
-            (destructor)sipSimpleWrapper_dealloc,   /* tp_dealloc */
-            0,              /* tp_print */
-            0,              /* tp_getattr */
-            0,              /* tp_setattr */
-            0,              /* tp_as_async (Python v3.5), tp_compare (Python v2) */
-            0,              /* tp_repr */
-            0,              /* tp_as_number */
-            0,              /* tp_as_sequence */
-            0,              /* tp_as_mapping */
-            0,              /* tp_hash */
-            0,              /* tp_call */
-            0,              /* tp_str */
-            0,              /* tp_getattro */
-            0,              /* tp_setattro */
-            0,              /* tp_as_buffer */
-            Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /* tp_flags */
-            0,              /* tp_doc */
-            (traverseproc)sipSimpleWrapper_traverse,    /* tp_traverse */
-            (inquiry)sipSimpleWrapper_clear,    /* tp_clear */
-            0,              /* tp_richcompare */
-            0,              /* tp_weaklistoffset */
-            0,              /* tp_iter */
-            0,              /* tp_iternext */
-            0,              /* tp_methods */
-            0,              /* tp_members */
-            sipSimpleWrapper_getset,    /* tp_getset */
-            0,              /* tp_base */
-            0,              /* tp_dict */
-            0,              /* tp_descr_get */
-            0,              /* tp_descr_set */
-            offsetof(sipSimpleWrapper, dict),   /* tp_dictoffset */
-            (initproc)sipSimpleWrapper_init,    /* tp_init */
-            0,              /* tp_alloc */
-            (newfunc)sipSimpleWrapper_new,  /* tp_new */
-            0,              /* tp_free */
-            0,              /* tp_is_gc */
-            0,              /* tp_bases */
-            0,              /* tp_mro */
-            0,              /* tp_cache */
-            0,              /* tp_subclasses */
-            0,              /* tp_weaklist */
-            0,              /* tp_del */
-            0,              /* tp_version_tag */
-#if PY_VERSION_HEX >= 0x03040000
-            0,              /* tp_finalize */
-#endif
-        },
-#if PY_VERSION_HEX >= 0x03050000
-        {
-            0,              /* am_await */
-            0,              /* am_aiter */
-            0,              /* am_anext */
-        },
-#endif
-        {
-            0,              /* nb_add */
-            0,              /* nb_subtract */
-            0,              /* nb_multiply */
-#if PY_MAJOR_VERSION < 3
-            0,              /* nb_divide */
-#endif
-            0,              /* nb_remainder */
-            0,              /* nb_divmod */
-            0,              /* nb_power */
-            0,              /* nb_negative */
-            0,              /* nb_positive */
-            0,              /* nb_absolute */
-            0,              /* nb_bool (Python v3), nb_nonzero (Python v2) */
-            0,              /* nb_invert */
-            0,              /* nb_lshift */
-            0,              /* nb_rshift */
-            0,              /* nb_and */
-            0,              /* nb_xor */
-            0,              /* nb_or */
-#if PY_MAJOR_VERSION < 3
-            0,              /* nb_coerce */
-#endif
-            0,              /* nb_int */
-            0,              /* nb_reserved (Python v3), nb_long (Python v2) */
-            0,              /* nb_float */
-#if PY_MAJOR_VERSION < 3
-            0,              /* nb_oct */
-            0,              /* nb_hex */
-#endif
-            0,              /* nb_inplace_add */
-            0,              /* nb_inplace_subtract */
-            0,              /* nb_inplace_multiply */
-#if PY_MAJOR_VERSION < 3
-            0,              /* nb_inplace_divide */
-#endif
-            0,              /* nb_inplace_remainder */
-            0,              /* nb_inplace_power */
-            0,              /* nb_inplace_lshift */
-            0,              /* nb_inplace_rshift */
-            0,              /* nb_inplace_and */
-            0,              /* nb_inplace_xor */
-            0,              /* nb_inplace_or */
-            0,              /* nb_floor_divide */
-            0,              /* nb_true_divide */
-            0,              /* nb_inplace_floor_divide */
-            0,              /* nb_inplace_true_divide */
-            0,              /* nb_index */
-#if PY_VERSION_HEX >= 0x03050000
-            0,              /* nb_matrix_multiply */
-            0,              /* nb_inplace_matrix_multiply */
-#endif
-        },
-        {
-            0,              /* mp_length */
-            0,              /* mp_subscript */
-            0,              /* mp_ass_subscript */
-        },
-        {
-            0,              /* sq_length */
-            0,              /* sq_concat */
-            0,              /* sq_repeat */
-            0,              /* sq_item */
-            0,              /* was_sq_slice */
-            0,              /* sq_ass_item */
-            0,              /* was_sq_ass_slice */
-            0,              /* sq_contains */
-            0,              /* sq_inplace_concat */
-            0,              /* sq_inplace_repeat */
-        },
-        {
-#if PY_MAJOR_VERSION >= 3
-            0,              /* bf_getbuffer */
-            0,              /* bf_releasebuffer */
-#else
-            0,              /* bf_getreadbuffer */
-            0,              /* bf_getwritebuffer */
-            0,              /* bf_getsegcount */
-            0,              /* bf_getcharbuffer */
-            0,              /* bf_getbuffer */
-            0,              /* bf_releasebuffer */
-#endif
-        },
-        0,                  /* ht_name */
-        0,                  /* ht_slots */
-#if PY_MAJOR_VERSION >= 3
-        0,                  /* ht_qualname */
-        0,                  /* ht_cached_keys */
-#endif
-#if !defined(STACKLESS)
-    },
-#endif
-    0,
-    0,
-    0,
-};
-
-
-/*
  * The wrapper clear slot.
  */
 static int sipWrapper_clear(sipWrapper *self)
@@ -10128,28 +10075,6 @@ static int sipWrapper_clear(sipWrapper *self)
     sipSimpleWrapper *sw = (sipSimpleWrapper *)self;
 
     vret = sipSimpleWrapper_clear(sw);
-
-    /* Remove any slots connected via a proxy. */
-    if (sipQtSupport != NULL && sipPossibleProxy(sw) && !sipNotInMap(sw))
-    {
-        void *tx = sip_api_get_address(sw);
-
-        if (tx != NULL)
-        {
-            sipSlot *slot;
-            void *context = NULL;
-
-            assert (sipQtSupport->qt_find_sipslot);
-
-            while ((slot = sipQtSupport->qt_find_sipslot(tx, &context)) != NULL)
-            {
-                sip_api_clear_any_slot_reference(slot);
-
-                if (context == NULL)
-                    break;
-            }
-        }
-    }
 
     /* Detach children (which will be owned by C/C++). */
     while ((sw = (sipSimpleWrapper *)self->first_child) != NULL)
@@ -10188,32 +10113,6 @@ static int sipWrapper_traverse(sipWrapper *self, visitproc visit, void *arg)
 
     if ((vret = sipSimpleWrapper_traverse(sw, visit, arg)) != 0)
         return vret;
-
-    /*
-     * This should be handwritten code in PyQt.  The map check is a bit of a
-     * hack to work around PyQt4 problems with qApp and a user created
-     * instance.  qt_find_sipslot() will return the same slot information for
-     * both causing the gc module to trigger assert() failures.
-     */
-    if (sipQtSupport != NULL && sipQtSupport->qt_find_sipslot && !sipNotInMap(sw))
-    {
-        void *tx = sip_api_get_address(sw);
-
-        if (tx != NULL)
-        {
-            sipSlot *slot;
-            void *context = NULL;
-
-            while ((slot = sipQtSupport->qt_find_sipslot(tx, &context)) != NULL)
-            {
-                if ((vret = sip_api_visit_slot(slot, visit, arg)) != 0)
-                    return vret;
-
-                if (context == NULL)
-                    break;
-            }
-        }
-    }
 
     for (w = self->first_child; w != NULL; w = w->sibling_next)
     {
@@ -10679,42 +10578,6 @@ static void *sip_api_import_symbol(const char *name)
             return ss->symbol;
 
     return NULL;
-}
-
-
-/*
- * Visit a slot connected to an object for the cyclic garbage collector.  This
- * is only called externally by PyQt3.
- */
-static int sip_api_visit_slot(sipSlot *slot, visitproc visit, void *arg)
-{
-    /* See if the slot has an extra reference. */
-    if (slot->weakSlot == Py_True && slot->pyobj != Py_None)
-        return visit(slot->pyobj, arg);
-
-    return 0;
-}
-
-
-/*
- * Clear a slot if it has an extra reference to keep it alive.  This is only
- * called externally by PyQt3.
- */
-static void sip_api_clear_any_slot_reference(sipSlot *slot)
-{
-    if (slot->weakSlot == Py_True)
-    {
-        PyObject *xref = slot->pyobj;
-
-        /*
-         * Replace the slot with None.  We don't use NULL as this has another
-         * meaning.
-         */
-        Py_INCREF(Py_None);
-        slot->pyobj = Py_None;
-
-        Py_DECREF(xref);
-    }
 }
 
 

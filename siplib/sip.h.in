@@ -69,17 +69,21 @@ extern "C" {
  * History:
  *
  * 20.0 The API implemented by SIP v5.0.
- *      Removed sip_api_long_as_unsigned_long().
+ *      Removed sip_api_connect_rx().
+ *      Removed sip_api_disconnect_rx().
  *      Removed sip_api_find_class().
  *      Removed sip_api_find_named_enum().
  *      Removed sip_api_find_mapped_type().
+ *      Removed sip_api_free_sipslot().
+ *      Removed sip_api_invoke_slot_ex().
+ *      Removed sip_api_long_as_unsigned_long().
  *      Removed sip_api_map_int_to_class().
  *      Removed sip_api_map_string_to_class().
+ *      Removed sip_api_same_slot().
  *      Removed sip_api_transfer_break().
  *
  * 11.3 Added sip_api_get_interpreter() to the public API.
  *
- * 11.1 Added sip_api_invoke_slot_ex().
  * 11.2 Added sip_api_get_reference() to the private API.
  *
  * 11.1 Added sip_api_invoke_slot_ex().
@@ -1304,8 +1308,6 @@ typedef struct _sipAPIDef {
     PyObject *(*api_build_result)(int *isErr, const char *fmt, ...);
     PyObject *(*api_call_method)(int *isErr, PyObject *method, const char *fmt,
             ...);
-    PyObject *(*api_connect_rx)(PyObject *txObj, const char *sig,
-            PyObject *rxObj, const char *slot, int type);
     Py_ssize_t (*api_convert_from_sequence_index)(Py_ssize_t idx,
             Py_ssize_t len);
     int (*api_can_convert_to_type)(PyObject *pyObj, const sipTypeDef *td,
@@ -1322,8 +1324,6 @@ typedef struct _sipAPIDef {
             PyObject *transferObj);
     PyObject *(*api_convert_from_enum)(int eval, const sipTypeDef *td);
     int (*api_get_state)(PyObject *transferObj);
-    PyObject *(*api_disconnect_rx)(PyObject *txObj, const char *sig,
-            PyObject *rxObj, const char *slot);
     void (*api_free)(void *mem);
     PyObject *(*api_get_pyobject)(void *cppPtr, const sipTypeDef *td);
     void *(*api_malloc)(size_t nbytes);
@@ -1353,20 +1353,6 @@ typedef struct _sipAPIDef {
     void *(*api_get_address)(struct _sipSimpleWrapper *w);
     void (*api_set_destroy_on_exit)(int);
     int (*api_enable_autoconversion)(const sipTypeDef *td, int enable);
-
-    /*
-     * The following may be used by Qt support code but no other handwritten
-     * code.
-     */
-    void (*api_free_sipslot)(sipSlot *slot);
-    int (*api_same_slot)(const sipSlot *sp, PyObject *rxObj, const char *slot);
-    void *(*api_convert_rx)(sipWrapper *txSelf, const char *sigargs,
-            PyObject *rxObj, const char *slot, const char **memberp,
-            int flags);
-    PyObject *(*api_invoke_slot)(const sipSlot *slot, PyObject *sigargs);
-    int (*api_save_slot)(sipSlot *sp, PyObject *rxObj, const char *slot);
-    void (*api_clear_any_slot_reference)(sipSlot *slot);
-    int (*api_visit_slot)(sipSlot *slot, visitproc visit, void *arg);
 
     /*
      * The following are not part of the public API.
@@ -1441,13 +1427,6 @@ typedef struct _sipAPIDef {
             sipProxyResolverFunc resolver);
 
     /*
-     * The following may be used by Qt support code but no other handwritten
-     * code.
-     */
-    PyObject *(*api_invoke_slot_ex)(const sipSlot *slot, PyObject *sigargs,
-            int check_receiver);
-
-    /*
      * The following is not part of the public API.
      */
     PyObject *(*api_get_reference)(PyObject *self, int key);
@@ -1457,30 +1436,6 @@ typedef struct _sipAPIDef {
      */
     PyInterpreterState *(*api_get_interpreter)();
 } sipAPIDef;
-
-
-/*
- * The API implementing the optional Qt support.
- */
-typedef struct _sipQtAPI {
-    sipTypeDef **qt_qobject;
-    void *(*qt_create_universal_signal)(void *, const char **);
-    void *(*qt_find_universal_signal)(void *, const char **);
-    void *(*qt_create_universal_slot)(struct _sipWrapper *, const char *,
-            PyObject *, const char *, const char **, int);
-    void (*qt_destroy_universal_slot)(void *);
-    void *(*qt_find_slot)(void *, const char *, PyObject *, const char *,
-            const char **);
-    int (*qt_connect)(void *, const char *, void *, const char *, int);
-    int (*qt_disconnect)(void *, const char *, void *, const char *);
-    int (*qt_same_name)(const char *, const char *);
-    sipSlot *(*qt_find_sipslot)(void *, void **);
-    int (*qt_emit_signal)(PyObject *, const char *, PyObject *);
-    int (*qt_connect_py_signal)(PyObject *, const char *, PyObject *,
-            const char *);
-    void (*qt_disconnect_py_signal)(PyObject *, const char *, PyObject *,
-            const char *);
-} sipQtAPI;
 
 
 /*
@@ -1507,12 +1462,6 @@ typedef struct _sipQtAPI {
 
 
 /*
- * These flags are specific to the Qt support API.
- */
-#define SIP_SINGLE_SHOT     0x01    /* The connection is single shot. */
-
-
-/*
  * Useful macros, not part of the public API.
  */
 #define SIP_PY_OWNED        0x0004  /* If owned by Python. */
@@ -1521,9 +1470,8 @@ typedef struct _sipQtAPI {
 #define SIP_NOT_IN_MAP      0x0020  /* If Python object is not in the map. */
 #define SIP_SHARE_MAP       0x0040  /* If the map slot might be occupied. */
 #define SIP_CPP_HAS_REF     0x0080  /* If C/C++ has a reference. */
-#define SIP_POSSIBLE_PROXY  0x0100  /* If there might be a proxy slot. */
-#define SIP_ALIAS           0x0200  /* If it is an alias. */
-#define SIP_CREATED         0x0400  /* If the C/C++ object has been created. */
+#define SIP_ALIAS           0x0100  /* If it is an alias. */
+#define SIP_CREATED         0x0200  /* If the C/C++ object has been created. */
 
 #define sipIsPyOwned(w)     ((w)->flags & SIP_PY_OWNED)
 #define sipSetPyOwned(w)    ((w)->flags |= SIP_PY_OWNED)
@@ -1536,8 +1484,6 @@ typedef struct _sipQtAPI {
 #define sipCppHasRef(w)     ((w)->flags & SIP_CPP_HAS_REF)
 #define sipSetCppHasRef(w)  ((w)->flags |= SIP_CPP_HAS_REF)
 #define sipResetCppHasRef(w)    ((w)->flags &= ~SIP_CPP_HAS_REF)
-#define sipPossibleProxy(w) ((w)->flags & SIP_POSSIBLE_PROXY)
-#define sipSetPossibleProxy(w)  ((w)->flags |= SIP_POSSIBLE_PROXY)
 #define sipIsAlias(w)       ((w)->flags & SIP_ALIAS)
 #define sipWasCreated(w)    ((w)->flags & SIP_CREATED)
 

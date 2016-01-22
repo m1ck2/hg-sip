@@ -515,7 +515,6 @@ static void sip_api_no_method(PyObject *parseErr, const char *scope,
         const char *method, const char *doc);
 static void sip_api_abstract_method(const char *classname, const char *method);
 static void sip_api_bad_class(const char *classname);
-static void *sip_api_get_complex_cpp_ptr(sipSimpleWrapper *sw);
 static PyObject *sip_api_is_py_method(sip_gilstate_t *gil, char *pymc,
         sipSimpleWrapper *sipSelf, const char *cname, const char *mname);
 static void sip_api_call_hook(const char *hookname);
@@ -635,7 +634,6 @@ static const sipAPIDef sip_api = {
     sip_api_abstract_method,
     sip_api_bad_class,
     sip_api_get_cpp_ptr,
-    sip_api_get_complex_cpp_ptr,
     sip_api_is_py_method,
     sip_api_call_hook,
     sip_api_end_thread,
@@ -8006,17 +8004,6 @@ static void *indirect_access_func(sipSimpleWrapper *sw, AccessFuncOp op)
     }
 
     return addr;
-}
-
-
-/*
- * Get the C/C++ pointer for a complex object.  Note that not casting the C++
- * pointer is a bug.  However this is only ever called by PyQt3 signal emitter
- * code and PyQt doesn't contain anything that multiply inherits from QObject.
- */
-static void *sip_api_get_complex_cpp_ptr(sipSimpleWrapper *sw)
-{
-    return getComplexCppPtr(sw, NULL);
 }
 
 

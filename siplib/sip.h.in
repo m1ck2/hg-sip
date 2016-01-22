@@ -75,6 +75,7 @@ extern "C" {
  *      Removed sip_api_find_named_enum().
  *      Removed sip_api_find_mapped_type().
  *      Removed sip_api_free_sipslot().
+ *      Removed sip_api_get_complex_cpp_ptr().
  *      Removed sip_api_invoke_slot_ex().
  *      Removed sip_api_long_as_unsigned_long().
  *      Removed sip_api_map_int_to_class().
@@ -1370,7 +1371,6 @@ typedef struct _sipAPIDef {
     void (*api_abstract_method)(const char *classname, const char *method);
     void (*api_bad_class)(const char *classname);
     void *(*api_get_cpp_ptr)(sipSimpleWrapper *w, const sipTypeDef *td);
-    void *(*api_get_complex_cpp_ptr)(sipSimpleWrapper *w);
     PyObject *(*api_is_py_method)(sip_gilstate_t *gil, char *pymc,
             sipSimpleWrapper *sipSelf, const char *cname, const char *mname);
     void (*api_call_hook)(const char *hookname);
@@ -1540,41 +1540,6 @@ typedef struct _sipAPIDef {
 #define sipNameOfModule(em)     sipNameFromPool((em), (em)->em_name)
 #define sipPyNameOfContainer(cod, td)   sipNameFromPool((td)->td_module, (cod)->cod_name)
 #define sipPyNameOfEnum(etd)    sipNameFromPool((etd)->etd_base.td_module, (etd)->etd_name)
-
-
-/*
- * The following are PyQt3-specific extensions.  In SIP v5 they will be pushed
- * out to a plugin supplied by PyQt3.
- */
-
-
-/*
- * Maps the name of a Qt signal to a wrapper function to emit it.
- */
-typedef int (*pyqt3EmitFunc)(sipSimpleWrapper *, PyObject *);
-
-typedef struct _pyqt3QtSignal {
-    /* The signal name. */
-    const char *st_name;
-
-    /* The emitter function. */
-    pyqt3EmitFunc st_emitfunc;
-} pyqt3QtSignal;
-
-
-/*
- * This is the PyQt3-specific extension to the generated class type structure.
- */
-typedef struct _pyqt3ClassTypeDef {
-    /*
-     * The super-type structure.  This must be first in the structure so that
-     * it can be cast to sipClassTypeDef *.
-     */
-    sipClassTypeDef super;
-
-    /* The emit table for Qt signals. */
-    pyqt3QtSignal *qt3_emit;
-} pyqt3ClassTypeDef;
 
 
 /*

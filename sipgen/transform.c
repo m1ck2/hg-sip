@@ -1698,7 +1698,7 @@ static void getVisibleMembers(sipSpec *pt, classDef *cd)
                         if (!generatingCodeForModule(pt, cd->iff->module))
                             continue;
 
-                        if (isProtected(od) || (isSignal(od) && pluginPyQt3(pt)))
+                        if (isProtected(od))
                             setIsUsedName(md->pyname);
 
                         /* Make we have any API name. */

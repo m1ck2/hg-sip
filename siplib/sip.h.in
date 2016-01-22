@@ -21,23 +21,7 @@
 #define _SIP_H
 
 
-/*
- * This gets round a problem with Qt's moc and Python v2.3.  Strictly speaking
- * it's a Qt problem but later versions of Python include a fix for it so we
- * might as well too.
- */
-#undef slots
-
-
 #include <Python.h>
-
-/*
- * There is a mis-feature somewhere with the Borland compiler.  This works
- * around it.
- */
-#if defined(__BORLANDC__)
-#include <rpc.h>
-#endif
 
 
 #ifdef __cplusplus
@@ -931,13 +915,6 @@ typedef struct _sipExternalTypeDef {
 
 
 /*
- * The information describing a mapped class.  This (and anything that uses it)
- * is deprecated.
- */
-typedef sipTypeDef sipMappedType;
-
-
-/*
  * Defines an entry in the module specific list of delayed dtor calls.
  */
 typedef struct _sipDelayedDtor {
@@ -1017,9 +994,6 @@ typedef struct _sipExportedModuleDef {
 
     /* The imported modules. */
     sipImportedModuleDef *em_imports;
-
-    /* The optional Qt support API. */
-    struct _sipQtAPI *em_qt_api;
 
     /* The number of types. */
     int em_nrtypes;
@@ -1246,42 +1220,6 @@ typedef struct _sipTypeInstanceDef {
     /* The wrapping flags. */
     int ti_flags;
 } sipTypeInstanceDef;
-
-
-/*
- * A Python method's component parts.  This allows us to re-create the method
- * without changing the reference counts of the components.
- */
-typedef struct _sipPyMethod {
-    /* The function. */
-    PyObject *mfunc;
-
-    /* Self if it is a bound method. */
-    PyObject *mself;
-
-#if PY_MAJOR_VERSION < 3
-    /* The class. */
-    PyObject *mclass;
-#endif
-} sipPyMethod;
-
-
-/*
- * A slot (in the Qt, rather than Python, sense).
- */
-typedef struct _sipSlot {
-    /* Name if a Qt or Python signal. */
-    char *name;
-
-    /* Signal or Qt slot object. */
-    PyObject *pyobj;
-
-    /* Python slot method, pyobj is NULL. */
-    sipPyMethod meth;
-
-    /* A weak reference to the slot, Py_True if pyobj has an extra reference. */
-    PyObject *weakSlot;
-} sipSlot;
 
 
 /*

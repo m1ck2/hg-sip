@@ -927,21 +927,6 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
 
     generateCppCodeBlock(mod->unitpostinccode, fp);
 
-    /*
-     * If there should be a Qt support API then generate stubs values for the
-     * optional parts.  These should be undefined in %ModuleCode if a C++
-     * implementation is provided.
-     */
-    if (mod->qobjclass >= 0)
-        prcode(fp,
-"\n"
-"#define sipQtCreateUniversalSignal          0\n"
-"#define sipQtFindUniversalSignal            0\n"
-"#define sipQtEmitSignal                     0\n"
-"#define sipQtConnectPySignal                0\n"
-"#define sipQtDisconnectPySignal             0\n"
-            );
-
     /* Define the names. */
     if (mod->container == NULL)
         generateNameCache(pt, fp);
@@ -1540,30 +1525,6 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
 "};\n"
             );
 
-    /* Generate any Qt support API. */
-    if (mod->qobjclass >= 0)
-        prcode(fp,
-"\n"
-"\n"
-"/* This defines the Qt support API. */\n"
-"\n"
-"static sipQtAPI qtAPI = {\n"
-"    &typesTable[%d],\n"
-"    sipQtCreateUniversalSignal,\n"
-"    sipQtFindUniversalSignal,\n"
-"    sipQtCreateUniversalSlot,\n"
-"    sipQtDestroyUniversalSlot,\n"
-"    sipQtFindSlot,\n"
-"    sipQtConnect,\n"
-"    sipQtDisconnect,\n"
-"    sipQtSameSignalSlotName,\n"
-"    sipQtFindSipslot,\n"
-"    sipQtEmitSignal,\n"
-"    sipQtConnectPySignal,\n"
-"    sipQtDisconnectPySignal\n"
-"};\n"
-            , mod->qobjclass);
-
     prcode(fp,
 "\n"
 "\n"
@@ -1575,7 +1536,6 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
 "    0,\n"
 "    %d,\n"
 "    sipStrings_%s,\n"
-"    %s,\n"
 "    %s,\n"
 "    %d,\n"
 "    %s,\n"
@@ -1602,7 +1562,6 @@ static void generateCpp(sipSpec *pt, moduleDef *mod, const char *codeDir,
         , mod->version
         , pt->module->name
         , mod->allimports != NULL ? "importsTable" : "NULL"
-        , mod->qobjclass >= 0 ? "&qtAPI" : "NULL"
         , mod->nrtypes
         , mod->nrtypes > 0 ? "typesTable" : "NULL"
         , hasexternal ? "externalTypesTable" : "NULL"

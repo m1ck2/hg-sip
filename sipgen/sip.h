@@ -845,7 +845,6 @@ typedef struct _moduleDef {
     apiVersionRangeDef *api_ranges;     /* The list of API version ranges. */
     int modflags;                       /* The module flags. */
     KwArgs kwargs;                      /* The styleof keyword argument support. */
-    int qobjclass;                      /* QObject class, -1 if none. */
     struct _memberDef *othfuncs;        /* List of other functions. */
     struct _overDef *overs;             /* Global overloads. */
     Format defdocstring;                /* The default docstring format. */

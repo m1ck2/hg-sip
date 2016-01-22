@@ -21,6 +21,13 @@
 #define _SIP_H
 
 
+/*
+ * This gets round a problem with Qt's moc and Python.  Although, strictly
+ * speaking, we don't know anything about Qt it's easier to workaround it here.
+ */
+#undef slots
+
+
 #include <Python.h>
 
 

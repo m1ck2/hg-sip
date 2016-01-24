@@ -63,6 +63,7 @@ setup(
         packages=packages,
         entry_points=entry_points,
         ext_modules=ext_modules,
+        package_data={'sip': 'sip.pyi'},
         data_files=[
                 (distutils.sysconfig.get_python_inc(prefix=sys.prefix),
                         [os.path.join('siplib', 'sip.h')])],

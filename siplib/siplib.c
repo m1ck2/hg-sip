@@ -892,7 +892,8 @@ static PyObject *createEnumMember(sipTypeDef *td, sipEnumMemberDef *enm);
 static int compareTypedefName(const void *key, const void *el);
 static int checkPointer(void *ptr, sipSimpleWrapper *sw);
 static void finalise(void);
-static PyObject *getDefaultBases(void);
+static PyObject *getDefaultBase(void);
+static PyObject *getDefaultSimpleBase(void);
 static PyObject *getScopeDict(sipTypeDef *td, PyObject *mod_dict,
         sipExportedModuleDef *client);
 static PyObject *createContainerType(sipContainerDef *cod, sipTypeDef *td,
@@ -5506,25 +5507,48 @@ static Py_ssize_t sip_api_convert_from_sequence_index(Py_ssize_t idx,
 
 
 /*
- * Return a tuple of the base classes of a type that has no explicit
- * super-type.
+ * Return a tuple of the base class of a type that has no explicit super-type.
  */
-static PyObject *getDefaultBases(void)
+static PyObject *getDefaultBase(void)
 {
-    static PyObject *default_bases = NULL;
+    static PyObject *default_base = NULL;
 
     /* Only do this once. */
-    if (default_bases == NULL)
+    if (default_base == NULL)
     {
-        default_bases = PyTuple_Pack(1, (PyObject *)&sipWrapper_Type);
+        default_base = PyTuple_Pack(1, (PyObject *)&sipWrapper_Type);
 
-        if (default_bases == NULL)
+        if (default_base == NULL)
             return NULL;
     }
 
-    Py_INCREF(default_bases);
+    Py_INCREF(default_base);
 
-    return default_bases;
+    return default_base;
+}
+
+
+/*
+ * Return a tuple of the base class of a simple type that has no explicit
+ * super-type.
+ */
+static PyObject *getDefaultSimpleBase(void)
+{
+    static PyObject *default_simple_base = NULL;
+
+    /* Only do this once. */
+    if (default_simple_base == NULL)
+    {
+        default_simple_base = PyTuple_Pack(1,
+                (PyObject *)&sipSimpleWrapper_Type);
+
+        if (default_simple_base == NULL)
+            return NULL;
+    }
+
+    Py_INCREF(default_simple_base);
+
+    return default_simple_base;
 }
 
 
@@ -5643,7 +5667,7 @@ static int createClassType(sipExportedModuleDef *client, sipClassTypeDef *ctd,
     {
         if (ctd->ctd_supertype < 0)
         {
-            bases = getDefaultBases();
+            bases = (sipTypeIsNamespace(&ctd->ctd_base) ? getDefaultSimpleBase() : getDefaultBase());
         }
         else
         {
@@ -5777,7 +5801,7 @@ static int createMappedType(sipExportedModuleDef *client,
     mtd->mtd_base.td_module = client;
 
     /* Create the tuple of super-types. */
-    if ((bases = getDefaultBases()) == NULL)
+    if ((bases = getDefaultSimpleBase()) == NULL)
         goto reterr;
 
     /* Create the type dictionary. */
